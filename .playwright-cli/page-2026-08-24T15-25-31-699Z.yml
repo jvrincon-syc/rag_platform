@@ -1,0 +1,171 @@
+- generic [ref=e3]:
+  - complementary [ref=e34]:
+    - generic [ref=e35]: RAG Platform
+    - navigation "Superficies de operador" [ref=e41]:
+      - button "Platform" [ref=e42] [cursor=pointer]
+      - button "Legacy pipeline" [ref=e49] [cursor=pointer]
+    - generic [ref=e55]:
+      - generic [ref=e56]:
+        - generic [ref=e57]: Sesión
+        - strong [ref=e58]: prueba3
+        - generic [ref=e59]: Todos los proyectos
+      - button "Cerrar sesión" [ref=e60] [cursor=pointer]
+  - generic [ref=e65]:
+    - navigation "Vista de plataforma" [ref=e66]:
+      - button "Projects" [ref=e67] [cursor=pointer]
+      - button "Documents" [ref=e68] [cursor=pointer]
+      - button "Variants" [ref=e69] [cursor=pointer]
+      - button "Corpus" [ref=e70] [cursor=pointer]
+      - button "Releases" [ref=e71] [cursor=pointer]
+    - main [ref=e72]:
+      - generic [ref=e73]:
+        - generic [ref=e74]:
+          - heading "RAG Platform" [level=1] [ref=e75]
+          - paragraph [ref=e76]: Administración de proyectos y su configuración versionada.
+        - button "Actualizar" [ref=e78] [cursor=pointer]
+      - generic [ref=e84]:
+        - region "Proyectos" [ref=e85]:
+          - generic [ref=e86]:
+            - generic [ref=e87]:
+              - heading "Proyectos" [level=2] [ref=e88]
+              - generic [ref=e89]: Selecciona un proyecto para ver y versionar su configuración.
+            - button "Actualizar" [ref=e90] [cursor=pointer]
+          - generic [ref=e96]:
+            - button "Nuevo proyecto" [ref=e98] [cursor=pointer]
+            - list "Lista de proyectos" [ref=e100]:
+              - listitem [ref=e101]:
+                - 'button "SST General proj_sst-general Estado: active · config v1" [active] [ref=e102] [cursor=pointer]':
+                  - strong [ref=e103]: SST General
+                  - generic [ref=e104]: proj_sst-general
+                  - generic [ref=e105]: "Estado: active · config v1"
+        - region "Configuración del proyecto" [ref=e116]:
+          - generic [ref=e117]:
+            - generic [ref=e118]:
+              - heading "SST General" [level=2] [ref=e119]
+              - generic [ref=e120]: proj_sst-general
+            - generic "Versión de configuración 1" [ref=e121]: Config v1
+          - generic [ref=e122]:
+            - generic [ref=e124]:
+              - generic [ref=e125]: Nombre visible
+              - generic [ref=e126]:
+                - textbox "Nombre visible" [ref=e127]: SST General
+                - button "Guardar nombre" [disabled] [ref=e128]
+              - generic [ref=e131]: El slug es inmutable; solo cambia el nombre visible.
+            - generic [ref=e132]:
+              - generic [ref=e133]:
+                - generic [ref=e134]: Política de organización del corpus
+                - combobox "Política de organización del corpus" [ref=e135]:
+                  - option "Carpetas de origen (v1)" [selected]
+                  - option "Tipos de documento (v1)"
+                  - option "Híbrida (v1)"
+                  - option "SST legacy (v1)"
+              - group "Tipos de documento" [ref=e136]:
+                - generic [ref=e138]:
+                  - generic [ref=e139]:
+                    - generic [ref=e140]:
+                      - generic [ref=e141]: Código
+                      - textbox "Código" [ref=e142]: acta
+                    - generic [ref=e143]:
+                      - generic [ref=e144]: Nombre visible
+                      - textbox "Nombre visible" [ref=e145]: Acta
+                    - generic [ref=e146]:
+                      - generic [ref=e147]: Plantilla
+                      - combobox "Plantilla" [ref=e148]:
+                        - option "Genérica" [selected]
+                        - option "SST"
+                    - button "Quitar tipo de documento acta" [ref=e149] [cursor=pointer]
+                  - generic [ref=e153]:
+                    - generic [ref=e154]:
+                      - generic [ref=e155]: Código
+                      - textbox "Código" [ref=e156]: document
+                    - generic [ref=e157]:
+                      - generic [ref=e158]: Nombre visible
+                      - textbox "Nombre visible" [ref=e159]: Documento
+                    - generic [ref=e160]:
+                      - generic [ref=e161]: Plantilla
+                      - combobox "Plantilla" [ref=e162]:
+                        - option "Genérica" [selected]
+                        - option "SST"
+                    - button "Quitar tipo de documento document" [ref=e163] [cursor=pointer]
+                  - generic [ref=e167]:
+                    - generic [ref=e168]:
+                      - generic [ref=e169]: Código
+                      - textbox "Código" [ref=e170]: form
+                    - generic [ref=e171]:
+                      - generic [ref=e172]: Nombre visible
+                      - textbox "Nombre visible" [ref=e173]: Formulario
+                    - generic [ref=e174]:
+                      - generic [ref=e175]: Plantilla
+                      - combobox "Plantilla" [ref=e176]:
+                        - option "Genérica" [selected]
+                        - option "SST"
+                    - button "Quitar tipo de documento form" [ref=e177] [cursor=pointer]
+                  - generic [ref=e181]:
+                    - generic [ref=e182]:
+                      - generic [ref=e183]: Código
+                      - textbox "Código" [ref=e184]: guia
+                    - generic [ref=e185]:
+                      - generic [ref=e186]: Nombre visible
+                      - textbox "Nombre visible" [ref=e187]: Guia
+                    - generic [ref=e188]:
+                      - generic [ref=e189]: Plantilla
+                      - combobox "Plantilla" [ref=e190]:
+                        - option "Genérica" [selected]
+                        - option "SST"
+                    - button "Quitar tipo de documento guia" [ref=e191] [cursor=pointer]
+                  - generic [ref=e195]:
+                    - generic [ref=e196]:
+                      - generic [ref=e197]: Código
+                      - textbox "Código" [ref=e198]: informe
+                    - generic [ref=e199]:
+                      - generic [ref=e200]: Nombre visible
+                      - textbox "Nombre visible" [ref=e201]: Informe
+                    - generic [ref=e202]:
+                      - generic [ref=e203]: Plantilla
+                      - combobox "Plantilla" [ref=e204]:
+                        - option "Genérica" [selected]
+                        - option "SST"
+                    - button "Quitar tipo de documento informe" [ref=e205] [cursor=pointer]
+                  - generic [ref=e209]:
+                    - generic [ref=e210]:
+                      - generic [ref=e211]: Código
+                      - textbox "Código" [ref=e212]: manual
+                    - generic [ref=e213]:
+                      - generic [ref=e214]: Nombre visible
+                      - textbox "Nombre visible" [ref=e215]: Manual
+                    - generic [ref=e216]:
+                      - generic [ref=e217]: Plantilla
+                      - combobox "Plantilla" [ref=e218]:
+                        - option "Genérica" [selected]
+                        - option "SST"
+                    - button "Quitar tipo de documento manual" [ref=e219] [cursor=pointer]
+                  - generic [ref=e223]:
+                    - generic [ref=e224]:
+                      - generic [ref=e225]: Código
+                      - textbox "Código" [ref=e226]: record
+                    - generic [ref=e227]:
+                      - generic [ref=e228]: Nombre visible
+                      - textbox "Nombre visible" [ref=e229]: Registro
+                    - generic [ref=e230]:
+                      - generic [ref=e231]: Plantilla
+                      - combobox "Plantilla" [ref=e232]:
+                        - option "Genérica" [selected]
+                        - option "SST"
+                    - button "Quitar tipo de documento record" [ref=e233] [cursor=pointer]
+                - button "Agregar tipo" [ref=e238] [cursor=pointer]
+              - group "Perfiles de embedding" [ref=e240]:
+                - generic [ref=e243]:
+                  - generic [ref=e244]:
+                    - generic [ref=e245]: Embedding profile id
+                    - textbox "Embedding profile id" [ref=e246]: local-bge-m3-v1
+                  - generic [ref=e247]:
+                    - checkbox "Habilitado" [checked] [ref=e248]
+                    - text: Habilitado
+                  - button "Quitar perfil local-bge-m3-v1" [ref=e249] [cursor=pointer]
+                - button "Agregar perfil" [ref=e254] [cursor=pointer]
+              - button "Guardar nueva versión" [ref=e257] [cursor=pointer]
+            - region "Bindings de target (solo lectura)" [ref=e262]:
+              - generic [ref=e263]: Target bindings
+              - generic [ref=e264]: primary → local-bge-m3-v1
+              - paragraph [ref=e266]:
+                - generic [ref=e270]: El target físico lo gestiona el servidor. Estos bindings son de solo lectura y no se editan desde la GUI.

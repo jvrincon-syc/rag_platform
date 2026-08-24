@@ -215,6 +215,7 @@ def build_pipeline_services(
     lexical_profile_id: str = "",
     http_authenticator: ConfiguredBearerAuth | None = None,
     idempotency_connection: object | None = None,
+    build_services_factory: object | None = None,
 ) -> PipelineServices:
     """Wire the whole bundle-first surface on PostgreSQL or on memory.
 
@@ -429,6 +430,7 @@ def build_pipeline_services(
             index_bundle=index_bundle,
             run_documents=run_documents,
             indexing_targets=targets,
+            build_services_factory=build_services_factory,
         )
         services.rag_platform = platform
         # Compat legacy: los aliases apuntan a la misma composición tipada.
@@ -572,6 +574,7 @@ def _build_rag_platform_services(
     index_bundle: object,
     run_documents: object,
     indexing_targets: object,
+    build_services_factory: object | None = None,
 ) -> "RagPlatformServices":
     """Cablea la superficie tipada única de plataforma para Fase 7 (Task 3 + Task 4).
 
@@ -848,6 +851,75 @@ def _build_rag_platform_services(
         run_documents=run_documents,
     )
 
+    # Build asíncrono durable (Fase 8 §D-3b): job repo + encolar/estado + worker.
+    if connection is None:
+        from rag_platform.infrastructure.in_memory.repositories import (
+            InMemoryReleaseBuildJobRepository,
+        )
+
+        release_build_jobs: object = InMemoryReleaseBuildJobRepository()
+    else:
+        from rag_platform.infrastructure.postgres.release_repositories import (
+            PostgresReleaseBuildJobRepository,
+        )
+
+        release_build_jobs = PostgresReleaseBuildJobRepository(connection)
+
+    from rag_platform.application.release_build_job_service import (
+        EnqueueReleaseBuildUseCase,
+        GetReleaseBuildStatusUseCase,
+    )
+    from rag_platform.infrastructure.release_build_runner import (
+        ReleaseBuildRunner,
+        run_one_build,
+    )
+
+    enqueue_release_build = EnqueueReleaseBuildUseCase(
+        releases=releases, jobs=release_build_jobs, access_policy=access_policy
+    )
+    get_release_build_status = GetReleaseBuildStatusUseCase(
+        releases=releases, jobs=release_build_jobs, access_policy=access_policy
+    )
+
+    if build_services_factory is not None:
+
+        def _execute_build(build_job_id, rag_release_id, actor):
+            # Postgres: bundle fresco = conexión PROPIA (no comparte la del request,
+            # que no es thread-safe); el estado va a la misma tabla durable.
+            fresh = build_services_factory()
+            try:
+                platform = fresh.rag_platform
+                run_one_build(
+                    jobs=platform.release_build_jobs,
+                    build_release=platform.build_release,
+                    build_job_id=build_job_id,
+                    rag_release_id=rag_release_id,
+                    actor=actor,
+                )
+            finally:
+                fresh.close()
+
+    else:
+
+        def _execute_build(build_job_id, rag_release_id, actor):
+            # Memoria (o sin factory): repos compartidos, thread-safe por lock.
+            # ponytail: sin factory en Postgres el build correría sobre la conexión
+            # compartida; `build_pipeline_services_from_env` siempre provee factory.
+            run_one_build(
+                jobs=release_build_jobs,
+                build_release=build_release,
+                build_job_id=build_job_id,
+                rag_release_id=rag_release_id,
+                actor=actor,
+            )
+
+    _release_build_runner = ReleaseBuildRunner(execute_build=_execute_build)
+
+    def _submit_release_build(build_job_id, rag_release_id, actor):
+        _release_build_runner.submit(
+            build_job_id=build_job_id, rag_release_id=rag_release_id, actor=actor
+        )
+
     return RagPlatformServices(
         create_project=CreateProjectUseCase(
             projects=projects,
@@ -910,6 +982,10 @@ def _build_rag_platform_services(
             logger=get_logger("rag_platform.release_retire"),
         ),
         rebuild_platform=rebuild_platform,
+        enqueue_release_build=enqueue_release_build,
+        get_release_build_status=get_release_build_status,
+        submit_release_build=_submit_release_build,
+        release_build_jobs=release_build_jobs,
     )
 
 
@@ -1188,6 +1264,20 @@ def build_pipeline_services_from_env(
         local_registry_path=_default_gui_auth_registry_path(chunks_root),
     )
 
+    # El worker del build asíncrono (Fase 8 §D-3b) necesita, en Postgres, un bundle
+    # con CONEXIÓN PROPIA por build (no compartir la del request). Esta factory abre
+    # uno fresco a demanda; en memoria no se usa (repos compartidos thread-safe).
+    build_services_factory = None
+    if mode == "postgres":
+
+        def build_services_factory() -> PipelineServices:  # type: ignore[misc]
+            return build_pipeline_services_from_env(
+                chunks_root=chunks_root,
+                embeddings_root=embeddings_root,
+                environ=env,
+                allow_mock_engine=allow_mock_engine,
+            )
+
     services = build_pipeline_services(
         chunks_root=chunks_root,
         embeddings_root=embeddings_root,
@@ -1196,6 +1286,7 @@ def build_pipeline_services_from_env(
         allow_mock_engine=allow_mock_engine,
         http_authenticator=http_authenticator,
         idempotency_connection=idempotency_connection,
+        build_services_factory=build_services_factory,
     )
     _emit_startup_observability(services, connection=connection)
     return services

@@ -149,7 +149,7 @@ export function OperatorAuthWorkspace({
                 autoComplete="username"
                 value={username}
                 onChange={(event) => setUsername(event.currentTarget.value)}
-                placeholder="tu.usuario"
+                placeholder="Usuario"
                 spellCheck={false}
               />
             </label>
@@ -163,7 +163,7 @@ export function OperatorAuthWorkspace({
                 autoComplete={isRegister ? "new-password" : "current-password"}
                 value={password}
                 onChange={(event) => setPassword(event.currentTarget.value)}
-                placeholder="••••••••"
+                placeholder="Contraseña"
               />
             </label>
 

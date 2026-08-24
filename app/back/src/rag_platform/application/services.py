@@ -10,7 +10,15 @@ variantes, snapshots y releases. No se crea una segunda superficie de servicios.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Callable
 
+from rag_platform.application.platform_access import PlatformActor
+from rag_platform.application.release_build_job_service import (
+    EnqueueReleaseBuildUseCase,
+    GetReleaseBuildStatusUseCase,
+    ReleaseBuildJobRepository,
+)
+from rag_platform.domain.identity import PlatformId
 from rag_platform.application.corpus_snapshot_service import (
     CreateCorpusSnapshotUseCase,
 )
@@ -103,3 +111,12 @@ class RagPlatformServices:
     publish_release: PublishRagReleaseUseCase
     retire_release: RetireRagReleaseUseCase
     rebuild_platform: RebuildPlatformArtifactsUseCase | None
+
+    # Build asíncrono durable (Fase 8 §D-3b): encolar + estado + disparar el worker.
+    # `submit_release_build` corre el motor fuera del hilo del request (conexión
+    # propia en Postgres) para no colgar el socket ni bloquear lecturas.
+    enqueue_release_build: EnqueueReleaseBuildUseCase
+    get_release_build_status: GetReleaseBuildStatusUseCase
+    submit_release_build: Callable[[str, PlatformId, PlatformActor], None]
+    # Repo durable del job; expuesto para que el worker (bundle fresco) escriba estado.
+    release_build_jobs: "ReleaseBuildJobRepository"

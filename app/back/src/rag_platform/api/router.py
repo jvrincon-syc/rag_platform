@@ -14,6 +14,8 @@ La traducción de errores de dominio (``RagPlatformError``) al envelope HTTP es
 
 from __future__ import annotations
 
+import uuid
+from datetime import datetime, timezone
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, Form, Header, Query, UploadFile, status
@@ -49,14 +51,15 @@ from rag_platform.api.schemas import (
     ProjectDocumentRevisionSchema,
     ProjectNormalizeReportSchema,
     ProjectSchema,
-    ReleaseBuildReportSchema,
+    ReleaseBuildAcceptedSchema,
+    ReleaseBuildStatusSchema,
     ReleaseSchema,
     RetireReleaseRequestSchema,
     UpdateProjectConfigurationRequestSchema,
     UpdateProjectRequestSchema,
     VariantMatrixCellSchema,
     VariantSchema,
-    build_report_to_schema,
+    build_job_to_status_schema,
     chunking_profile_to_schema,
     configuration_to_schema,
     document_row_to_schema,
@@ -555,7 +558,7 @@ def _run_idempotent(
 
 @router.post(
     "/releases/{rag_release_id}/build",
-    response_model=ReleaseBuildReportSchema,
+    response_model=ReleaseBuildAcceptedSchema,
 )
 def build_release(
     rag_release_id: str,
@@ -564,13 +567,26 @@ def build_release(
     actor: PlatformActor = Depends(get_actor),
     store: IdempotencyStore = Depends(get_idempotency_store),
 ) -> dict:
+    # Build ASÍNCRONO (Fase 8 §D-3b): encola un job durable y responde de inmediato,
+    # sin correr el motor en el hilo del request (antes colgaba el socket). El worker
+    # corre fuera con su propia conexión; la GUI observa el estado por polling. El
+    # guard de idempotencia asegura que un replay devuelve el MISMO job sin re-encolar.
     release_id = _parse_id(IdentityKind.RAG_RELEASE, rag_release_id)
 
     def _operation() -> dict:
-        report = services.build_release.execute(
-            rag_release_id=release_id, actor=actor
+        build_job_id = f"bjob_{uuid.uuid4().hex}"
+        services.enqueue_release_build.execute(
+            rag_release_id=release_id,
+            build_job_id=build_job_id,
+            actor=actor,
+            now=datetime.now(timezone.utc),
         )
-        return build_report_to_schema(report).model_dump(mode="json")
+        services.submit_release_build(build_job_id, release_id, actor)
+        return {
+            "build_job_id": build_job_id,
+            "rag_release_id": rag_release_id,
+            "state": "queued",
+        }
 
     return _run_idempotent(
         store=store,
@@ -580,6 +596,23 @@ def build_release(
         actor=actor,
         operation=_operation,
     )
+
+
+@router.get(
+    "/releases/{rag_release_id}/build-status",
+    response_model=ReleaseBuildStatusSchema | None,
+)
+def get_release_build_status(
+    rag_release_id: str,
+    services: RagPlatformServices = Depends(get_platform_services),
+    actor: PlatformActor = Depends(get_actor),
+) -> dict | None:
+    # Read-model del build asíncrono para el polling de la GUI; scope-aware.
+    # ``null`` = la release aún no tiene ningún intento de build.
+    job = services.get_release_build_status.execute(
+        rag_release_id=_parse_id(IdentityKind.RAG_RELEASE, rag_release_id), actor=actor
+    )
+    return None if job is None else build_job_to_status_schema(job).model_dump(mode="json")
 
 
 @router.post(

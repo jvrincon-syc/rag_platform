@@ -687,6 +687,27 @@ def test_platform_bridge_exception_returns_500_envelope_instead_of_resetting_soc
     }
 
 
+def test_platform_bridge_calls_are_serialized_under_a_process_lock() -> None:
+    # La conexión psycopg2 compartida no es thread-safe: el bridge debe ejecutarse
+    # bajo el lock de proceso (causa raíz del socket hang up en requests paralelos).
+    observed: dict[str, bool] = {}
+
+    class _LockObservingBridge:
+        def handle(self, **_kwargs):
+            observed["locked_during_call"] = gui_server._PIPELINE_BRIDGE_LOCK.locked()
+            return _BridgeResponse(200, b"{}")
+
+    handler = _make_handler(
+        path="/api/platform/projects", headers={}, body=b"", bridge=_LockObservingBridge()
+    )
+
+    handler._handle_pipeline_api("GET")
+
+    assert observed["locked_during_call"] is True
+    # El lock se libera tras responder; no queda tomado entre requests.
+    assert gui_server._PIPELINE_BRIDGE_LOCK.locked() is False
+
+
 @pytest.mark.parametrize("status_code", [401, 403, 409, 422, 503])
 def test_platform_bridge_preserves_error_status_and_envelope(status_code: int) -> None:
     envelope = b'{"error":{"code":"X","message":"m","run_id":null,"details":{}}}'

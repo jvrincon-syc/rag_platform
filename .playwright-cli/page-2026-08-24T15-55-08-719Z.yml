@@ -1,0 +1,83 @@
+- generic [ref=e3]:
+  - complementary [ref=e28]:
+    - generic [ref=e29]: RAG Platform
+    - navigation "Superficies de operador" [ref=e35]:
+      - button "Platform" [ref=e36] [cursor=pointer]
+      - button "Legacy pipeline" [ref=e43] [cursor=pointer]
+    - generic [ref=e49]:
+      - generic [ref=e50]:
+        - generic [ref=e51]: Sesión
+        - strong [ref=e52]: prueba3
+        - generic [ref=e53]: Todos los proyectos
+      - button "Cerrar sesión" [ref=e54] [cursor=pointer]
+  - generic [ref=e59]:
+    - navigation "Vista de plataforma" [ref=e60]:
+      - button "Projects" [ref=e61] [cursor=pointer]
+      - button "Documents" [ref=e62] [cursor=pointer]
+      - button "Variants" [ref=e63] [cursor=pointer]
+      - button "Corpus" [ref=e64] [cursor=pointer]
+      - button "Releases" [active] [ref=e65] [cursor=pointer]
+    - main [ref=e1400]:
+      - generic [ref=e1401]:
+        - generic [ref=e1402]:
+          - heading "Ciclo de vida de releases" [level=1] [ref=e1403]
+          - paragraph [ref=e1404]: De un draft (variante + snapshot + binding lógico) a build, validación, publicación y retiro. El backend resuelve la receta; React nunca orquesta chunking/embedding/indexing legacy.
+        - button "Actualizar" [ref=e1406] [cursor=pointer]
+      - generic [ref=e1412]:
+        - generic [ref=e1413]:
+          - region "Nuevo draft de release" [ref=e1414]:
+            - generic [ref=e1416]:
+              - heading "Nuevo draft" [level=2] [ref=e1417]
+              - generic [ref=e1418]: Congela variante, snapshot y binding lógico en una release reproducible.
+            - generic [ref=e1420]:
+              - generic [ref=e1421]:
+                - generic [ref=e1422]: Variante RAG
+                - combobox "Variante RAG" [ref=e1423]:
+                  - option "ragv_local-bge · active" [selected]
+              - generic [ref=e1424]:
+                - generic [ref=e1425]: Snapshot de corpus
+                - combobox "Snapshot de corpus" [ref=e1426]:
+                  - option "corpus_7fd419768296dfb023f072d4 · 3 doc(s)" [selected]
+              - generic [ref=e1427]:
+                - generic [ref=e1428]: Target binding key (lógico)
+                - combobox "Target binding key (lógico)" [ref=e1429]:
+                  - option "primary" [selected]
+              - button "Crear draft" [ref=e1431] [cursor=pointer]
+          - region "Historial de releases" [ref=e1436]:
+            - generic [ref=e1438]:
+              - heading "Historial" [level=2] [ref=e1439]
+              - generic [ref=e1440]: Releases del proyecto; la seleccionada se rehidrata tras un refresh.
+            - list "Historial de releases" [ref=e1442]:
+              - listitem [ref=e1443]:
+                - 'button "ragr_54972baf1c5147bb release #2 · draft manifest — 2026-08-21T15:44:03.849554-05:00" [ref=e1444] [cursor=pointer]':
+                  - strong [ref=e1445]:
+                    - code [ref=e1446]: ragr_54972baf1c5147bb
+                  - generic [ref=e1447]:
+                    - text: "release #2 ·"
+                    - generic [ref=e1448]: draft
+                  - generic [ref=e1449]:
+                    - text: manifest
+                    - code [ref=e1450]: —
+                  - generic [ref=e1451]: 2026-08-21T15:44:03.849554-05:00
+              - listitem [ref=e1452]:
+                - 'button "ragr_d22473e155924a13 release #1 · draft manifest — 2026-08-21T14:59:31.059848-05:00" [ref=e1453] [cursor=pointer]':
+                  - strong [ref=e1454]:
+                    - code [ref=e1455]: ragr_d22473e155924a13
+                  - generic [ref=e1456]:
+                    - text: "release #1 ·"
+                    - generic [ref=e1457]: draft
+                  - generic [ref=e1458]:
+                    - text: manifest
+                    - code [ref=e1459]: —
+                  - generic [ref=e1460]: 2026-08-21T14:59:31.059848-05:00
+        - generic [ref=e1461]:
+          - region "Ciclo de vida de la release" [ref=e1462]:
+            - generic [ref=e1464]:
+              - heading "Lifecycle" [level=2] [ref=e1465]
+              - generic [ref=e1466]: Solo se ofrecen las transiciones válidas para el estado actual.
+            - generic [ref=e1467]: Selecciona o crea una release para ver su ciclo de vida.
+          - region "Informe de build" [ref=e1473]:
+            - generic [ref=e1475]:
+              - heading "Informe de build" [level=2] [ref=e1476]
+              - generic [ref=e1477]: Resultado del último build de la release seleccionada.
+            - generic [ref=e1478]: Ejecuta un build sobre una release en draft para ver el informe.

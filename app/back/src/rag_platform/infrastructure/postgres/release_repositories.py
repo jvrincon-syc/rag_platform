@@ -9,7 +9,8 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from rag_platform.domain.errors import RagReleaseNotFound
+from rag_platform.domain.build_jobs import ReleaseBuildJob, ReleaseBuildJobState
+from rag_platform.domain.errors import RagReleaseNotFound, ReleaseBuildJobNotFound
 from rag_platform.domain.identity import IdentityKind, PlatformId
 from rag_platform.domain.lifecycle import (
     RagRelease,
@@ -202,4 +203,114 @@ def _row_to_membership(row) -> RagReleaseMembership:
         chunk_bundle_id=str(row[5]),
         embedding_bundle_id=str(row[6]),
         materialization_id=str(row[7]),
+    )
+
+
+_BUILD_JOB_COLUMNS = (
+    "build_job_id",
+    "rag_release_id",
+    "project_id",
+    "state",
+    "revisions_built",
+    "reused_stages",
+    "built_stages",
+    "error_code",
+    "error_message",
+    "created_at",
+    "updated_at",
+)
+
+
+class PostgresReleaseBuildJobRepository:
+    """Estado durable de los intentos de build asíncrono (Fase 8 §D-3b).
+
+    Refleja el esquema de la migración ``20260824_01``; nunca emite DDL. Todo
+    statement es parametrizado.
+    """
+
+    def __init__(self, connection: object) -> None:
+        self._connection = connection
+
+    def create(self, job: ReleaseBuildJob) -> ReleaseBuildJob:
+        with self._connection.cursor() as cursor:
+            cursor.execute(
+                "INSERT INTO release_build_jobs ("
+                " build_job_id, rag_release_id, project_id, state, revisions_built,"
+                " reused_stages, built_stages, error_code, error_message,"
+                " created_at, updated_at)"
+                " VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                (
+                    job.build_job_id,
+                    job.rag_release_id.value,
+                    job.project_id.value,
+                    job.state.value,
+                    job.revisions_built,
+                    job.reused_stages,
+                    job.built_stages,
+                    job.error_code,
+                    job.error_message,
+                    job.created_at,
+                    job.updated_at,
+                ),
+            )
+        return job
+
+    def update(self, job: ReleaseBuildJob) -> ReleaseBuildJob:
+        with self._connection.cursor() as cursor:
+            cursor.execute(
+                "UPDATE release_build_jobs SET state = %s, revisions_built = %s,"
+                " reused_stages = %s, built_stages = %s, error_code = %s,"
+                " error_message = %s, updated_at = %s WHERE build_job_id = %s",
+                (
+                    job.state.value,
+                    job.revisions_built,
+                    job.reused_stages,
+                    job.built_stages,
+                    job.error_code,
+                    job.error_message,
+                    job.updated_at,
+                    job.build_job_id,
+                ),
+            )
+            if cursor.rowcount == 0:
+                raise ReleaseBuildJobNotFound(job.build_job_id)
+        return job
+
+    def get(self, build_job_id: str) -> ReleaseBuildJob:
+        with self._connection.cursor() as cursor:
+            cursor.execute(
+                f"SELECT {', '.join(_BUILD_JOB_COLUMNS)} FROM release_build_jobs"
+                " WHERE build_job_id = %s",
+                (build_job_id,),
+            )
+            row = cursor.fetchone()
+        if row is None:
+            raise ReleaseBuildJobNotFound(build_job_id)
+        return _row_to_build_job(row)
+
+    def latest_for_release(self, rag_release_id: PlatformId) -> ReleaseBuildJob | None:
+        with self._connection.cursor() as cursor:
+            cursor.execute(
+                f"SELECT {', '.join(_BUILD_JOB_COLUMNS)} FROM release_build_jobs"
+                " WHERE rag_release_id = %s"
+                " ORDER BY created_at DESC, build_job_id DESC LIMIT 1",
+                (rag_release_id.value,),
+            )
+            row = cursor.fetchone()
+        return None if row is None else _row_to_build_job(row)
+
+
+def _row_to_build_job(row) -> ReleaseBuildJob:
+    return ReleaseBuildJob(
+        build_job_id=str(row[0]),
+        rag_release_id=_pid(IdentityKind.RAG_RELEASE, str(row[1])),
+        project_id=_pid(IdentityKind.PROJECT, str(row[2])),
+        state=ReleaseBuildJobState(str(row[3])),
+        revisions_built=None if row[4] is None else int(row[4]),
+        reused_stages=None if row[5] is None else int(row[5]),
+        built_stages=None if row[6] is None else int(row[6]),
+        error_code=row[7],
+        error_message=row[8],
+        created_at=row[9],
+        updated_at=row[10],
     )

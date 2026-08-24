@@ -119,14 +119,20 @@ mismos bugs.
 
 ### Qué NO quedó cerrado aún
 
-- **D-3b sigue pendiente**: `releases/{id}/build` continúa siendo síncrono en el
-  backend; el endurecimiento del bridge evita el *socket hang up* silencioso, pero
-  no reemplaza aún la necesidad de build asíncrono/encolado con estado observable.
+- **D-3b RESUELTO (2026-08-24, Tasks 1+2)**: `releases/{id}/build` ya es asíncrono
+  y durable — encola (`202`), un runner corre el motor con conexión propia en
+  Postgres y persiste el estado en `release_build_jobs`, observable por
+  `GET /build-status`. Ver ADR-010. Ya no hay build síncrono que cuelgue el socket.
 - **La recomposición grande de Platform sobre la lane legacy no empezó aún**:
   este cierre prepara el terreno, no ejecuta las Fases C/D/E.
-- **La paginación completa todavía no se generalizó a todas las listas
-  project-aware** (`variants`, `releases`, y cualquier otra vista que hoy consuma
-  solo la primera página).
+- **La paginación completa YA se generalizó a las cuatro listas project-aware**:
+  `platformApi.ts` expone `listAllVariants`/`listAllReleases` además de
+  `listAllDocuments`/`listAllCorpusSnapshots`, y los hooks de `variants` y
+  `releases` ya los consumen (`useVariantMatrixWorkspace.ts`,
+  `useRagReleaseWorkspace.ts`). Queda por auditar cualquier vista futura que
+  vuelva a consumir solo la primera página.
+- **La recomposición grande de Platform sobre la lane legacy no empezó** (Fases
+  C/D/E): este cierre prepara el terreno, no las ejecuta.
 
 ## 1. Problema
 
@@ -180,6 +186,255 @@ Qué ya existe y es reutilizable (evitar duplicación):
 | `features/dashboard/{DashboardApp,components/DashboardChrome}` | Shell, `DashboardNotice`, `view-switcher`, `user-chip` | Lenguaje de shell ya adoptado por `OperatorApp` |
 | `components/ui/{MetricCard,StatePanel,StatusBadge}` | Estados y badges compartidos (extraídos en Task 12) | Ya en uso; ampliar adopción |
 | `shared/api/*` + `platformApi.ts` | Cliente HTTP tipado, envelope único, cookie same-origin | Fuente de datos de todas las vistas |
+
+### Funcionalidades textuales de Pipeline Legacy observadas con Playwright y código
+
+Este inventario es parte del contrato funcional visible que Platform debe reutilizar
+por proyecto. No describe capacidades nuevas ni exige forzar Platform a verse como
+Legacy; documenta las funcionalidades operacionales que ya existían en la lane
+`Legacy pipeline` y que se perdieron o quedaron fragmentadas en la GUI actual de
+RAG Platform.
+
+**Elementos Globales**
+- Sidebar propia de `SST Pipeline`.
+- Navegación: `Operacion`, `Revision`, `Inventario`, `Chunking`, `Embedding/Indexing`.
+- Topbar con título de pantalla, run/schema actual, switcher rápido y botón `Actualizar`.
+- Métricas generales: `Total`, `Procesados`, `En revisión`, `Fallidos`, `Aprobados`, `Rechazados`.
+- Notices de éxito/error/warning para acciones del operador.
+
+**1. Operación**
+- Resumen del estado documental del pipeline.
+- Panel de proveedor de ingesta PDF:
+  - Modo `Local`.
+  - Modo `Llama`.
+  - Estado de configuración LlamaCloud.
+  - Tier/version/provider.
+- Configuración de servicios Llama:
+  - `Parse`.
+  - `Classify`.
+  - `Extract`.
+  - Orden permitido, por ejemplo `Classify > Parse > Extract`.
+- Configuración de calidad:
+  - `Umbral OCR`.
+  - Guardado de ajustes.
+- Carga de nuevo documento:
+  - Selección `.pdf`, `.md`, `.markdown`.
+  - Categoría.
+  - Carpeta destino.
+  - Subir documento.
+- Acciones del pipeline:
+  - Ejecutar ingesta local en staging o enviar a LlamaCloud.
+  - Validar salida oficial o staging.
+  - Promover staging.
+- Resumen de validación:
+  - Estado.
+  - Ruta de manifest.
+  - Resultado JSON de última acción.
+
+**2. Revisión**
+- Lista de documentos pendientes de decisión manual.
+- Columnas de revisión:
+  - Documento.
+  - Categoría.
+  - Motivos.
+  - Decisión.
+- Campo de nota/motivo por documento.
+- Acciones:
+  - `Aprobar`.
+  - `Rechazar`.
+  - `Ver detalle`.
+- Inspector lateral:
+  - Nombre y ruta del documento.
+  - `document_id`.
+  - Categoría.
+  - Tipo.
+  - Tamaño.
+  - Proveedor/método de ingesta.
+  - OCR/confianza.
+  - Fecha.
+  - Motivos de revisión.
+  - Detalles auditables.
+  - Decisión registrada si existe.
+
+**3. Inventario**
+- Tabla completa del inventario normalizado.
+- Búsqueda por documento.
+- Filtro por estado:
+  - Procesados.
+  - En revisión.
+  - Fallidos.
+  - Aprobados.
+  - Rechazados.
+- Filtro por ingesta:
+  - Local.
+  - Llama.
+  - Sin ingesta.
+  - Método específico.
+- Columnas:
+  - Ruta del documento.
+  - Tipo.
+  - Ingesta.
+  - Confiabilidad.
+  - Categoría.
+  - Tamaño.
+  - Estado.
+  - Decisión de revisión.
+  - Fecha.
+- Acción `Revisar evidencia`.
+- Inspector lateral reutilizado para ver procedencia, motivos, OCR, decisión y metadata.
+
+**4. Chunking**
+- Lanzar corrida de chunking.
+- Scope:
+  - `Documentos`.
+  - `Corpus`.
+- Selección de perfil de chunking.
+- Entrada de `Document IDs` cuando el scope es documentos.
+- Opción `Forzar reprocesado`.
+- `Idempotency-Key` editable.
+- Acción para regenerar idempotency key.
+- Acción `Iniciar chunking`.
+- Panel de perfil activo:
+  - Perfil.
+  - Children min.
+  - Target.
+  - Max.
+  - Overlap.
+  - Overlap min/max.
+- Métricas:
+  - Corrida activa.
+  - Estado.
+  - Progreso.
+  - Validation.
+- Estado de corrida:
+  - Status.
+  - Perfil.
+  - Documentos solicitados.
+  - Progreso.
+  - Warnings.
+  - Links a corrida, documentos y validación.
+- Validación de chunking:
+  - Estado.
+  - Revisados.
+  - Errores.
+  - Warnings.
+- Tabla de documentos chunked o persistidos.
+- Inspección parent-child:
+  - Selección de documento.
+  - Lista de parents.
+  - Texto resumido del parent.
+  - Páginas fuente.
+  - Lista de children.
+  - Token count.
+  - Overlap previo/siguiente.
+  - Warnings de overlap cero.
+
+**5. Embedding/Indexing**
+Es una pantalla grande con flujo interno de 4 etapas.
+
+**5.1 Embedding**
+- Catálogo de perfiles de embedding.
+- Perfil habilitado/bloqueado con motivo visible.
+- Selección de perfil.
+- Selección de `chunk bundle`.
+- Ejecutar embedding sobre un bundle.
+- Ejecutar embedding de todo el corpus.
+- Progreso de batch del corpus.
+- Estado del run:
+  - Run id.
+  - Status.
+  - Polling.
+  - Children embebidos / solicitados.
+  - Warnings.
+  - Error summary.
+- Inspector de embedding bundle:
+  - Bundle id.
+  - Dimensión.
+  - Número de vectores.
+  - Estado.
+  - Validación.
+  - Readiness.
+  - Tabla de chunks del bundle.
+  - Checks de validación.
+  - Bloqueos para indexing.
+
+**5.2 Indexing**
+- Muestra `embedding bundle` actual.
+- Target resuelto por servidor.
+- Ejecutar indexing de un bundle.
+- Ejecutar indexing de todo el corpus.
+- Progreso de batch.
+- Estado del run:
+  - Validación.
+  - Activación.
+  - Run id.
+  - Documentos committed / solicitados.
+  - Warnings.
+  - Run interrumpido.
+- Tabla de documentos indexados:
+  - Documento.
+  - Estado.
+  - Elegibilidad.
+  - Vectores.
+  - Commit/indexado.
+- Panel de errores:
+  - Documento.
+  - Código de error.
+  - Status.
+  - `internal_error_id`.
+
+**5.3 Activation**
+- Activación como etapa separada del indexing.
+- Selección de política de fallback léxico:
+  - Permitir cuando vector no disponible.
+  - Nunca.
+  - Siempre.
+- Acción `Activar`.
+- Readiness de retrieval:
+  - Filas activas.
+  - Motivos de bloqueo.
+- Resultado de activación:
+  - Filas activadas.
+  - `retrieval_profile_id`.
+
+**5.4 Retrieval**
+- Catálogo de perfiles de retrieval.
+- Selección de perfil.
+- Estado activo/inactivo.
+- Validación y runtime.
+- Estado de retrieval:
+  - Perfil.
+  - Validación.
+  - Fallback léxico.
+  - Runtime.
+  - Motor disponible/no disponible.
+  - Vector retrieval habilitado.
+  - Fallback permitido.
+  - Readiness.
+  - Documentos activos.
+- Validación de retrieval:
+  - Acción `Validar perfil`.
+  - Query sintética interna.
+  - Candidatos encontrados.
+  - Dimensión.
+  - Versión del validador.
+  - Motivos de bloqueo.
+- Búsqueda de evidencia:
+  - Campo de consulta.
+  - `Top K`.
+  - Acción `Buscar evidencia`.
+  - Resultados con:
+    - Documento.
+    - Tipo de evidencia.
+    - Fuente vector/léxico.
+    - Score.
+    - Páginas.
+    - Texto recuperado.
+
+**Conclusión de reutilización:** Legacy no era solo una vista bonita; tenía un
+flujo operacional completo desde ingesta/configuración hasta retrieval
+verificable. RAG Platform debe absorber estas capacidades por proyecto, no
+reemplazarlas por pantallas CRUD separadas.
 
 Qué reinventó Platform y hay que **reemplazar por lo anterior**: tablas y formularios
 propios en `platform/{documents,corpus,variants,releases}` que no siguen el patrón
@@ -385,67 +640,89 @@ class ReleaseBuildJobSnapshot:
     error: dict[str, object] | None
 ```
 
-- [ ] Escribir tests de aplicación: start deja job `queued`, replay con misma
-  idempotency key devuelve el mismo job, otra intención con misma key falla
-  fail-closed, runner marca `running/succeeded/failed` incrementando `version`.
-- [ ] Escribir tests HTTP: `POST /build` responde `202`, `GET /build-status`
-  devuelve latest, errores se devuelven como envelope/snapshot estructurado y
-  reintentos idempotentes no duplican trabajo.
-- [ ] Implementar repo in-memory con versión monotónica, latest-by-release y
-  runner drenable para tests determinísticos.
-- [ ] Ejecutar:
+> **Task 1 CERRADA (2026-08-24).** Operador corrió los tests en verde
+> (`test_release_build_job_service.py` 11/11; `test_platform_api.py` 47 passed).
 
-```bash
-npm run python -- -m pytest app/back/tests/rag_platform/test_release_build_jobs.py app/back/tests/rag_platform/test_platform_api.py -q
-```
+- [x] Tests de aplicación → `app/back/tests/rag_platform/test_release_build_job_service.py`:
+  enqueue deja `queued`; get-status latest-by-release / `None` sin builds; enqueue y
+  status fuera de scope fallan cerrado; runner marca `running → succeeded|failed`
+  (nunca colgado en `running`).
+- [x] Tests HTTP: `POST /build` responde el job encolado, `GET /build-status` está
+  cubierto por el read-model; los tests de `/build` de `test_platform_api.py` (header
+  obligatorio + release inexistente + replay) siguen verdes (47 passed).
+- [x] Repo in-memory + Postgres (`InMemory/PostgresReleaseBuildJobRepository`) con
+  latest-by-release (`created_at desc, id`); migración `20260824_01_create_release_build_jobs.sql`.
+- **Modelo real (desviación honesta vs el borrado del plan):** `ReleaseBuildJob`
+  (`domain/build_jobs.py`) con `build_job_id` (no `ReleaseBuildJobSnapshot`/`job_id`).
+  **Sin campo `version` monotónico** — el latest se resuelve por `created_at`; más
+  simple (ponytail) y suficiente para el polling. La idempotencia NO se re-implementa
+  en la tabla del job: la garantiza el store `platform_idempotency` existente (replay
+  del mismo `Idempotency-Key` → mismo `build_job_id`, sin re-encolar).
+- Archivos: `domain/build_jobs.py`, `application/release_build_job_service.py`,
+  `domain/errors.py` (`RELEASE_BUILD_JOB_NOT_FOUND`), repos in-memory/Postgres, migración.
 
 ### Task 2: Runner, wiring y persistencia durable
 
 **Archivos:** `dependencies.py`, `services.py`, `router.py`,
 `release_build_service.py`, repos Postgres/in-memory.
 
-- [ ] Escribir test de wiring de `RagPlatformServices` para los tres casos de uso
-  de job.
-- [ ] Cambiar `POST /api/platform/releases/{rag_release_id}/build` a `202` y
-  response model `ReleaseBuildJobSchema`.
-- [ ] Agregar `GET /build-status`. Si se decide añadir `GET /build-status/wait`,
-  validar `wait_ms` con cota dura (por ejemplo 1_000 a 30_000 ms) y
-  `after_version >= 0`; si no se añade, documentar que el refresh adaptativo usa
-  únicamente status bajo demanda.
-- [ ] Ejecutar el build real solo en el runner. El runner traduce excepciones a
-  error estructurado; no guarda secretos, chunks raw ni vectores en el snapshot.
-- [ ] En Postgres, persistir latest-by-release, idempotency key, estado, versión,
-  timestamps, reporte resumido y error sanitizado.
-- [ ] Ejecutar:
+> **Task 2 CERRADA (2026-08-24).** Wiring + flip de contrato + runner + ADR-010.
+> Backend verde (operador: `test_release_build_job_service.py` + `test_platform_api.py`
+> 47 passed; `test_gui_server.py` verde en el pase de Task A/2b).
 
-```bash
-npm run python -- -m pytest app/back/tests/rag_platform -q
-npm run python -- -m pytest app/back/tests/ingestion/test_gui_server.py -q
-```
+- [x] Wiring de `RagPlatformServices` (+4 campos: `enqueue_release_build`,
+  `get_release_build_status`, `submit_release_build`, `release_build_jobs`) en el
+  ÚNICO sitio de construcción (`dependencies.py:851`); job repo cableado en ambas
+  ramas (memoria/Postgres).
+- [x] `POST /api/platform/releases/{id}/build` → **encola** y responde
+  `ReleaseBuildAcceptedSchema` (`{build_job_id, rag_release_id, state:"queued"}`);
+  el guard de idempotencia asegura replay = mismo job sin re-encolar.
+- [x] `GET /releases/{id}/build-status` → `ReleaseBuildStatusSchema | null`. **No** se
+  añadió `/build-status/wait`: el refresh adaptativo usa **status bajo demanda**
+  (polling con `usePollingLoop`), la alternativa que el plan permitía documentar.
+- [x] El build real corre SOLO en el runner (`infrastructure/release_build_runner.py`):
+  en Postgres con **conexión propia** (bundle fresco por build vía `build_services_factory`),
+  no comparte la conexión del request ni la bloquea; traduce excepciones a
+  `error_code`/`error_message`; no guarda secretos/chunks/vectores.
+- [x] Persistencia Postgres: latest-by-release, estado, timestamps
+  (`created_at`/`updated_at`), reporte resumido (revisions_built/reused/built) y error
+  sanitizado. **Sin `version`** (desviación ponytail); idempotencia reusada del store
+  existente (no duplicada en la tabla del job).
+- [x] **ADR-010** (`docs/adr/ADR-010-async-durable-release-build.md`) por el cambio de
+  contrato de `/build`.
+- Archivos: `application/services.py`, `api/dependencies.py`, `api/router.py`,
+  `api/schemas.py`, `infrastructure/release_build_runner.py`.
 
 ### Task 3: Carga completa/paginada para variants/releases y build UX controlada
 
 **Archivos:** `platformApi.ts`, `platformTypes.ts`,
 `useAdaptiveBuildStatusRefresh.ts`, `useRagReleaseWorkspace.ts`, tests de Platform.
 
-- [ ] Escribir tests de API: `listAllVariants` y `listAllReleases` recorren todas
-  las páginas; `startReleaseBuild/getReleaseBuildStatus` llaman endpoints
-  correctos. Si existe endpoint wait, cubrir también `waitReleaseBuildStatus`.
-- [ ] Implementar `useAdaptiveBuildStatusRefresh` con estas reglas: solo activo
-  para release visible en `queued`/`running`, un request activo, abort al cambiar
-  `resourceId`, pausa con `document.hidden`, backoff tras timeout, parada en
-  `succeeded/failed`, botón manual, error visible y sin `setInterval` rígido.
-- [ ] Cambiar `useRagReleaseWorkspace`: `build()` encola, guarda job, muestra
-  estado, inicia refresh controlado si aplica, refresca la release al terminal y
-  conserva idempotencia por intento.
-- [ ] Reemplazar lecturas de página 1 por `listAllReleases/listAllVariants` en
-  releases y variants.
-- [ ] Ejecutar:
+> **Task 3 IMPLEMENTADA y verificada por tests (2026-08-24).** Operador corrió
+> `npm --prefix app/front test` (70/70 verde) + `run build` (OK) + backend
+> (`test_release_build_job_service.py`, `test_platform_api.py` 47 passed).
+> **Falta solo el gate final:** verificación Playwright runtime cuando la app esté
+> levantada (ver más abajo). NO se avanza a Task 4 hasta hacerla.
 
-```bash
-npm --prefix app/front run test
-npm --prefix app/front run build
-```
+- [x] Tests de API: `listAllVariants`/`listAllReleases` recorren todas las páginas
+  (`collectAllPages`); `buildRelease` (encola) y `getReleaseBuildStatus` pegan a los
+  endpoints correctos (cubierto en `platformApi.test.mjs` + guards).
+- [x] Refresh controlado del build: **reusa `usePollingLoop` legacy** (no se creó
+  `useAdaptiveBuildStatusRefresh` — ponytail: el loop legacy ya da abort, pausa por
+  `document.hidden`, no-solapamiento, timeout con backoff y parada en terminal).
+  Solo activo mientras la release visible está `queued`/`running`; un request activo;
+  cancela al cambiar release/proyecto; botón manual; error visible; sin `setInterval`
+  rígido.
+- [x] `useRagReleaseWorkspace.build()` encola, guarda el job, muestra estado, arranca
+  el polling controlado, refresca la release al terminal y conserva la Idempotency-Key
+  por intención (D7).
+- [x] Releases y variants ya consumen `listAllReleases`/`listAllVariants` (no página 1).
+- [x] Ejecutados por el operador: `npm --prefix app/front run test` (verde) + `run build` (OK).
+- [ ] **Gate final pendiente — Playwright runtime** (requiere `npm run gui:dev` arriba
+  con Postgres + flags + estado sembrado con un draft de release): build encola (`202`,
+  no build síncrono); `queued`/`running` visibles; el refresh **para** en terminal; sin
+  polling agresivo; pausa por visibilidad; cancelación al cambiar de contexto; fail-closed
+  visible. CLI: `/c/Users/jvrincon/AppData/Roaming/npm/playwright-cli.cmd` (v0.1.18).
 
 ### Task 4: Reuso real de la lane legacy sin acoplarla a Platform
 
@@ -561,3 +838,49 @@ sin caída de socket, sin consulta agresiva y sin fuga de datos sensibles.
 - Cobertura de este plan original: se preservan D-1, D-2, D-3, D-4, no-objetivos,
   fail-closed, trazabilidad y separación Legacy/Platform.
 - No quedan marcadores de conflicto ni planes paralelos requeridos para ejecutar.
+
+## 13. Instrucciones para el agente ejecutor
+
+**Punto de partida (ya en el branch, NO rehacer):** desbloqueo D-1 (paginación
+completa en las 4 listas project-aware), D-2 (selección masiva fail-closed en
+intake y snapshot) y D-3a (bridge nunca cuelga el socket: excepción → `500`
+`PIPELINE_BRIDGE_ERROR`). El agente **empieza en la Task 1** (build asíncrono
+durable, D-3b) y sigue el orden 1 → 5.
+
+**Ciclo de trabajo (obligatorio, de `docs/rules/TESTING_AND_QUALITY.md`):**
+INVESTIGAR → DEFINIR contrato → ESCRIBIR prueba fallida → IMPLEMENTAR mínimo →
+PRUEBAS focalizadas → REGRESIÓN → REVISAR (seguridad/trazabilidad/rendimiento) →
+DOCUMENTAR. Una Task por vez; no abrir la siguiente hasta cerrar la anterior en
+verde.
+
+**Guardarraíles duros (no negociables):**
+- Antes de tocar código, leer el `AGENTS_*.md` del área (`app/back/AGENTS_back.md`
+  o `app/front/AGENTS_front.md`) y las reglas de `docs/rules/`.
+- No reabrir invariantes de Fase 7: el frontend nunca envía `actor_id`,
+  `indexing_target_id`, `target_bindings`, nombres de tabla ni rutas físicas;
+  `target_binding_key` es lógica; la variante se crea solo con `cell_id +
+  variant_slug`; auth por cookie same-origin; scope enforced server-side.
+- Reusar, no duplicar: extraer/generalizar los componentes de la lane legacy
+  (`features/{embedding,indexing,retrieval,chunking,embeddingIndexing,dashboard}`)
+  con un contexto de proyecto opcional cuyo default preserve el comportamiento
+  legacy. Regresión legacy verde ANTES de recomponer Platform (Task 4).
+- Fail-closed visible: `401/403/409/422/503` son estados de producto, nunca se
+  silencian ni se convierten en lista vacía; `needs_review` exige decisión
+  explícita.
+- No `commit`/`push` sin autorización explícita del operador.
+- Tests de front `.test.tsx` (Vitest) y `.test.mjs` (tsc+node); backend `pytest`.
+  El agente NO ejecuta la suite completa contra Postgres del operador: escribe y
+  corre lo focalizado que pueda, y **entrega los comandos para que el operador los
+  corra**, esperando su salida antes de cerrar.
+
+**Diagnóstico primero de D-3b (Task 1):** reproducir el *socket hang up* real de
+`variant-matrix` y `releases/build` con el traceback que ahora deja el envelope
+`PIPELINE_BRIDGE_ERROR` en el log del backend; confirmar la causa (hipótesis:
+excepción no manejada en el serializado de la matriz para datos reales; build
+síncrono que bloquea el handler). Recién con la causa confirmada, implementar el
+contrato de job asíncrono durable (Tasks 1-2). Si el cambio altera el contrato de
+`releases/build`, registrar ADR en `docs/adr/`.
+
+**Verificación de cierre (Task 5 + §11):** correr lo declarado en §11 y el E2E
+manual en modo Postgres con `sst-general` (55 documentos). Sin caídas de socket,
+sin polling agresivo, sin fuga de datos, lane legacy intacta y etiquetada.

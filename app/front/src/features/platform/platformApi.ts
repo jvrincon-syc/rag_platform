@@ -34,7 +34,8 @@ import type {
   ProjectDocumentRevision,
   ProjectNormalizeReport,
   Release,
-  ReleaseBuildReport,
+  ReleaseBuildAccepted,
+  ReleaseBuildStatus,
   RetireReleaseRequest,
   UpdateProjectConfigurationRequest,
   UpdateProjectRequest,
@@ -232,8 +233,21 @@ export function createReleaseDraft(
   return postJson<Release>(`${BASE}/releases`, body, options);
 }
 
-export function buildRelease(releaseId: string, options?: PipelinePostOptions): Promise<ReleaseBuildReport> {
-  return postJson<ReleaseBuildReport>(`${BASE}/releases/${releaseId}/build`, {}, withIdempotency(options));
+// Build asíncrono (ADR-010): encola el job y responde de inmediato (`Accepted`);
+// no bloquea el request. El progreso se observa con `getReleaseBuildStatus`.
+// Un replay del mismo Idempotency-Key devuelve el mismo `build_job_id` sin
+// re-encolar (idempotencia por intención lógica, cf. `useIdempotentReleaseAction`).
+export function buildRelease(releaseId: string, options?: PipelinePostOptions): Promise<ReleaseBuildAccepted> {
+  return postJson<ReleaseBuildAccepted>(`${BASE}/releases/${releaseId}/build`, {}, withIdempotency(options));
+}
+
+// Read-model del build asíncrono para el polling de la GUI. `null` = la release
+// aún no tiene ningún intento de build (fail-closed: no se finge éxito).
+export function getReleaseBuildStatus(
+  releaseId: string,
+  options?: PipelineGetOptions,
+): Promise<ReleaseBuildStatus | null> {
+  return getJson<ReleaseBuildStatus | null>(`${BASE}/releases/${releaseId}/build-status`, options);
 }
 
 export function validateRelease(releaseId: string, options?: PipelinePostOptions): Promise<Release> {

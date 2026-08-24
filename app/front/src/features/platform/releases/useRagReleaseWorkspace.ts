@@ -5,6 +5,7 @@ import {
   createReleaseDraft,
   getConfiguration,
   getRelease,
+  getReleaseBuildStatus,
   listAllCorpusSnapshots,
   listAllReleases,
   listAllVariants,
@@ -13,8 +14,9 @@ import {
   validateRelease,
 } from "../platformApi.js";
 import { usePlatformPreferences } from "../hooks/usePlatformPreferences.js";
+import { usePollingLoop } from "../../embeddingIndexing/shared/usePollingLoop.js";
 import { mapPipelineError } from "../../../shared/api/errorMapping.js";
-import type { CorpusSnapshot, Release, ReleaseBuildReport, Variant } from "../platformTypes.js";
+import type { CorpusSnapshot, Release, ReleaseBuildStatus, Variant } from "../platformTypes.js";
 import { useIdempotentReleaseAction } from "./useIdempotentReleaseAction.js";
 
 // Estado de servidor + acciones del workspace de release lifecycle. Los componentes
@@ -36,9 +38,16 @@ export type ReleaseLoadState =
   | { status: "ready"; data: ReleaseWorkspaceData }
   | { status: "error"; message: string };
 
-export type BuildReportState =
+// Progreso del build asíncrono (ADR-010). El build ya no bloquea el request: se
+// encola y se observa por polling. `idle` = nunca se intentó (o release/proyecto
+// cambiaron); `queued`/`running` = en curso; `succeeded` muestra el reporte;
+// `failed` muestra el error del proveedor sin ocultarlo (fail-closed).
+export type BuildProgress =
   | { status: "idle" }
-  | { status: "success"; report: ReleaseBuildReport };
+  | { status: "queued" }
+  | { status: "running" }
+  | { status: "succeeded"; report: ReleaseBuildStatus }
+  | { status: "failed"; errorCode: string | null; errorMessage: string | null };
 
 export type ReleaseWorkspaceNotice =
   | { tone: "info" | "success" | "warning" | "danger"; message: string }
@@ -81,7 +90,9 @@ export function useRagReleaseWorkspace() {
   const [load, setLoad] = useState<ReleaseLoadState>(
     projectId ? { status: "loading" } : { status: "no-project" },
   );
-  const [buildReport, setBuildReport] = useState<BuildReportState>({ status: "idle" });
+  // Release cuyo build se está observando por polling. `nonce` se incrementa en
+  // cada build para reiniciar el polling aun sobre la MISMA release (reintento).
+  const [buildTarget, setBuildTarget] = useState<{ releaseId: string; nonce: number } | null>(null);
   const [notice, setNotice] = useState<ReleaseWorkspaceNotice>(null);
   const [creating, setCreating] = useState(false);
   // Intención de mutación en vuelo sobre la release seleccionada (deshabilita las
@@ -99,6 +110,39 @@ export function useRagReleaseWorkspace() {
   // Un único AbortController vivo: cambiar de proyecto o refrescar abortan la carga
   // en vuelo para evitar condiciones de carrera entre proyectos.
   const controllerRef = useRef<AbortController | null>(null);
+
+  // Polling del estado del build asíncrono, reusando el loop legacy compartido
+  // (abortable, pausa con la pestaña oculta, no solapa peticiones, corta en
+  // terminal y por timeout). `resourceId` incluye el nonce: cambiar de release,
+  // de proyecto (buildTarget→null) o relanzar el build reinicia el loop, y su
+  // cleanup aborta la petición en vuelo. Sin `setInterval` agresivo.
+  const buildReleaseId = buildTarget?.releaseId ?? null;
+  const buildPoll = usePollingLoop<ReleaseBuildStatus | null>({
+    resourceId: buildTarget ? `${buildTarget.releaseId}:${buildTarget.nonce}` : null,
+    intervalMs: 2500,
+    fetchOnce: (signal) => getReleaseBuildStatus(buildReleaseId as string, { signal }),
+    // `null` (aún sin job) no es terminal: se sigue consultando hasta encontrarlo.
+    isTerminal: (status) =>
+      status !== null && (status.state === "succeeded" || status.state === "failed"),
+  });
+
+  const buildProgress = useMemo<BuildProgress>(() => {
+    if (!buildTarget) {
+      return { status: "idle" };
+    }
+    const status = buildPoll.value;
+    if (status?.state === "succeeded") {
+      return { status: "succeeded", report: status };
+    }
+    if (status?.state === "failed") {
+      return {
+        status: "failed",
+        errorCode: status.error_code ?? null,
+        errorMessage: status.error_message ?? null,
+      };
+    }
+    return status?.state === "running" ? { status: "running" } : { status: "queued" };
+  }, [buildTarget, buildPoll.value]);
 
   const fetchAll = useCallback(async (pid: string, signal: AbortSignal) => {
     setLoad({ status: "loading" });
@@ -152,7 +196,10 @@ export function useRagReleaseWorkspace() {
   // selección de proyecto obsoleta limpia el estado local antes de recargar.
   useEffect(() => {
     setNotice(null);
-    setBuildReport({ status: "idle" });
+    // Cambiar de proyecto cancela cualquier polling de build en curso (buildTarget
+    // →null desmonta el loop) y libera la acción en vuelo.
+    setBuildTarget(null);
+    setBusyAction(null);
     setDraftVariantId(null);
     setDraftSnapshotId(null);
     setDraftBindingKey(null);
@@ -260,7 +307,7 @@ export function useRagReleaseWorkspace() {
       });
       applyRelease(release);
       setSelectedRagRelease(release.rag_release_id);
-      setBuildReport({ status: "idle" });
+      setBuildTarget(null);
       setNotice({
         tone: "success",
         message: `Draft ${release.rag_release_id} (release #${release.release_number}) creado en estado "${release.state}".`,
@@ -282,20 +329,80 @@ export function useRagReleaseWorkspace() {
     setBusyAction("build");
     setNotice(null);
     try {
-      const report = await idempotent.run(`build:${releaseId}`, (options) =>
+      // El build ya no bloquea: encola el job (ADR-010). Un reintento de la MISMA
+      // intención reusa la Idempotency-Key (replay server-side, mismo build_job_id).
+      const accepted = await idempotent.run(`build:${releaseId}`, (options) =>
         buildRelease(releaseId, options),
       );
-      setBuildReport({ status: "success", report });
       setNotice({
-        tone: "success",
-        message: `Build completado: ${report.revisions_built} revisión(es), ${report.built_stages} etapa(s) construida(s), ${report.reused_stages} reutilizada(s).`,
+        tone: "info",
+        message: `Build encolado (job ${accepted.build_job_id}); ejecutándose en el servidor.`,
       });
+      // Arranca (o reinicia, vía nonce) el polling; busyAction sigue en "build"
+      // hasta que el job alcance un estado terminal (lo libera el efecto terminal).
+      setBuildTarget((prev) => ({ releaseId, nonce: (prev?.nonce ?? 0) + 1 }));
     } catch (error) {
+      // Fallo al ENCOLAR (no del job): libera la acción; el estado se surfacea
+      // fail-closed (409 de idempotencia/transición incluidos).
       await handleMutationError(error, releaseId);
-    } finally {
       setBusyAction(null);
     }
   }, [selectedRelease, busyAction, idempotent, handleMutationError]);
+
+  // Reacción al estado terminal del polling: libera la acción, surfacea el
+  // resultado (éxito/fallo/timeout) y, al éxito, resincroniza la release. Nunca
+  // oculta un fallo del proveedor tras un genérico ni tras un éxito aparente.
+  useEffect(() => {
+    if (!buildTarget) {
+      return;
+    }
+    const status = buildPoll.value;
+    const succeeded = status?.state === "succeeded";
+    const failed = status?.state === "failed";
+    if (succeeded || failed || buildPoll.timedOut) {
+      setBusyAction((current) => (current === "build" ? null : current));
+    }
+    if (succeeded) {
+      setNotice({
+        tone: "success",
+        message: `Build completado: ${status?.revisions_built ?? 0} revisión(es), ${status?.built_stages ?? 0} etapa(s) construida(s), ${status?.reused_stages ?? 0} reutilizada(s).`,
+      });
+    } else if (failed) {
+      setNotice({
+        tone: "danger",
+        message: `Build fallido${status?.error_code ? ` (${status.error_code})` : ""}: ${status?.error_message ?? "el servidor no entregó detalle."}`,
+      });
+    } else if (buildPoll.timedOut) {
+      setNotice({
+        tone: "warning",
+        message:
+          "El seguimiento del build venció sin estado terminal. El build sigue del lado del servidor; usa Actualizar para reconsultar.",
+      });
+    }
+  }, [buildTarget, buildPoll.value, buildPoll.timedOut]);
+
+  // Al terminar OK, resincroniza la release seleccionada (p. ej. manifest hash)
+  // sin volcar a "loading": el informe del build permanece visible.
+  useEffect(() => {
+    if (!buildTarget || buildPoll.value?.state !== "succeeded") {
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      try {
+        const fresh = await getRelease(buildTarget.releaseId);
+        if (!cancelled) {
+          applyRelease(fresh);
+        }
+      } catch {
+        // Fail-closed: el resultado del build ya es visible; no lo ocultamos si el
+        // refresco puntual de la release falla.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [buildTarget, buildPoll.value, applyRelease]);
 
   const validate = useCallback(async () => {
     if (!selectedRelease || busyAction) {
@@ -370,8 +477,10 @@ export function useRagReleaseWorkspace() {
   const selectRelease = useCallback(
     (releaseId: string) => {
       setSelectedRagRelease(releaseId);
-      // Cambiar de release descarta el informe de build de la anterior.
-      setBuildReport({ status: "idle" });
+      // Cambiar de release cancela el polling del build anterior (buildTarget→null
+      // desmonta el loop y aborta la petición en vuelo) y libera la acción.
+      setBuildTarget(null);
+      setBusyAction(null);
       setNotice(null);
     },
     [setSelectedRagRelease],
@@ -391,7 +500,8 @@ export function useRagReleaseWorkspace() {
     load,
     selectedReleaseId,
     selectedRelease,
-    buildReport,
+    buildProgress,
+    buildPolling: buildPoll.polling,
     notice,
     creating,
     busyAction,

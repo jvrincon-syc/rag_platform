@@ -4,6 +4,7 @@ import json
 import logging
 import shutil
 import sys
+import threading
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from email import policy
@@ -84,6 +85,16 @@ ALLOWED_LLAMA_ROUTES = {
 }
 
 server_logger = logging.getLogger(__name__)
+
+# El bridge reenvía a una app FastAPI cableada con UNA sola conexión psycopg2
+# compartida (``build_pipeline_services_from_env``). ``ThreadingHTTPServer`` sirve
+# cada request en su propio hilo, y psycopg2 no es thread-safe: dos requests
+# concurrentes (p. ej. la vista Variants dispara variant-matrix + variants en
+# paralelo) chocan sobre el mismo cursor y revientan la conexión. Este lock de
+# proceso serializa el acceso al bridge para una GUI local mono-operador.
+# ponytail: lock global; migrar a psycopg2 ThreadedConnectionPool + conexión por
+# request si algún día importa el throughput / multi-operador.
+_PIPELINE_BRIDGE_LOCK = threading.Lock()
 
 
 @dataclass
@@ -596,12 +607,16 @@ class Phase1GuiHandler(BaseHTTPRequestHandler):
                 }
                 headers["Authorization"] = f"Bearer {session.bearer_credential}"
         try:
-            response = bridge.handle(
-                method=method,
-                path=self.path,
-                headers=headers,
-                body=body,
-            )
+            # Serializado: la conexión psycopg2 compartida no tolera uso concurrente
+            # entre hilos del ThreadingHTTPServer (causa raíz del socket hang up en
+            # variant-matrix bajo requests en paralelo).
+            with _PIPELINE_BRIDGE_LOCK:
+                response = bridge.handle(
+                    method=method,
+                    path=self.path,
+                    headers=headers,
+                    body=body,
+                )
         except Exception as exc:  # noqa: BLE001 — frontera de proceso, fail-closed
             # El bridge NUNCA debe colgar el socket ("socket hang up" en el proxy):
             # cualquier excepción que escape del ASGI app se traduce a un 500 con

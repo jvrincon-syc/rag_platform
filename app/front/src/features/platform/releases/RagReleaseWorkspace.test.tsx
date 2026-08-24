@@ -10,11 +10,13 @@ import type {
   CorpusSnapshot,
   ProjectConfiguration,
   Release,
-  ReleaseBuildReport,
+  ReleaseBuildAccepted,
+  ReleaseBuildStatus,
   Variant,
 } from "../platformTypes.js";
 
-// Cliente HTTP mockeado en el límite de red: ningún test toca fetch.
+// Cliente HTTP mockeado en el límite de red: ningún test toca fetch. El build es
+// asíncrono (ADR-010): `buildRelease` encola y `getReleaseBuildStatus` se pollea.
 vi.mock("../platformApi.js", () => ({
   listAllReleases: vi.fn(),
   listAllVariants: vi.fn(),
@@ -23,6 +25,7 @@ vi.mock("../platformApi.js", () => ({
   getRelease: vi.fn(),
   createReleaseDraft: vi.fn(),
   buildRelease: vi.fn(),
+  getReleaseBuildStatus: vi.fn(),
   validateRelease: vi.fn(),
   publishRelease: vi.fn(),
   retireRelease: vi.fn(),
@@ -87,12 +90,25 @@ function makeRelease(overrides: Partial<Release> = {}): Release {
   };
 }
 
-function makeReport(overrides: Partial<ReleaseBuildReport> = {}): ReleaseBuildReport {
+function makeAccepted(overrides: Partial<ReleaseBuildAccepted> = {}): ReleaseBuildAccepted {
   return {
+    build_job_id: "bjob_1",
     rag_release_id: "rel_1",
+    state: "queued",
+    ...overrides,
+  };
+}
+
+function makeBuildStatus(overrides: Partial<ReleaseBuildStatus> = {}): ReleaseBuildStatus {
+  return {
+    build_job_id: "bjob_1",
+    rag_release_id: "rel_1",
+    state: "succeeded",
     revisions_built: 3,
     reused_stages: 1,
     built_stages: 2,
+    error_code: null,
+    error_message: null,
     ...overrides,
   };
 }
@@ -114,7 +130,8 @@ beforeEach(() => {
   api.getConfiguration.mockResolvedValue(makeConfiguration());
   api.getRelease.mockResolvedValue(makeRelease());
   api.createReleaseDraft.mockResolvedValue(makeRelease());
-  api.buildRelease.mockResolvedValue(makeReport());
+  api.buildRelease.mockResolvedValue(makeAccepted());
+  api.getReleaseBuildStatus.mockResolvedValue(makeBuildStatus());
   api.validateRelease.mockResolvedValue(makeRelease({ state: "validated" }));
   api.publishRelease.mockResolvedValue(makeRelease({ state: "published" }));
   api.retireRelease.mockResolvedValue(makeRelease({ state: "retired", reason: "obsoleta" }));
@@ -142,7 +159,7 @@ describe("RagReleaseWorkspace", () => {
     expect("indexing_target_id" in body).toBe(false);
   });
 
-  it("(b) build muestra el informe (revisions_built / reused / built)", async () => {
+  it("(b) build encola y, al pollear succeeded, muestra el informe", async () => {
     selectInStorage("proj_alpha", "rel_1");
     api.listAllReleases.mockResolvedValue([makeRelease()]);
     const user = userEvent.setup();
@@ -150,17 +167,60 @@ describe("RagReleaseWorkspace", () => {
 
     await user.click(await screen.findByRole("button", { name: /Construir \(build\)/ }));
 
-    // El informe se renderiza con las tres métricas del contrato.
+    // El build NO bloquea: se encola y el estado se observa por polling.
+    await waitFor(() => expect(api.getReleaseBuildStatus).toHaveBeenCalledWith("rel_1", expect.anything()));
+    // Al alcanzar `succeeded`, el informe se renderiza con las tres métricas.
     expect(await screen.findByText("Revisiones construidas")).toBeTruthy();
     expect(screen.getByText("Etapas construidas")).toBeTruthy();
     expect(screen.getByText("Etapas reutilizadas")).toBeTruthy();
     // El resumen accesible incluye los valores construido/reutilizado.
     expect(
-      screen.getByText(
+      await screen.findByText(
         /Build completado: 3 revisión\(es\), 2 etapa\(s\) construida\(s\), 1 reutilizada/,
       ),
     ).toBeTruthy();
+    // Encolado una sola vez (no se re-encola por render ni por cada poll).
     expect(api.buildRelease).toHaveBeenCalledTimes(1);
+  });
+
+  it("(b2) build → poll failed muestra el error del proveedor sin ocultarlo", async () => {
+    selectInStorage("proj_alpha", "rel_1");
+    api.listAllReleases.mockResolvedValue([makeRelease()]);
+    api.getReleaseBuildStatus.mockResolvedValue(
+      makeBuildStatus({
+        state: "failed",
+        revisions_built: null,
+        reused_stages: null,
+        built_stages: null,
+        error_code: "RELEASE_BUILD_TOO_LARGE",
+        error_message: "El snapshot excede el límite.",
+      }),
+    );
+    const user = userEvent.setup();
+    render(<RagReleaseWorkspace />);
+
+    await user.click(await screen.findByRole("button", { name: /Construir \(build\)/ }));
+
+    // El fallo se surface fail-closed en DOS sitios (notice de acción + panel del
+    // informe de build); ambos son visibles a propósito, por eso getAllByText.
+    const failures = await screen.findAllByText(/Build fallido \(RELEASE_BUILD_TOO_LARGE\)/);
+    expect(failures.length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/El snapshot excede el límite/).length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("(b3) getReleaseBuildStatus null (sin build) no finge éxito", async () => {
+    selectInStorage("proj_alpha", "rel_1");
+    api.listAllReleases.mockResolvedValue([makeRelease()]);
+    // El backend devuelve null hasta que aparece el job; el loop sigue en curso.
+    api.getReleaseBuildStatus.mockResolvedValue(null);
+    const user = userEvent.setup();
+    render(<RagReleaseWorkspace />);
+
+    await user.click(await screen.findByRole("button", { name: /Construir \(build\)/ }));
+
+    // En curso (encolado), nunca "Revisiones construidas" ni un éxito aparente.
+    expect(await screen.findByText(/Build encolado \(job bjob_1\)/)).toBeTruthy();
+    expect(screen.queryByText("Revisiones construidas")).toBeNull();
   });
 
   it("(c) ofrece solo las acciones válidas por estado", async () => {
@@ -202,6 +262,8 @@ describe("RagReleaseWorkspace", () => {
     expect(await screen.findByText(/Conflicto de clave de idempotencia/)).toBeTruthy();
     // No hay reintento automático: la acción se llamó exactamente una vez.
     expect(api.buildRelease).toHaveBeenCalledTimes(1);
+    // El encolado falló: no se arranca el polling (fail-closed, sin éxito aparente).
+    expect(api.getReleaseBuildStatus).not.toHaveBeenCalled();
   });
 
   it("(e) 409 INVALID_RELEASE_TRANSITION: refetch de la release", async () => {
@@ -242,11 +304,11 @@ describe("RagReleaseWorkspace", () => {
   it("(g) D7: el reintento de la misma intención reusa la clave; una nueva intención acuña otra", async () => {
     selectInStorage("proj_alpha", "rel_1");
     api.listAllReleases.mockResolvedValue([makeRelease()]);
-    // 1er intento: fallo recuperable (no rota clave); 2º y 3º: éxito.
+    // 1er intento: fallo recuperable al ENCOLAR (no rota clave); 2º y 3º: encolan.
     api.buildRelease
       .mockRejectedValueOnce({ status: 503, code: "POSTGRES_UNAVAILABLE" })
-      .mockResolvedValueOnce(makeReport())
-      .mockResolvedValueOnce(makeReport());
+      .mockResolvedValueOnce(makeAccepted())
+      .mockResolvedValueOnce(makeAccepted());
     const user = userEvent.setup();
     render(<RagReleaseWorkspace />);
 

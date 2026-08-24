@@ -42,7 +42,10 @@ export type Release = Schemas["ReleaseSchema"];
 export type PaginatedReleases = Schemas["PaginatedReleasesSchema"];
 export type CreateReleaseDraftRequest = Schemas["CreateReleaseDraftRequestSchema"];
 export type RetireReleaseRequest = Schemas["RetireReleaseRequestSchema"];
-export type ReleaseBuildReport = Schemas["ReleaseBuildReportSchema"];
+// Build asíncrono (ADR-010): `POST /build` encola y responde `Accepted`; el estado
+// observable se consulta por polling. Ya no hay reporte síncrono `ReleaseBuildReport`.
+export type ReleaseBuildAccepted = Schemas["ReleaseBuildAcceptedSchema"];
+export type ReleaseBuildStatus = Schemas["ReleaseBuildStatusSchema"];
 
 // Perfiles (read-model)
 export type ProcessingProfileRead = Schemas["ProcessingProfileReadSchema"];

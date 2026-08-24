@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   buildRelease,
   createProject,
+  getReleaseBuildStatus,
   listAllReleases,
   listAllVariants,
   listProjects,
@@ -132,20 +133,46 @@ await test("uploadDocument envía multipart sin Content-Type manual", async () =
   assert.equal(init.body.get("source_relpath"), "manuals/a.md");
 });
 
-// --- Idempotencia en mutaciones de release --------------------------------- //
+// --- Build asíncrono: encolar + estado por polling (ADR-010) ---------------- //
 
-await test("buildRelease adjunta un Idempotency-Key de plataforma", async () => {
-  const calls = captureFetch(jsonResponse({ rag_release_id: "ragr_1", revisions_built: 0, reused_stages: 0, built_stages: 0 }));
-  await buildRelease("ragr_1");
-  const [, init] = calls[0];
+await test("buildRelease encola (POST /build) con Idempotency-Key de plataforma", async () => {
+  const calls = captureFetch(jsonResponse({ build_job_id: "bjob_1", rag_release_id: "ragr_1", state: "queued" }));
+  const accepted = await buildRelease("ragr_1");
+  const [url, init] = calls[0];
+  assert.equal(url, "/api/platform/releases/ragr_1/build");
+  assert.equal(init.method, "POST");
   assert.equal(init.headers["Idempotency-Key"].startsWith("platform-"), true);
+  // Encolado: responde con el job y estado queued, no un reporte síncrono.
+  assert.equal(accepted.build_job_id, "bjob_1");
+  assert.equal(accepted.state, "queued");
+  // El body NO lleva target físico/actor/indexing_target_id (invariante Fase 7).
+  assert.deepEqual(JSON.parse(init.body), {});
 });
 
-await test("buildRelease respeta una Idempotency-Key provista (replay)", async () => {
-  const calls = captureFetch(jsonResponse({ rag_release_id: "ragr_1", revisions_built: 0, reused_stages: 0, built_stages: 0 }));
+await test("buildRelease respeta una Idempotency-Key provista (replay del MISMO build)", async () => {
+  const calls = captureFetch(jsonResponse({ build_job_id: "bjob_1", rag_release_id: "ragr_1", state: "queued" }));
   await buildRelease("ragr_1", { idempotencyKey: "platform-fija" });
   const [, init] = calls[0];
   assert.equal(init.headers["Idempotency-Key"], "platform-fija");
+});
+
+await test("getReleaseBuildStatus hace GET same-origin sin Idempotency-Key", async () => {
+  const calls = captureFetch(
+    jsonResponse({ build_job_id: "bjob_1", rag_release_id: "ragr_1", state: "running" }),
+  );
+  const status = await getReleaseBuildStatus("ragr_1");
+  const [url, init] = calls[0];
+  assert.equal(url, "/api/platform/releases/ragr_1/build-status");
+  assert.equal(init.method, undefined); // GET por defecto
+  assert.equal(init.credentials, "same-origin");
+  assert.equal(init.headers, undefined); // sin bearer ni Idempotency-Key
+  assert.equal(status.state, "running");
+});
+
+await test("getReleaseBuildStatus mapea null (release sin ningún build)", async () => {
+  captureFetch(jsonResponse(null));
+  const status = await getReleaseBuildStatus("ragr_1");
+  assert.equal(status, null);
 });
 
 // --- Envelope de error único: status y code preservados -------------------- //

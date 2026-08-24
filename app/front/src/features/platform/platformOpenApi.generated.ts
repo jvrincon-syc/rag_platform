@@ -589,6 +589,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/platform/releases/{rag_release_id}/build-status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Release Build Status */
+        get: operations["get_release_build_status_api_platform_releases__rag_release_id__build_status_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/platform/releases/{rag_release_id}/publish": {
         parameters: {
             query?: never;
@@ -1664,16 +1681,39 @@ export interface components {
             /** State */
             state: string;
         };
-        /** ReleaseBuildReportSchema */
-        ReleaseBuildReportSchema: {
+        /**
+         * ReleaseBuildAcceptedSchema
+         * @description Respuesta al encolar un build asíncrono (Fase 8 §D-3b): no bloquea.
+         */
+        ReleaseBuildAcceptedSchema: {
+            /** Build Job Id */
+            build_job_id: string;
+            /** Rag Release Id */
+            rag_release_id: string;
+            /** State */
+            state: string;
+        };
+        /**
+         * ReleaseBuildStatusSchema
+         * @description Estado observable del build asíncrono; los enteros del reporte solo al éxito.
+         */
+        ReleaseBuildStatusSchema: {
+            /** Build Job Id */
+            build_job_id: string;
             /** Built Stages */
-            built_stages: number;
+            built_stages?: number | null;
+            /** Error Code */
+            error_code?: string | null;
+            /** Error Message */
+            error_message?: string | null;
             /** Rag Release Id */
             rag_release_id: string;
             /** Reused Stages */
-            reused_stages: number;
+            reused_stages?: number | null;
             /** Revisions Built */
-            revisions_built: number;
+            revisions_built?: number | null;
+            /** State */
+            state: string;
         };
         /** ReleaseSchema */
         ReleaseSchema: {
@@ -5165,7 +5205,83 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ReleaseBuildReportSchema"];
+                    "application/json": components["schemas"]["ReleaseBuildAcceptedSchema"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelopeSchema"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelopeSchema"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelopeSchema"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelopeSchema"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelopeSchema"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelopeSchema"];
+                };
+            };
+        };
+    };
+    get_release_build_status_api_platform_releases__rag_release_id__build_status_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rag_release_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReleaseBuildStatusSchema"] | null;
                 };
             };
             /** @description Bad Request */

@@ -2425,33 +2425,109 @@
         "title": "ProjectSchema",
         "type": "object"
       },
-      "ReleaseBuildReportSchema": {
+      "ReleaseBuildAcceptedSchema": {
         "additionalProperties": false,
+        "description": "Respuesta al encolar un build as\u00edncrono (Fase 8 \u00a7D-3b): no bloquea.",
         "properties": {
+          "build_job_id": {
+            "title": "Build Job Id",
+            "type": "string"
+          },
+          "rag_release_id": {
+            "title": "Rag Release Id",
+            "type": "string"
+          },
+          "state": {
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "build_job_id",
+          "rag_release_id",
+          "state"
+        ],
+        "title": "ReleaseBuildAcceptedSchema",
+        "type": "object"
+      },
+      "ReleaseBuildStatusSchema": {
+        "additionalProperties": false,
+        "description": "Estado observable del build as\u00edncrono; los enteros del reporte solo al \u00e9xito.",
+        "properties": {
+          "build_job_id": {
+            "title": "Build Job Id",
+            "type": "string"
+          },
           "built_stages": {
-            "title": "Built Stages",
-            "type": "integer"
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Built Stages"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "error_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Message"
           },
           "rag_release_id": {
             "title": "Rag Release Id",
             "type": "string"
           },
           "reused_stages": {
-            "title": "Reused Stages",
-            "type": "integer"
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reused Stages"
           },
           "revisions_built": {
-            "title": "Revisions Built",
-            "type": "integer"
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revisions Built"
+          },
+          "state": {
+            "title": "State",
+            "type": "string"
           }
         },
         "required": [
+          "build_job_id",
           "rag_release_id",
-          "revisions_built",
-          "reused_stages",
-          "built_stages"
+          "state"
         ],
-        "title": "ReleaseBuildReportSchema",
+        "title": "ReleaseBuildStatusSchema",
         "type": "object"
       },
       "ReleaseSchema": {
@@ -7418,7 +7494,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ReleaseBuildReportSchema"
+                  "$ref": "#/components/schemas/ReleaseBuildAcceptedSchema"
                 }
               }
             },
@@ -7486,6 +7562,106 @@
           }
         },
         "summary": "Build Release",
+        "tags": [
+          "platform"
+        ]
+      }
+    },
+    "/api/platform/releases/{rag_release_id}/build-status": {
+      "get": {
+        "operationId": "get_release_build_status_api_platform_releases__rag_release_id__build_status_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "rag_release_id",
+            "required": true,
+            "schema": {
+              "title": "Rag Release Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/ReleaseBuildStatusSchema"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Get Release Build Status Api Platform Releases  Rag Release Id  Build Status Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeSchema"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeSchema"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeSchema"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeSchema"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeSchema"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeSchema"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Get Release Build Status",
         "tags": [
           "platform"
         ]

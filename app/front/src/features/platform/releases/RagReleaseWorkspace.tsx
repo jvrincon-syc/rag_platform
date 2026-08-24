@@ -159,7 +159,7 @@ function RagReleaseBody({ workspace }: { workspace: ReturnType<typeof useRagRele
             </div>
           </div>
           <div className="ui-panel-body">
-            <BuildReport state={workspace.buildReport} />
+            <BuildReport progress={workspace.buildProgress} polling={workspace.buildPolling} />
           </div>
         </section>
       </div>

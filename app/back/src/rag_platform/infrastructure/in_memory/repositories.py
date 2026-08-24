@@ -24,8 +24,10 @@ from rag_platform.domain.errors import (
     ProjectAlreadyExists,
     ProjectNotFound,
     RagVariantNotFound,
+    ReleaseBuildJobNotFound,
     SourceDocumentRevisionNotFound,
 )
+from rag_platform.domain.build_jobs import ReleaseBuildJob
 from rag_platform.domain.identity import IdentityKind, PlatformId, RagBuildContext
 from rag_platform.domain.models import (
     BuildOutcome,
@@ -792,6 +794,45 @@ class InMemoryIndexingMaterializationRepository:
                 f"materialization {materialization_id!r} is not in WRITING state"
             )
         return current
+
+
+class InMemoryReleaseBuildJobRepository:
+    """Estado durable-en-memoria de los intentos de build asíncrono (Fase 8 §D-3b)."""
+
+    def __init__(self) -> None:
+        self._jobs: dict[str, ReleaseBuildJob] = {}
+        self._lock = threading.Lock()
+
+    def create(self, job: ReleaseBuildJob) -> ReleaseBuildJob:
+        with self._lock:
+            self._jobs[job.build_job_id] = job
+        return job
+
+    def update(self, job: ReleaseBuildJob) -> ReleaseBuildJob:
+        with self._lock:
+            if job.build_job_id not in self._jobs:
+                raise ReleaseBuildJobNotFound(job.build_job_id)
+            self._jobs[job.build_job_id] = job
+        return job
+
+    def get(self, build_job_id: str) -> ReleaseBuildJob:
+        with self._lock:
+            job = self._jobs.get(build_job_id)
+        if job is None:
+            raise ReleaseBuildJobNotFound(build_job_id)
+        return job
+
+    def latest_for_release(self, rag_release_id: PlatformId) -> ReleaseBuildJob | None:
+        with self._lock:
+            jobs = [
+                job
+                for job in self._jobs.values()
+                if job.rag_release_id == rag_release_id
+            ]
+        if not jobs:
+            return None
+        # Más reciente por uploaded time; desempate estable por id.
+        return max(jobs, key=lambda job: (job.created_at, job.build_job_id))
 
 
 # Verificación estructural: el adaptador satisface el puerto.

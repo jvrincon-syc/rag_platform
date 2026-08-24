@@ -1,0 +1,80 @@
+- generic [ref=e3]:
+  - complementary [ref=e28]:
+    - generic [ref=e29]: RAG Platform
+    - navigation "Superficies de operador" [ref=e35]:
+      - button "Platform" [ref=e36] [cursor=pointer]
+      - button "Legacy pipeline" [active] [ref=e43] [cursor=pointer]
+    - generic [ref=e49]:
+      - generic [ref=e50]:
+        - generic [ref=e51]: Sesión
+        - strong [ref=e52]: prueba3
+        - generic [ref=e53]: Todos los proyectos
+      - button "Cerrar sesión" [ref=e54] [cursor=pointer]
+  - generic [ref=e1485]:
+    - complementary [ref=e1486]:
+      - generic [ref=e1487]: SST Pipeline
+      - navigation [ref=e1492]:
+        - button "Operacion" [ref=e1493] [cursor=pointer]
+        - button "Revision" [ref=e1497] [cursor=pointer]
+        - button "Inventario" [ref=e1501] [cursor=pointer]
+        - button "Chunking" [ref=e1506] [cursor=pointer]
+        - button "Embedding/Indexing" [ref=e1510] [cursor=pointer]
+    - main [ref=e1521]:
+      - generic [ref=e1522]:
+        - generic [ref=e1523]:
+          - heading "Legacy pipeline - Revision documental" [level=1] [ref=e1524]
+          - paragraph [ref=e1525]: Legacy pipeline actual - Schema 2.0 - gui_phase1_20260722_152645
+        - generic [ref=e1526]:
+          - generic "Cambiar vista" [ref=e1527]:
+            - button "Operacion" [ref=e1528] [cursor=pointer]
+            - button "Revision" [ref=e1529] [cursor=pointer]
+            - button "Inventario" [ref=e1530] [cursor=pointer]
+            - button "Chunking" [ref=e1531] [cursor=pointer]
+            - button "Emb/Idx" [ref=e1532] [cursor=pointer]
+          - button "Actualizar" [ref=e1533] [cursor=pointer]
+          - generic [ref=e1539]: Operaciones SST
+      - region "Resumen" [ref=e1540]:
+        - article [ref=e1541]:
+          - generic [ref=e1546]:
+            - generic [ref=e1547]: Total
+            - strong [ref=e1548]: "55"
+        - article [ref=e1549]:
+          - generic [ref=e1554]:
+            - generic [ref=e1555]: Procesados
+            - strong [ref=e1556]: "44"
+        - article [ref=e1557]:
+          - generic [ref=e1562]:
+            - generic [ref=e1563]: En revisión
+            - strong [ref=e1564]: "0"
+        - article [ref=e1565]:
+          - generic [ref=e1571]:
+            - generic [ref=e1572]: Fallidos
+            - strong [ref=e1573]: "0"
+        - article [ref=e1574]:
+          - generic [ref=e1578]:
+            - generic [ref=e1579]: Aprobados
+            - strong [ref=e1580]: "11"
+        - article [ref=e1581]:
+          - generic [ref=e1587]:
+            - generic [ref=e1588]: Rechazados
+            - strong [ref=e1589]: "0"
+      - generic [ref=e1590]:
+        - generic [ref=e1591]:
+          - generic [ref=e1592]:
+            - heading "Documentos en revisión" [level=2] [ref=e1593]
+            - generic [ref=e1594]: 0 pendientes
+          - table [ref=e1596]:
+            - rowgroup [ref=e1597]:
+              - row [ref=e1598]:
+                - columnheader "Documento" [ref=e1599]
+                - columnheader "Categoría" [ref=e1600]
+                - columnheader "Motivos" [ref=e1601]
+                - columnheader "Decisión" [ref=e1602]
+            - rowgroup [ref=e1603]:
+              - row [ref=e1604]:
+                - cell "Sin documentos pendientes de decisión." [ref=e1605]
+        - complementary [ref=e1606]:
+          - generic [ref=e1608]:
+            - heading "Detalle de documento" [level=2] [ref=e1609]
+            - generic [ref=e1610]: Vista de revisión
+          - generic [ref=e1611]: Selecciona un documento para revisar rutas, motivos y decisiones.

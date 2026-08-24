@@ -51,6 +51,13 @@ class ChunkingProfileNotFound(RagPlatformError):
     http_status = 404
 
 
+class ReleaseBuildJobNotFound(RagPlatformError):
+    """No existe un job de build asíncrono con ese id (Fase 8 §D-3b)."""
+
+    code = "RELEASE_BUILD_JOB_NOT_FOUND"
+    http_status = 404
+
+
 class ProfileProjectMismatch(RagPlatformError):
     """Un perfil pertenece a otro proyecto que el de la receta."""
 

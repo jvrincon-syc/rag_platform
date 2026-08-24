@@ -149,7 +149,7 @@ describe("DocumentIntakeWorkspace", () => {
   it("normaliza enviando { rag_variant_id, document_revision_ids } sin processing_profile_id", async () => {
     selectProjectInStorage("proj_alpha");
     api.listAllDocuments.mockResolvedValue([makeRevision()]);
-    api.listVariants.mockResolvedValue(paginateVariants([makeVariant()]));
+    api.listAllVariants.mockResolvedValue([makeVariant()]);
 
     const user = userEvent.setup();
     render(<DocumentIntakeWorkspace />);
@@ -176,13 +176,13 @@ describe("DocumentIntakeWorkspace", () => {
       await screen.findByText(/Selecciona un proyecto para ver sus documentos/),
     ).toBeTruthy();
     expect(api.listAllDocuments).not.toHaveBeenCalled();
-    expect(api.listVariants).not.toHaveBeenCalled();
+    expect(api.listAllVariants).not.toHaveBeenCalled();
   });
 
   it("ante 409 cross-project surfacea un mensaje fail-closed", async () => {
     selectProjectInStorage("proj_alpha");
     api.listAllDocuments.mockResolvedValue([makeRevision()]);
-    api.listVariants.mockResolvedValue(paginateVariants([makeVariant()]));
+    api.listAllVariants.mockResolvedValue([makeVariant()]);
     api.normalizeDocuments.mockRejectedValue({
       status: 409,
       code: "REVISION_PROJECT_MISMATCH",

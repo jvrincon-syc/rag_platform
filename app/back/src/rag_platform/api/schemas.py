@@ -39,6 +39,7 @@ from rag_platform.domain.models import (
     SourceDocumentRevision,
 )
 from rag_platform.domain.lifecycle import RagRelease
+from rag_platform.domain.build_jobs import ReleaseBuildJob
 
 
 # --------------------------------------------------------------------------- #
@@ -268,6 +269,27 @@ class ReleaseBuildReportSchema(StrictModel):
     revisions_built: int
     reused_stages: int
     built_stages: int
+
+
+class ReleaseBuildAcceptedSchema(StrictModel):
+    """Respuesta al encolar un build asíncrono (Fase 8 §D-3b): no bloquea."""
+
+    build_job_id: str
+    rag_release_id: str
+    state: str
+
+
+class ReleaseBuildStatusSchema(StrictModel):
+    """Estado observable del build asíncrono; los enteros del reporte solo al éxito."""
+
+    build_job_id: str
+    rag_release_id: str
+    state: str
+    revisions_built: int | None = None
+    reused_stages: int | None = None
+    built_stages: int | None = None
+    error_code: str | None = None
+    error_message: str | None = None
 
 
 class CreateReleaseDraftRequestSchema(StrictModel):
@@ -542,4 +564,17 @@ def build_report_to_schema(report: RagReleaseBuildReport) -> ReleaseBuildReportS
         revisions_built=report.revisions_built,
         reused_stages=report.reused_stages,
         built_stages=report.built_stages,
+    )
+
+
+def build_job_to_status_schema(job: ReleaseBuildJob) -> ReleaseBuildStatusSchema:
+    return ReleaseBuildStatusSchema(
+        build_job_id=job.build_job_id,
+        rag_release_id=job.rag_release_id.value,
+        state=job.state.value,
+        revisions_built=job.revisions_built,
+        reused_stages=job.reused_stages,
+        built_stages=job.built_stages,
+        error_code=job.error_code,
+        error_message=job.error_message,
     )
