@@ -12,15 +12,20 @@ traduce a estado ``failed`` con su causa.
 
 from __future__ import annotations
 
+import logging
 import threading
 from datetime import datetime, timezone
 from typing import Callable, Protocol
 
+from core.logging.observability import internal_error_id
 from rag_platform.application.platform_access import PlatformActor
 from rag_platform.application.release_build_job_service import ReleaseBuildJobRepository
 from rag_platform.domain.build_jobs import ReleaseBuildJobState
 from rag_platform.domain.errors import RagPlatformError
 from rag_platform.domain.identity import PlatformId
+
+
+logger = logging.getLogger(__name__)
 
 
 class _BuildReleaseUseCase(Protocol):
@@ -69,12 +74,24 @@ def run_one_build(
             )
         )
     except Exception as exc:  # noqa: BLE001 — el job nunca queda colgado en running
+        # Fase 7: el error de una excepción inesperada NO puede filtrar rutas
+        # físicas ni secretos al cliente. Se registra completo server-side y solo
+        # se expone un id opaco correlacionable con el log (patrón legacy de
+        # embedding/indexing). El `str(exc)` crudo nunca llega al build-status.
+        error_id = internal_error_id(exc)
+        logger.exception(
+            "release_build_failed",
+            extra={"internal_error_id": error_id, "build_job_id": build_job_id},
+        )
         jobs.update(
             job.model_copy(
                 update={
                     "state": ReleaseBuildJobState.FAILED,
-                    "error_code": "RELEASE_BUILD_FAILED",
-                    "error_message": f"{type(exc).__name__}: {exc}",
+                    "error_code": "RELEASE_BUILD_INTERNAL_ERROR",
+                    "error_message": (
+                        f"Fallo interno del build (ref {error_id}). "
+                        "Consulta los logs del servidor con ese identificador."
+                    ),
                     "updated_at": now(),
                 }
             )

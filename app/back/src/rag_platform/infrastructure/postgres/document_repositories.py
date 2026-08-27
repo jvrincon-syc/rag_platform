@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
+from rag_platform.application.context import RevisionReviewDecisionRecord
 from rag_platform.domain.errors import (
     CorpusSnapshotNotFound,
     SourceDocumentRevisionNotFound,
@@ -157,6 +158,63 @@ _REVISION_COLUMNS = (
     "source_document_revision_id, logical_document_id, project_id, source_relpath,"
     " raw_content_hash, file_size, uploaded_by, uploaded_at, review_state"
 )
+
+
+class PostgresRevisionReviewDecisionRepository:
+    """Reads and writes ``source_document_revision_review_decisions`` (Task 3)."""
+
+    def __init__(self, connection: object) -> None:
+        self._connection = connection
+
+    def add(
+        self, record: RevisionReviewDecisionRecord
+    ) -> RevisionReviewDecisionRecord:
+        with self._connection.cursor() as cursor:
+            cursor.execute(
+                "INSERT INTO source_document_revision_review_decisions"
+                " (decision_id, project_id, source_document_revision_id,"
+                " eligibility_decision, reason, decided_by, decided_at)"
+                " VALUES (%s, %s, %s, %s, %s, %s, %s)"
+                " ON CONFLICT (decision_id) DO NOTHING",
+                (
+                    record.decision_id,
+                    record.project_id,
+                    record.source_document_revision_id,
+                    record.eligibility_decision.value,
+                    record.reason,
+                    record.decided_by,
+                    record.decided_at,
+                ),
+            )
+        return record
+
+    def latest_for_project(
+        self, project_id: PlatformId
+    ) -> dict[str, RevisionReviewDecisionRecord]:
+        with self._connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT DISTINCT ON (source_document_revision_id)"
+                " decision_id, project_id, source_document_revision_id,"
+                " eligibility_decision, reason, decided_by, decided_at"
+                " FROM source_document_revision_review_decisions"
+                " WHERE project_id = %s"
+                " ORDER BY source_document_revision_id, decided_at DESC,"
+                " decision_id DESC",
+                (project_id.value,),
+            )
+            rows = cursor.fetchall()
+        return {
+            str(row[2]): RevisionReviewDecisionRecord(
+                decision_id=str(row[0]),
+                project_id=str(row[1]),
+                source_document_revision_id=str(row[2]),
+                eligibility_decision=EligibilityDecision(str(row[3])),
+                reason=str(row[4]),
+                decided_by=str(row[5]),
+                decided_at=row[6],  # type: ignore[arg-type]
+            )
+            for row in rows
+        }
 
 
 class PostgresNormalizedArtifactRepository:

@@ -709,8 +709,9 @@ class ReleaseBuildJobSnapshot:
   endpoints correctos (cubierto en `platformApi.test.mjs` + guards).
 - [x] Refresh controlado del build: **reusa `usePollingLoop` legacy** (no se creó
   `useAdaptiveBuildStatusRefresh` — ponytail: el loop legacy ya da abort, pausa por
-  `document.hidden`, no-solapamiento, timeout con backoff y parada en terminal).
-  Solo activo mientras la release visible está `queued`/`running`; un request activo;
+  `document.hidden`, no-solapamiento, intervalo fijo 2500 ms y parada en terminal).
+  Sin backoff exponencial (desviación honesta: el no-solape acota la carga). Solo
+  activo mientras la release visible está `queued`/`running`; un request activo;
   cancela al cambiar release/proyecto; botón manual; error visible; sin `setInterval`
   rígido.
 - [x] `useRagReleaseWorkspace.build()` encola, guarda el job, muestra estado, arranca
@@ -718,11 +719,441 @@ class ReleaseBuildJobSnapshot:
   por intención (D7).
 - [x] Releases y variants ya consumen `listAllReleases`/`listAllVariants` (no página 1).
 - [x] Ejecutados por el operador: `npm --prefix app/front run test` (verde) + `run build` (OK).
-- [ ] **Gate final pendiente — Playwright runtime** (requiere `npm run gui:dev` arriba
-  con Postgres + flags + estado sembrado con un draft de release): build encola (`202`,
-  no build síncrono); `queued`/`running` visibles; el refresh **para** en terminal; sin
-  polling agresivo; pausa por visibilidad; cancelación al cambiar de contexto; fail-closed
-  visible. CLI: `/c/Users/jvrincon/AppData/Roaming/npm/playwright-cli.cmd` (v0.1.18).
+- [x] **Gate final — Playwright runtime (codex, 2026-08-24):** ejecutado con la app
+  arriba; capturas/consola en `.playwright-cli/`. Derivó además el inventario funcional
+  de la lane Legacy que Platform debe reusar por proyecto (§3, insumo de Task 4).
+- [x] **Auditoría de cierre (2026-08-24) — 2 defectos hallados y resueltos:**
+  - **Bug fail-closed (front):** `useRagReleaseWorkspace` no surfaceaba `buildPoll.error`;
+    un fallo persistente de `build-status` (401/403/404/red) quedaba invisible hasta el
+    timeout de 5 min mostrando "encolado". Fix: se expone `buildStatusError` y `BuildReport`
+    lo muestra ("última consulta de estado falló … reintentando") mientras `queued`/`running`.
+  - **Bug seguridad (back):** `release_build_runner.py`, rama `except Exception`, guardaba
+    `f"{type(exc).__name__}: {exc}"` verbatim y ese texto llegaba al browser vía build-status
+    (riesgo de fuga de ruta física / secreto, invariante Fase 7). Fix: patrón `internal_error_id`
+    legacy — log completo server-side + `error_code=RELEASE_BUILD_INTERNAL_ERROR` + mensaje con
+    id opaco; nunca el `str(exc)` crudo. Test añadido: `test_runner_excepcion_inesperada_no_filtra_detalle_al_cliente`.
+- [x] **Verificación del operador (2026-08-24) — VERDE:** `pytest app/back/tests/rag_platform`
+  = **284 passed** (incluye el nuevo `test_runner_excepcion_inesperada_no_filtra_detalle_al_cliente`);
+  `test_gui_server.py` 36 passed; front **70/70** + build OK. El único rojo fue
+  `test_dos_reservas_concurrentes_reales_solo_un_dueno` (marker `postgres_live`), **no**
+  relacionado con el rework: reventaba con `SST_POSTGRES_DSN` placeholder (`host=x`
+  inalcanzable). Endurecido para **skipear** cuando Postgres no es alcanzable (probe de
+  conexión → `pytest.skip`), acorde a la intención del marker. `npm --prefix app/front run lint`
+  no existe (CLAUDE.md); omitido.
+
+> **Task 3 CERRADA (2026-08-24).** Full-data loading (4 listas), build asíncrono con
+> UX controlada (enqueue 202 + polling terminal + refresh manual, sin polling agresivo),
+> gate Playwright runtime (codex) y 2 defectos de auditoría resueltos (fail-closed de
+> polling + no-fuga de detalle en error de build). Verificación del operador en verde.
+
+### Phase 0: mapa de reuso y hallazgos arquitectónicos (2026-08-24)
+
+**Estado verificado del repo.**
+
+- Rama local: `main`.
+- HEAD local: `40abea2f3e19fb6f9b54c32b5bc1ac91ecb26113`.
+- Working tree: sucio antes de Phase 0. Cambios existentes en
+  `release_build_runner.py`, tests backend de build/idempotencia, release UI y
+  este plan; artefactos no trackeados bajo `data/projects/sst-general/*` y
+  `e2e_retrieval_report.md`. Phase 1 debe trabajar sobre ese estado sin revertirlo.
+- El plan fuente actual ya marca Tasks 1-3 cerradas; el siguiente trabajo real es
+  Task 4, pero dividido por el prompt en Phase 0/1 antes de recomponer pantallas.
+
+**Matriz obligatoria de reuso Legacy -> Platform.**
+
+| Legacy component | Responsabilidad actual | Acoplamiento API/controlador | Reuso directo | Extracción/generalización requerida | Destino Platform | Reemplaza | Riesgo Legacy |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `DashboardApp` | Shell legacy, topbar, refresh, summary, filtros y orquestación de ingesta/review/inventory | Alto: llama `dashboardApi`, preferencias legacy y acciones de ingesta | No | No reutilizar como controlador; extraer solo patrones de shell/notice/summary cuando ya sean props | Ninguno directo | No aplica | Alto si se toca |
+| `DashboardChrome` / `DashboardNotice` / `DashboardSummary` | Notice, métricas y paneles de operación | Bajo/medio: mostly props, `LlamaStatusPanel`/`PipelinePanel` sí son legacy | Parcial | Reusar `DashboardNotice`/`MetricCard`; separar paneles legacy si se necesitan | Todas las vistas Platform | Notices/resúmenes ad-hoc | Bajo para notice/summary |
+| `DashboardSidebar` | Navegación legacy SST Pipeline | Bajo: props `activeView/onViewChange`, labels legacy | No para Platform nav | Mantener legacy; Platform usa su sub-nav limitada | Ninguno | No aplica | Bajo |
+| `InventoryWorkspace` / `InventoryPanel` | Inventario con búsqueda, filtros, tabla densa e inspector | Medio: tipo `DocumentRecord` legacy y status/ingesta legacy | No directo | Extraer contrato neutral `DocumentInventoryItem` + filtros + inspector prop-driven | Platform Documents | `RevisionTable` como UX central | Medio |
+| `ReviewWorkspace` / `DocumentInspector` | Revisión manual e inspector auditable | Medio: `DocumentRecord`, decisiones legacy | Parcial | Generalizar inspector y chips; mantener acciones de review separadas por adapter | Documents / Corpus warnings | Inspectores duplicados | Medio |
+| `ChunkingWorkspace` | Pantalla completa de chunking legacy con launch, run, documentos e inspector parent-child | Alto: `chunkingApi`, preferencias e idempotency legacy | No directo | Reusar lenguaje visual/paneles; no comandos Platform por etapa | Releases build visualization, no acciones separadas | Panel build actual insuficiente | Medio/alto |
+| `EmbeddingIndexingWorkspace` | Orquestador de embedding, indexing, activation, retrieval legacy | Alto: `useEmbeddingIndexingPipeline` llama APIs legacy | No como controlador | Reusar `PipelineHeader`, `PipelineSummary`, panels prop-driven; Platform adapter propio | Releases unified build | `BuildReport` simple | Alto si se mezcla |
+| `PipelineHeader` / `PipelineStepper` | Stepper por etapas y refresh | Bajo: props + stage status | Sí, con tipos ampliados | Generalizar stage labels/order para `normalize/chunking/embedding/indexing` | Releases | Nueva visualización build | Bajo |
+| `PipelineSummary` | IDs resumen de pipeline legacy | Bajo: props pero nombres legacy | Parcial | Crear variante summary genérica o component con slots/labels | Releases / Variants | Resúmenes ad-hoc | Bajo |
+| `pipelineState` / `pipelineFlow` | Derivación pura de limpieza de IDs y avance/polling terminal | Bajo: funciones puras; stages legacy específicos | Parcial | Añadir adapter Platform separado; no forzar stages legacy | Shared Platform adapter | Lógica duplicada futura | Bajo |
+| `usePollingLoop` | Polling abortable, no solapado, pausa en tab oculta, terminal y timeout | Bajo: genérico, usa `mapPipelineError` | Sí | Ninguna para Phase 1; ya usado por releases | Releases build-status | Cualquier polling nuevo | Bajo |
+| `EmbeddingCatalogPanel` | Catálogo de perfiles embedding | Bajo/medio: props con tipos legacy | Parcial | Adapter de perfiles Platform, ocultando targets físicos | Variants | Matriz CRUD dura | Bajo |
+| `EmbeddingRunPanel` | Selección bundle + lanzamiento embedding legacy | Medio: props legacy y comandos legacy | Solo presentación parcial | Separar selector/progreso de comandos; no botones Platform por etapa | Releases/Variants | Build panel simple | Medio |
+| `EmbeddingBundleInspector` | Inspector de bundle, chunks, validation/readiness | Medio: tipos embedding legacy | Parcial | Reusar layout solo si Platform expone read-model seguro; no raw chunks/vectores | Releases later | No reemplazo Phase 1 | Medio |
+| `IndexingRunPanel` | Estado/run indexing y comandos legacy | Medio: props legacy, target resuelto textual | Parcial | Reusar estado visual; ocultar target físico en Platform | Releases | Build panel simple | Medio |
+| `IndexingDocumentsTable` | Tabla de documentos indexados/elegibilidad/vectores | Bajo/medio: prop-driven con tipos legacy | Parcial | Adapter seguro si hay read-model; no exponer vectores raw | Releases later | No reemplazo Phase 1 | Medio |
+| `IndexingErrorsPanel` | Errores por documento con `internal_error_id` | Bajo: prop-driven | Sí con adapter | Usar solo códigos/IDs opacos sanitizados | Releases activity/errors | Errores genéricos | Bajo |
+| `ActivationPanel` | Activación legacy/retrieval profile | Alto semántico: activación legacy no es publicación Platform | No para Platform publish | Reusar solo patrón de readiness/bloqueos; no mezclar semántica | Releases validate/publish readiness | Lifecycle plano | Alto |
+| Retrieval panels | Perfil/status/validación/búsqueda evidencia legacy | Alto: APIs retrieval globales | D en Task 4 | Diferir vista Retrieval dedicada; solo lenguaje visual si aplica | Ninguno ahora | No aplica | Alto |
+
+**Matriz Platform actual.**
+
+| Platform surface | Clasificación | Motivo |
+| --- | --- | --- |
+| `Projects` | KEEP | Es el punto estructural aceptable; carga proyectos/config y selecciona proyecto. |
+| `PlatformWorkspace` | ADAPT | Debe poseer `ProjectContext` y envolver todas las vistas, no solo sub-nav local. |
+| `platformApi` / `platformTypes` | KEEP | Es el contrato correcto; no llamar APIs legacy desde Platform. |
+| `usePlatformPreferences` / `platformState` | ADAPT | La persistencia pura sirve, pero debe exponerse mediante contexto compartido. |
+| `Documents` | REPLACE UX | Mantiene capacidades correctas (upload/normalize/fail-closed), pero la UX central debe pasar a inventario + inspector. |
+| `RevisionTable`, `RawUploadPanel`, `NormalizationPanel` | DELETE AFTER MIGRATION / ADAPT | Conservar funciones válidas mientras migra; luego eliminar tablas/paneles duplicados. |
+| `Variants` | REPLACE UX | Debe ser catálogo/receta, no matriz administrativa como experiencia principal. |
+| `VariantMatrixTable` | DELETE AFTER MIGRATION | Puede quedar como adapter interno temporal, no como UX final. |
+| `Corpus` | REPLACE UX | Selección e historial son correctos, pero deben recomponerse con inventario/selección legacy. |
+| `SnapshotBuilder`, `SnapshotHistory` | ADAPT | Mantener reglas `needs_review`, mejorar con patrón inventory/inspector. |
+| `Releases` | REPLACE/RECOMPOSE UX | La lógica async/build es correcta; la visualización debe ser pipeline unificado. |
+| `BuildReport` / `ReleaseLifecycle` / `ReleaseHistory` | ADAPT | Mantener comandos Platform; sustituir presentación por pipeline + feed seguro cuando exista data. |
+| `platform.css` | ADAPT | Usar tokens compartidos; retirar parches por pantalla al migrar. |
+
+**Diseño seleccionado para contexto de proyecto (Phase 1).**
+
+- `PlatformWorkspace` será dueño de un provider `PlatformProjectProvider`.
+- El provider reusa la reconciliación pura actual (`platformState`) y la
+  persistencia existente (`platformPersistence`), pero expone `projectId`,
+  preferencias y setters mediante `usePlatformProjectContext`.
+- `Projects` seguirá cargando el catálogo y, en Phase 1, podrá reconciliar contra
+  IDs vivos mediante el contexto.
+- `Documents`, `Variants`, `Corpus` y `Releases` leerán el mismo contexto en vez
+  de instanciar `usePlatformPreferences(null)` cada uno.
+- Legacy no importa este contexto. El contexto no guarda sesión, idempotency,
+  payloads, documentos, secretos ni estado de requests.
+
+**Build progress data-flow.**
+
+1. `POST /api/platform/releases/{rag_release_id}/build` encola un
+   `ReleaseBuildJob` durable y responde `build_job_id/state`.
+2. `ReleaseBuildRunner` corre el build fuera del request y actualiza
+   `queued -> running -> succeeded|failed`.
+3. Persistencia durante el build: `release_build_jobs` guarda job id, release id,
+   project id, estado, timestamps, conteos finales y error sanitizado.
+4. `BuildRagReleaseUseCase` sí registra pasos `normalize/chunk/embed/index` en
+   `rag_build_steps`, pero esos pasos se escriben dentro del loop de build, no se
+   exponen en `GET /build-status` y no están ligados a `build_job_id`; agregarlos
+   solo por release mezclaría reintentos.
+5. Stages incrementales: existen en el ledger interno, pero el snapshot HTTP no
+   trae `current_stage`, `completed_units`, `total_units`, `%`, `message` ni
+   `recent_events`.
+6. Conteos antes del estado terminal: no están disponibles en `ReleaseBuildJob`;
+   solo se llenan al éxito. No se puede derivar un porcentaje real sin consultar/
+   agregar una agregación segura.
+7. Fuente de eventos segura: no existe read-model de eventos de producto; los logs
+   del runner son server-side y no deben exponerse.
+8. Cambio mínimo si se requiere porcentaje real: extender únicamente
+   `GET /build-status`/`ReleaseBuildStatusSchema` con campos derivados y
+   sanitizados desde `release_build_jobs` + `rag_build_steps`, asociando el run de
+   ledger al `build_job_id` aceptado:
+   `current_stage`, `completed_units`, `total_units`, `progress_percent`,
+   `message`, `recent_events`. No crear endpoints por etapa ni exponer logs.
+   Hasta entonces la UI debe usar progreso indeterminado.
+
+**Riesgos.**
+
+- El working tree ya trae cambios de cierre de Task 3; no revertir ni reescribir
+  esos archivos sin revisar.
+- `DashboardApp`, `ChunkingWorkspace` y `EmbeddingIndexingWorkspace` son
+  controladores legacy; reutilizarlos directamente acoplaría Platform a APIs
+  globales.
+- `Activation` y `Publish` tienen semánticas distintas; solo se reusa lenguaje de
+  readiness, no el comando.
+- El build-status actual no permite porcentaje honesto; inventar porcentajes por
+  estado queda prohibido.
+
+### Phase 1: contexto compartido mínimo y regresiones Legacy (2026-08-24)
+
+**Contrato cerrado.**
+
+- `PlatformWorkspace` posee un `PlatformProjectProvider` único para las cinco
+  vistas permitidas: `Projects`, `Documents`, `Variants`, `Corpus`, `Releases`.
+- `PlatformProjectContext` reusa `usePlatformPreferences(null)` y expone solo
+  estado de navegación: `projectId`, preferencias, setters y metadatos de
+  proyectos conocidos. No guarda sesión, idempotency keys, payloads documentales,
+  rutas físicas, chunks raw, vectores ni requests en curso.
+- `Projects` conserva la responsabilidad de cargar el catálogo de proyectos y
+  alimenta el contexto con `setKnownProjects`/`upsertProject`.
+- `Documents`, `Variants`, `Corpus` y `Releases` leen el `projectId` compartido
+  desde `usePlatformProjectContext`; ya no instancian preferencias de plataforma
+  de forma independiente.
+- La sub-nav de Platform muestra un chip accesible `Proyecto activo`. Si Projects
+  ya cargó metadata, muestra `display_name`; si no, muestra el `project_id`
+  persistido; si no hay selección, muestra estado vacío explícito.
+- Legacy queda protegido con regresiones: `DashboardApp` mantiene navegables
+  `Review`, `Inventario`, `Chunking` y `Embedding/Indexing`; `usePollingLoop`
+  conserva no-solape de solicitudes mientras una consulta sigue pendiente.
+
+**Archivos principales.**
+
+- Nuevo: `app/front/src/features/platform/PlatformProjectContext.tsx`.
+- Actualizados: `PlatformWorkspace.tsx`, hooks de
+  `projects/documents/variants/corpus/releases`, tests de workspaces Platform y
+  `platform.css`.
+- Nuevas regresiones Legacy: `DashboardApp.test.tsx` y `usePollingLoop.test.tsx`.
+
+**Verificación ejecutada.**
+
+- Focalizada: `npm.cmd exec vitest run src/features/platform/PlatformWorkspace.test.tsx src/features/platform/projects/ProjectWorkspace.test.tsx src/features/platform/documents/DocumentIntakeWorkspace.test.tsx src/features/platform/variants/VariantMatrixWorkspace.test.tsx src/features/platform/corpus/CorpusSnapshotWorkspace.test.tsx src/features/platform/releases/RagReleaseWorkspace.test.tsx src/features/dashboard/DashboardApp.test.tsx src/features/embeddingIndexing/shared/usePollingLoop.test.tsx`
+  = **8 files / 37 tests passed**.
+- Regresión frontend: `npm.cmd --prefix app/front run test`
+  = **componentes 16 files / 73 tests passed** más tests node/tsc verdes.
+- Build: `npm.cmd --prefix app/front run build` = verde.
+- `npm.cmd --prefix app/front run lint` no existe en `app/front/package.json`;
+  queda como gap de tooling del repo, documentado sin inventar equivalente.
+
+> **Phase 1 CERRADA (2026-08-24).** Queda listo el cimiento compartido de
+> selección de proyecto para recomponer pantallas en Phase 2-5. No se abrió una
+> vista Retrieval dedicada, no se agregó backend y no se inventó progreso de build.
+
+**Orden propuesto Phase 1-6.**
+
+1. Phase 1: CERRADA. Regresiones Legacy + `PlatformProjectContext` mínimo; sin
+   cambios UX grandes.
+2. Phase 2: Documents con inventario/inspector neutral y adapters Platform.
+3. Phase 3: Variants como catálogo/receta con adapters de perfiles seguros.
+4. Phase 4: Corpus con selección tipo inventory y `needs_review` explícito.
+5. Phase 5: Releases como lifecycle + pipeline unificado; progreso indeterminado
+   hasta ampliar `build-status` con datos reales.
+6. Phase 6: eliminar presentación Platform duplicada, normalizar tokens/estados y
+   pulir a11y/responsive.
+
+### Phase 2: Documents — inventario neutral config-driven + adapter Platform (2026-08-24)
+
+**Contrato cerrado (respuestas del operador).**
+
+- Modelo neutral = **superset de capacidades de presentación** de Legacy, NO el
+  schema pobre de Platform. Campos ricos **opcionales**:
+  `id, displayName, documentType, status, normalizationStatus, reviewStatus,
+  ingestionStatus?, confidence?, size?, source?, createdAt?, updatedAt?, metadata?`.
+- Componente **único config-driven**: `columns`, `filters`, `rowActions`,
+  `bulkActions`, `inspectorSections`, `decisionActions?` (capability-driven).
+- Platform: `columns = [document, type, normalization, review, date]`,
+  `decisionActions = undefined`. Legacy (Phase 6): superset con
+  `ingestion/confidence/size` y sus decisiones actuales.
+- Dependencia: `DocumentRecord → LegacyAdapter` y
+  `ProjectDocumentRevision → PlatformAdapter` → **Neutral Inventory UI** (una sola).
+  Legacy no importa tipos Platform; Platform no llama APIs Legacy.
+
+**Hallazgos que fijan el diseño (verificados en código).**
+
+- `ProjectDocumentRevisionSchema` expone solo: `source_document_revision_id`,
+  `logical_document_id`, `source_relpath`, `file_size`, `raw_registered`,
+  `normalized_registered`, `review_state`, `processing_status`, `uploaded_at`.
+- Platform **no** expone category/ingestion/OCR/reasons/decision. No se inventan,
+  no se llaman APIs Legacy, no se pone "unknown" como dato semántico: las columnas
+  ausentes se ocultan por config (o `N/D` solo si UX lo exige).
+- Platform **no** tiene endpoint de decisión → inspector Platform **read-only**
+  para decisiones (`decisionActions = undefined`); nada de botones deshabilitados
+  "coming soon". `needs_review` visible y fail-closed; selección masiva ya lo
+  excluye. approve/reject Platform = **gap de contrato deferido** (tarea futura).
+
+> **Corrección 2026-08-25:** esta conclusión queda superada por el plan
+> `docs/superpowers/plans/2026-08-25-rag-platform-legacy-pipeline-parity.md`.
+> RAG Platform es una plataforma operacional multiproyecto, no un visor
+> read-only. Si falta persistencia para `Aprobar`/`Rechazar`, eso es un gap del
+> contrato Platform que debe resolverse con el endpoint mínimo de decisión de
+> revisión; no se debe convertir la pantalla de revisión/inventario en
+> read-only. La etiqueta read-only solo aplica a bindings/targets físicos
+> administrados por servidor o artefactos inmutables.
+- Paneles/inspector/chips legacy (`DocumentWorkspaces.tsx`) son prop-driven; el
+  neutral se **deriva** de ellos en archivos NUEVOS, sin editar Legacy todavía.
+
+**Archivos.**
+
+- Nuevo neutral (`components/ui/inventory/` o `features/documentsShared/`):
+  view model `DocumentInventoryItem` (superset opcional), `InventoryToolbar.tsx`,
+  `InventoryTable.tsx` (columnas por config), `DocumentInspector.tsx`
+  (`inspectorSections` + `decisionActions?`), chips sobre `StatusBadge`.
+- Nuevo Platform: `documents/documentInventoryAdapter.ts`
+  (`ProjectDocumentRevision → DocumentInventoryItem` + config de columnas Platform).
+- Modificar: `documents/DocumentIntakeWorkspace.tsx` recompuesto sobre el neutral,
+  conservando upload/normalize/selección/needs_review/summary.
+- Conservar: `RawUploadPanel.tsx`, `NormalizationPanel.tsx` (capacidad Platform).
+- Borrar tras equivalencia probada + tests verdes: `documents/RevisionTable.tsx`.
+- **No** tocar `DashboardApp`/`DocumentWorkspaces` (migran en Phase 6).
+
+**Phase 2 DoD (operador).**
+
+1. Extraer presentación neutral sin cambiar comportamiento Legacy.
+2. Adapter Platform → neutral view model.
+3. Migrar Platform Documents al nuevo inventario; upload/normalize intactos.
+4. Eliminar `RevisionTable` solo con equivalencia funcional comprobada.
+5. Tests Legacy verdes; sin modificar `DocumentWorkspaces` salvo extracción visual
+   mínima indispensable (idealmente cero: se derivan archivos nuevos).
+
+**Deferrals.** Columnas category/ingestion/OCR/reasons: N/A en Platform.
+approve/reject Platform: fuera de scope (sin backend en Task 4).
+
+> **Phase 2 CERRADA (2026-08-24).** Documents recompuesto sobre el inventario
+> neutral config-driven (search + filtro por estado + tabla + inspector read-only),
+> conservando upload/normalize/selección/needs_review. `RevisionTable` borrado.
+> Adapter Platform honesto (campos ausentes = `undefined`, sin inventar). Legacy
+> intacto. Verificación del operador VERDE: `npm --prefix app/front run test`
+> (todo verde tras corregir 3 fallos: 1 aserción ambigua + columna que duplicaba
+> ruta→ahora ruta+id) y `run build` OK; backend 284 passed / 1 skipped sin cambios.
+> **Nota de tooling:** correr vitest desde la raíz del repo (`npx --prefix app/front
+> vitest`) da falsos `window is not defined` (sin jsdom); el runner válido es
+> `npm --prefix app/front run test` (`test:components`). Legacy migra en Phase 6.
+
+### Phase 3: Variants — catálogo/receta (CERRADA 2026-08-25)
+
+**Hallazgo (verificado en código).** La matriz Platform YA tiene UX de
+catálogo/receta: `VariantMatrixTable.tsx` renderiza cada celda como tarjeta-receta
+(`variant-cell`) con Processing/Chunking/Embedding (`CellDimensions`),
+`target_binding_key` lógico, badge `Config v{n}` y estado construible/bloqueada con
+`blocked_reason` en TEXTO (a11y). El "REPLACE UX" es MENOR que en Documents.
+
+**Modelos.** `Variant` = `rag_variant_id`, `state`, `processing_profile_id`,
+`chunking_profile_id`, `embedding_profile_id`. `VariantMatrixCell` = `cell_id`,
+`buildable`, `blocked_reason`, `target_binding_key`, `configuration_version`, 3
+profile ids. **Gap de campo (como Phase 2):** Platform NO expone provider/model/dim
+de los perfiles (el legacy `EmbeddingCatalogPanel` sí, vía `EmbeddingProfile`). No
+inventar: se muestran los profile_id tal cual, sin backend nuevo.
+
+**Alcance Phase 3 (refinamiento, no reescritura):**
+1. Lista "Variantes existentes" (`VariantMatrixWorkspace.tsx` → `ExistingVariants`):
+   pasar del `<small>` apretado (`processing · chunking · embedding`) a
+   tarjetas-receta reusando el layout `variant-cell-dims` (Processing/Chunking/
+   Embedding en filas) + `state` vía `StatusBadge` compartido (tone success si
+   "ready"/activa, neutral si no). Patrón visual tomado del legacy
+   `EmbeddingCatalogPanel` (tarjeta perfil + chip de estado).
+2. Estados no-felices de la matriz/lista → usar `StatePanel`/`StatusBadge`
+   compartidos (hoy `.ui-empty` ad-hoc) para consistencia con Documents.
+3. Invariantes intactos: crear variante SOLO con `cell_id + variant_slug` (D8);
+   `STALE_VARIANT_MATRIX_CELL` fail-closed (refresca matriz + limpia selección);
+   `target_binding_key` es lógico (mostrar OK); nunca target físico/actor.
+4. Sin backend, sin exponer provider/model/dim (deferido, gap de contrato).
+
+**Archivos implementados:** `VariantMatrixTable.tsx` (estados→`StatePanel`),
+`VariantMatrixWorkspace.tsx` (`ExistingVariants`→tarjetas-receta con `VariantCard`
+local + `StatusBadge`), `VariantMatrixWorkspace.test.tsx`.
+**Deferrals:** provider/model/dim de perfiles (Platform no los expone).
+
+> **Estado (2026-08-24): Phase 3 IMPLEMENTADA, pendiente runtime Playwright con
+> servicios funcionales.** TDD focalizado agregado para variantes existentes como
+> tarjetas-receta; `createVariant` conserva body exacto `{cell_id, variant_slug}`.
+> Verificación automatizada ejecutada: `npm.cmd exec vitest run
+> src/features/platform/variants/VariantMatrixWorkspace.test.tsx` = 5 passed;
+> `npm.cmd --prefix app/front run test` = verde (`tsc`, tests node y 18 component
+> files / 87 tests); `npm.cmd --prefix app/front run build` = verde. OpenAPI/types:
+> no requerido (sin cambios backend/schema). Playwright final: frontend abre en
+> `http://127.0.0.1:5174/`, pero runtime Platform queda bloqueado por
+> `GET /api/auth/session` HTTP 500; repetir con backend/auth operativo antes de
+> avanzar a Task 4. Legacy no fue modificado.
+
+> **Cierre runtime (2026-08-25): Phase 3 VERIFICADA con frontend y backend
+> operativos.** Se retomo el cierre pendiente con Playwright usando
+> `prueba3` / `holamundo123`, proyecto `SST General` (`proj_sst-general`) y la
+> vista `Variants`. El error visible `pipeline bridge failed: AttributeError`
+> fue reproducido antes del fix: `GET
+> /api/platform/projects/proj_sst-general/variant-matrix` devolvia `500` con
+> envelope `PIPELINE_BRIDGE_ERROR`, mientras `GET
+> /api/platform/projects/proj_sst-general/variants?page=1&page_size=100`
+> devolvia `200`.
+>
+> **Raiz corregida.** Los adaptadores Postgres de perfiles no cumplian el puerto
+> usado por `GetVariantMatrixUseCase`: `PostgresProcessingProfileRepository` y
+> `PostgresChunkingProfileRepository` implementaban `get(...)`, pero no
+> `list_for_project(...)`; la implementacion in-memory si lo tenia, por eso el
+> hueco solo aparecia en runtime Postgres. Se agregaron `list_for_project(...)`
+> y mapeadores `_row_to_profile(...)` compartidos en
+> `app/back/src/rag_platform/infrastructure/postgres/project_repositories.py`.
+>
+> **Ajuste UI adicional.** La barra lateral de operador cortaba la tarjeta de
+> sesion y el boton `Cerrar sesion` porque `.operator-shell` reservaba un rail
+> demasiado angosto (`88px`, y `72px` en el breakpoint intermedio). Se ajusto
+> `app/front/src/styles/operator.css` para reservar
+> `minmax(176px, 12vw) minmax(0, 1fr)`, mantener el layout movil en
+> `max-width: 760px` y permitir wrapping del usuario en
+> `.operator-session-card strong`. Se agrego la regresion
+> `app/front/src/features/operator/operatorLayoutCss.test.mjs` al script de
+> test frontend.
+>
+> **TDD y verificacion.**
+> - Red primero: `app/back/tests/rag_platform/test_postgres_project_repositories.py`
+>   fallo con `AttributeError` para ambos repos Postgres; el test CSS fallo por
+>   el rail insuficiente.
+> - Green focalizado: `npm.cmd run python -- -m pytest
+>   app/back/tests/rag_platform/test_postgres_project_repositories.py -q` =
+>   2 passed; `node app/front/src/features/operator/operatorLayoutCss.test.mjs`
+>   = ok.
+> - Regresion backend afectada:
+>   `npm.cmd run python -- -m pytest
+>   app/back/tests/rag_platform/test_variant_matrix.py
+>   app/back/tests/rag_platform/test_project_queries.py
+>   app/back/tests/rag_platform/test_platform_api.py::test_variant_matrix_vacia_ok
+>   app/back/tests/rag_platform/test_platform_api.py::test_list_processing_profiles_vacio_ok
+>   app/back/tests/rag_platform/test_platform_api.py::test_list_chunking_profiles_vacio_ok -q`
+>   = 16 passed.
+> - Frontend completo: `npm.cmd --prefix app/front run test` = 87 tests passed
+>   (se requirio reintento elevado por `spawn EPERM` de esbuild en Windows).
+> - Build frontend: `npm.cmd --prefix app/front run build` = verde.
+> - OpenAPI/types: no requerido; no hubo cambio de contrato HTTP ni schema.
+>
+> **Playwright final.** Tras reiniciar el backend en `127.0.0.1:8765` para cargar
+> el codigo nuevo, la vista `Variants` dejo de mostrar `pipeline bridge failed`;
+> `variant-matrix` y `variants` devolvieron `200 OK`. La medicion de layout a
+> `1280x720` confirmo `cardOverflowsRail: false`,
+> `logoutOverflowsRail: false` y `surfaceOverlapsRail: false`. El unico error de
+> consola restante fue `401 Unauthorized` de `/api/auth/session` antes del login,
+> esperado.
+>
+> **Ajuste visual posterior en Platform Documents (2026-08-25).** Se alineo el
+> lenguaje de color de `review_state` en RAG Platform Documents con la ayuda
+> visual que ya existia en Legacy Documents: `needs_review` y `pending` usan tono
+> `warning`, `approved` y `processed` usan `success`, `rejected` usa `danger`, y
+> estados no reconocidos quedan `neutral`. La etiqueta sigue siendo el valor crudo
+> del contrato Platform para conservar auditoria; no se traduce ni se inventa
+> metadata. El cambio quedo acotado al adapter neutral
+> `app/front/src/features/platform/documents/documentInventoryAdapter.ts` y a su
+> regresion `documentInventoryAdapter.test.tsx`.
+>
+> **Evidencia del ajuste visual.**
+> - Red TDD confirmado: el test nuevo fallo porque `pending` se renderizaba con
+>   `tone: "neutral"` en vez de `tone: "warning"`.
+> - Green focalizado: `npm.cmd exec vitest run
+>   src/features/platform/documents/documentInventoryAdapter.test.tsx` = 6 passed.
+> - Regresion Documents: `npm.cmd exec vitest run
+>   src/features/platform/documents/DocumentIntakeWorkspace.test.tsx
+>   src/features/platform/documents/documentInventoryAdapter.test.tsx` =
+>   15 passed.
+> - Frontend completo: `npm.cmd --prefix app/front run test` = 87 tests passed.
+> - Build frontend: `npm.cmd --prefix app/front run build` = verde.
+> - Playwright no se repitio para este ajuste porque frontend/backend quedaron
+>   detenidos por orden del operador; el cambio es de mapeo visual cubierto por
+>   adapter + render de Documents + build. OpenAPI/types no requerido.
+>
+> **Cierre operativo.** No se hizo commit ni push. Se limpiaron artefactos
+> temporales nuevos de Playwright sin tocar snapshots versionados. A pedido del
+> operador, despues de la verificacion se detuvieron frontend y backend; se
+> confirmo que no quedaron procesos `LISTENING` en `127.0.0.1:5173` ni en
+> `127.0.0.1:8765`.
+
+### Phase 4: Corpus — reuso del inventario neutral + polish visual (EN CURSO 2026-08-25)
+
+**Hallazgo.** `SnapshotBuilder.tsx` es una tabla-selección bespoke (`CandidateRow`)
+que DUPLICA el inventario-con-selección ya resuelto en Phase 2 (`DocumentInventory`).
+La única pieza propia de Corpus es la **decisión de elegibilidad por fila
+`needs_review`** (`approved_after_review` / `operator_waiver`). El hook
+`useCorpusSnapshotWorkspace` es correcto y se conserva.
+
+**Clasificación.** `useCorpusSnapshotWorkspace`=KEEP; `SnapshotBuilder`=REPLACE
+(reusar `DocumentInventory`, borrar `CandidateRow`); `SnapshotHistory`=ADAPT
+(`StatePanel`); `CorpusSnapshotWorkspace`=ADAPT (compone).
+
+**Diseño.** Corpus compone `DocumentInventory` (Phase 2) alimentado por
+`documentInventoryAdapter.toInventoryItems`, con columnas Corpus = doc columns +
+**columna de elegibilidad** (factory que cierra sobre `decisions`,
+`selectedRevisionIds`, `onSetDecision`; select solo en filas seleccionadas +
+`needs_review`). Sin tocar el componente neutral (columns ya acepta render
+arbitrario; NO se implementa el `rowActions` diferido). Botón "Crear snapshot" +
+`disabledReason` (gate `pendingReviewIds`) fuera del inventario.
+
+**Polish visual (pedido del operador: intuitivo, llamativo, dinámico, joven, con
+ayudas de color).** Se ELEVA el lenguaje visual COMPARTIDO (no one-off) para que
+todas las pantallas Platform se beneficien: pills de estado con color+texto (a11y),
+barra contextual de selección con conteo (aparece al seleccionar, no botones
+deshabilitados estáticos), micro-interacciones sutiles (hover/selección/chips),
+jerarquía clara. Todo con tokens compartidos; sin romper Legacy; `prefers-reduced-
+motion` respetado. Inspiración: patrones de data-table/bulk-select 2025-2026.
+
+**Invariantes.** `needs_review` nunca auto-incluida; crear bloqueado hasta resolver
+decisiones; body `createCorpusSnapshot` sin cambios; sin target físico/actor;
+errores 403/409/422 fail-closed. Sin backend. Deferrals: field-gap
+category/ingestion/OCR.
 
 ### Task 4: Reuso real de la lane legacy sin acoplarla a Platform
 
@@ -774,10 +1205,13 @@ npm --prefix app/front run build
 
 ## 9. Riesgos y mitigaciones
 
-- **Sobrecarga por consulta periódica:** mitigado con refresh adaptativo, un
-  request vivo como máximo, solo para release visible en `queued`/`running`, pausa
-  por visibilidad, timeout y backoff. Prohibido usar `setInterval` rígido para
-  Platform build status.
+- **Sobrecarga por consulta periódica:** mitigado con refresh controlado, un
+  request vivo como máximo (no-solape: cada consulta se espera antes de agendar la
+  siguiente), solo para release visible en `queued`/`running`, pausa por
+  visibilidad y timeout global. Intervalo **fijo** (2500 ms), sin backoff
+  exponencial: el reuso de `usePollingLoop` legacy prioriza simplicidad y el
+  no-solape ya acota la carga. Prohibido usar `setInterval` rígido para Platform
+  build status.
 - **SSE/WebSockets prematuros:** descartados por ahora. `AsgiBridge` bufferiza
   ASGI; forzar streaming real sería más riesgoso que status bajo demanda +
   refresh adaptativo.
@@ -884,3 +1318,19 @@ contrato de job asíncrono durable (Tasks 1-2). Si el cambio altera el contrato 
 **Verificación de cierre (Task 5 + §11):** correr lo declarado en §11 y el E2E
 manual en modo Postgres con `sst-general` (55 documentos). Sin caídas de socket,
 sin polling agresivo, sin fuga de datos, lane legacy intacta y etiquetada.
+
+---
+
+> **Correction 2026-08-26 (superseded by the parity plan):** The previous Phase 8
+> direction reused neutral Platform replacements and relabeled them as Legacy
+> views. It also treated missing review-decision wiring as a reason to make
+> Platform inspectors read-only. The corrected implementation
+> (`docs/superpowers/plans/2026-08-25-rag-platform-legacy-pipeline-parity.md`,
+> Tasks 3–7, cerradas 2026-08-26) mounts the actual Legacy pipeline UI through
+> `DashboardPipelineApp` and a project-scoped Platform datasource. Platform is
+> operational: `Aprobar`/`Rechazar` persist through the Platform review-decision
+> contract (`POST …/document-revisions/{id}/review-decision`), snapshot creation
+> moved to `RAG / Releases`, chunking/embedding-indexing run the real Legacy
+> screens with project-aware stage clients (o estado no-disponible explícito), and
+> read-only language now applies only to server-owned physical target bindings or
+> immutable release artifacts.

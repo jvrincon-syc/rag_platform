@@ -138,6 +138,11 @@ class PostgresRagReleaseMembershipRepository:
 
     def add(self, membership: RagReleaseMembership) -> RagReleaseMembership:
         with self._connection.cursor() as cursor:
+            # INSERT plano a propósito: un duplicado (misma release+revision u
+            # ordinal) es una anomalía que debe explotar ruidosamente, nunca
+            # silenciarse. El E2E limpia el estado derivado entre intentos y
+            # una futura reanudación de builds debe comparar artefactos y
+            # fallar cerrado ante drift, no tragarse el conflicto.
             cursor.execute(
                 "INSERT INTO rag_release_memberships ("
                 " rag_release_id, project_id, ordinal, source_document_revision_id,"

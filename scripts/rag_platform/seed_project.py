@@ -70,6 +70,11 @@ from rag_platform.infrastructure.postgres.project_repositories import (  # noqa:
 from rag_platform.infrastructure.storage.project_storage import (  # noqa: E402
     ProjectStorageResolver,
 )
+from retrieval.domain.errors import RetrievalProfileNotFound  # noqa: E402
+from retrieval.domain.models import RetrievalProfile  # noqa: E402
+from retrieval.infrastructure.postgres.repositories import (  # noqa: E402
+    PostgresRetrievalProfileRepository,
+)
 
 _ACTOR = "seed-operator"
 #: Clave lógica del binding (allowlist) que la variante referencia; nunca un
@@ -113,6 +118,21 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--env-file", default="secrets.env")
     parser.add_argument("--data-dir", default=str(_REPO_ROOT / "data"))
     parser.add_argument("--json", action="store_true")
+    parser.add_argument(
+        "--consumer-scope-type",
+        default="chatbot",
+        help="Consumer scope type for the retrieval profile.",
+    )
+    parser.add_argument(
+        "--consumer-scope-id",
+        default="sst-general",
+        help="Consumer scope ID for the retrieval profile.",
+    )
+    parser.add_argument(
+        "--corpus-version",
+        default="platform-normalized",
+        help="Corpus version for the retrieval profile.",
+    )
     return parser.parse_args(argv)
 
 
@@ -391,6 +411,27 @@ def main(argv: Sequence[str] | None = None) -> int:
                 except DuplicateVariantRecipe:
                     # find_active_by_fingerprint chequea antes de insertar.
                     summary["variant"] = "exists"
+
+                # 4) Retrieval profile (hybrid always-on).
+                retrieval_repo = PostgresRetrievalProfileRepository(connection)
+                retrieval_profile = RetrievalProfile.build(
+                    project_id=project_id_value,
+                    consumer_scope_type=args.consumer_scope_type,
+                    consumer_scope_id=args.consumer_scope_id,
+                    corpus_version=args.corpus_version,
+                    embedding_profile_id=args.embedding_profile_id,
+                    indexing_target_id=args.indexing_target_id,
+                    lexical_fallback_policy="allowed_when_vector_unavailable",
+                )
+                try:
+                    retrieval_repo.get(retrieval_profile.retrieval_profile_id)
+                    summary["retrieval_profile"] = "exists"
+                except RetrievalProfileNotFound:
+                    retrieval_repo.upsert(retrieval_profile)
+                    summary["retrieval_profile"] = "created"
+                summary["retrieval_profile_id"] = (
+                    retrieval_profile.retrieval_profile_id
+                )
     finally:
         connection.close()
 

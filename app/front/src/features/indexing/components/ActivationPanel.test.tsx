@@ -67,6 +67,12 @@ describe("ActivationPanel", () => {
     ).toBeTruthy();
   });
 
+  it("shows a danger alert when retrieval readiness failed to load, instead of silently omitting it", () => {
+    renderPanel({ readiness: null, readinessError: "No se pudo cargar el readiness." });
+
+    expect(screen.getByRole("alert").textContent).toContain("No se pudo cargar el readiness.");
+  });
+
   it("hands off the retrieval profile returned by a completed activation", () => {
     renderPanel({
       activationResult: {

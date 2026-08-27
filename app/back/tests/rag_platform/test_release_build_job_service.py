@@ -238,3 +238,28 @@ def test_runner_marca_failed_sin_dejar_el_job_colgado() -> None:
     assert failed.state is ReleaseBuildJobState.FAILED
     assert failed.error_code == "RELEASE_BUILD_TOO_LARGE"
     assert failed.error_message
+
+
+def test_runner_excepcion_inesperada_no_filtra_detalle_al_cliente() -> None:
+    # Fase 7: una excepción inesperada (no de dominio) no puede exponer rutas
+    # físicas ni secretos por el build-status. Se traduce a un código estable y un
+    # id opaco; el texto crudo queda solo en el log del servidor.
+    repo = InMemoryReleaseBuildJobRepository()
+    repo.create(_job("bjob_1"))
+    actor = PlatformActor(actor_id="op", project_scope=None)
+    secreto = r"C:\venvs\chatbot-sst\secrets.env password=hunter2"
+
+    run_one_build(
+        jobs=repo,
+        build_release=_StubBuildRelease(error=RuntimeError(secreto)),
+        build_job_id="bjob_1",
+        rag_release_id=_RELEASE,
+        actor=actor,
+        now=lambda: _T1,
+    )
+
+    failed = repo.get("bjob_1")
+    assert failed.state is ReleaseBuildJobState.FAILED
+    assert failed.error_code == "RELEASE_BUILD_INTERNAL_ERROR"
+    assert secreto not in (failed.error_message or "")
+    assert "password" not in (failed.error_message or "")

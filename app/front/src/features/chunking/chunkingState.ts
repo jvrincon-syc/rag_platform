@@ -94,14 +94,26 @@ export function chunkingPaginationLabel(page: number, totalPages: number, totalI
   return `Pagina ${page} de ${totalPages} · ${totalItems} items`;
 }
 
+const NOT_EXPOSED = "N/D";
+
+function tokenLabel(value: number | null): string {
+  return value === null ? NOT_EXPOSED : String(value);
+}
+
 export function chunkingProfileSummary(profile: {
-  childMinTokens: number;
-  childTargetTokens: number;
-  childMaxTokens: number;
-  overlapRatio: number;
-  overlapMinTokens: number;
-  overlapMaxTokens: number;
+  childMinTokens: number | null;
+  childTargetTokens: number | null;
+  childMaxTokens: number | null;
+  overlapRatio: number | null;
+  overlapMinTokens: number | null;
+  overlapMaxTokens: number | null;
 }): string {
-  const overlapPercent = Math.round(profile.overlapRatio * 100);
-  return `Min ${profile.childMinTokens} · Target ${profile.childTargetTokens} · Max ${profile.childMaxTokens} · Overlap ${overlapPercent}% (${profile.overlapMinTokens}-${profile.overlapMaxTokens})`;
+  // Platform no expone parametros de tokens: se pintan `N/D` en vez de inventar.
+  const overlapPercent =
+    profile.overlapRatio === null ? NOT_EXPOSED : `${Math.round(profile.overlapRatio * 100)}%`;
+  return `Min ${tokenLabel(profile.childMinTokens)} · Target ${tokenLabel(
+    profile.childTargetTokens,
+  )} · Max ${tokenLabel(profile.childMaxTokens)} · Overlap ${overlapPercent} (${tokenLabel(
+    profile.overlapMinTokens,
+  )}-${tokenLabel(profile.overlapMaxTokens)})`;
 }

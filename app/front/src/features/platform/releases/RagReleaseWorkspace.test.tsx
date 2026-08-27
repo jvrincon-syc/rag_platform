@@ -3,6 +3,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { RagReleaseWorkspace } from "./RagReleaseWorkspace.js";
+import { PlatformProjectProvider } from "../PlatformProjectContext.js";
 import { writePlatformPreferences } from "../platformPersistence.js";
 import { DEFAULT_PLATFORM_PREFERENCES } from "../platformState.js";
 import * as platformApi from "../platformApi.js";
@@ -21,6 +22,8 @@ vi.mock("../platformApi.js", () => ({
   listAllReleases: vi.fn(),
   listAllVariants: vi.fn(),
   listAllCorpusSnapshots: vi.fn(),
+  listAllDocuments: vi.fn(),
+  createCorpusSnapshot: vi.fn(),
   getConfiguration: vi.fn(),
   getRelease: vi.fn(),
   createReleaseDraft: vi.fn(),
@@ -122,11 +125,21 @@ function selectInStorage(projectId: string, releaseId?: string): void {
   });
 }
 
+function renderRagReleaseWorkspace() {
+  return render(
+    <PlatformProjectProvider>
+      <RagReleaseWorkspace />
+    </PlatformProjectProvider>,
+  );
+}
+
 beforeEach(() => {
   window.localStorage.clear();
   api.listAllReleases.mockResolvedValue([]);
   api.listAllVariants.mockResolvedValue([makeVariant()]);
   api.listAllCorpusSnapshots.mockResolvedValue([makeSnapshot()]);
+  api.listAllDocuments.mockResolvedValue([]);
+  api.createCorpusSnapshot.mockResolvedValue(makeSnapshot());
   api.getConfiguration.mockResolvedValue(makeConfiguration());
   api.getRelease.mockResolvedValue(makeRelease());
   api.createReleaseDraft.mockResolvedValue(makeRelease());
@@ -138,10 +151,31 @@ beforeEach(() => {
 });
 
 describe("RagReleaseWorkspace", () => {
+  it("monta el constructor de snapshot de corpus antes del draft (Task 5)", async () => {
+    selectInStorage("proj_alpha");
+    api.listAllDocuments.mockResolvedValue([
+      {
+        source_document_revision_id: "srev_1",
+        logical_document_id: "ldoc_1",
+        source_relpath: "manuales/proc.pdf",
+        file_size: 1024,
+        raw_registered: true,
+        normalized_registered: true,
+        review_state: "processed",
+        processing_status: "normalized",
+        uploaded_at: "2026-01-01T00:00:00Z",
+      },
+    ]);
+    renderRagReleaseWorkspace();
+
+    expect(await screen.findByRole("button", { name: /Crear snapshot/i })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Crear draft/i })).toBeTruthy();
+  });
+
   it("(a) crea un draft con el body lógico exacto", async () => {
     selectInStorage("proj_alpha");
     const user = userEvent.setup();
-    render(<RagReleaseWorkspace />);
+    renderRagReleaseWorkspace();
 
     const createButton = await screen.findByRole("button", { name: /Crear draft/ });
     // Los selectores se siembran tras la carga; espera a que el botón se habilite.
@@ -163,7 +197,7 @@ describe("RagReleaseWorkspace", () => {
     selectInStorage("proj_alpha", "rel_1");
     api.listAllReleases.mockResolvedValue([makeRelease()]);
     const user = userEvent.setup();
-    render(<RagReleaseWorkspace />);
+    renderRagReleaseWorkspace();
 
     await user.click(await screen.findByRole("button", { name: /Construir \(build\)/ }));
 
@@ -197,7 +231,7 @@ describe("RagReleaseWorkspace", () => {
       }),
     );
     const user = userEvent.setup();
-    render(<RagReleaseWorkspace />);
+    renderRagReleaseWorkspace();
 
     await user.click(await screen.findByRole("button", { name: /Construir \(build\)/ }));
 
@@ -214,7 +248,7 @@ describe("RagReleaseWorkspace", () => {
     // El backend devuelve null hasta que aparece el job; el loop sigue en curso.
     api.getReleaseBuildStatus.mockResolvedValue(null);
     const user = userEvent.setup();
-    render(<RagReleaseWorkspace />);
+    renderRagReleaseWorkspace();
 
     await user.click(await screen.findByRole("button", { name: /Construir \(build\)/ }));
 
@@ -227,7 +261,7 @@ describe("RagReleaseWorkspace", () => {
     // draft → Build + Validate; no Publicar/Retirar.
     selectInStorage("proj_alpha", "rel_1");
     api.listAllReleases.mockResolvedValue([makeRelease({ state: "draft" })]);
-    const draft = render(<RagReleaseWorkspace />);
+    const draft = renderRagReleaseWorkspace();
     expect(await screen.findByRole("button", { name: /Construir \(build\)/ })).toBeTruthy();
     expect(screen.getByRole("button", { name: /Validar/ })).toBeTruthy();
     expect(screen.queryByRole("button", { name: /Publicar/ })).toBeNull();
@@ -236,7 +270,7 @@ describe("RagReleaseWorkspace", () => {
 
     // validated → Publicar + Retirar; no Build/Validate.
     api.listAllReleases.mockResolvedValue([makeRelease({ state: "validated" })]);
-    const validated = render(<RagReleaseWorkspace />);
+    const validated = renderRagReleaseWorkspace();
     expect(await screen.findByRole("button", { name: /Publicar/ })).toBeTruthy();
     expect(screen.getByRole("button", { name: /Retirar/ })).toBeTruthy();
     expect(screen.queryByRole("button", { name: /Construir \(build\)/ })).toBeNull();
@@ -245,7 +279,7 @@ describe("RagReleaseWorkspace", () => {
 
     // published → solo Retirar.
     api.listAllReleases.mockResolvedValue([makeRelease({ state: "published" })]);
-    render(<RagReleaseWorkspace />);
+    renderRagReleaseWorkspace();
     expect(await screen.findByRole("button", { name: /Retirar/ })).toBeTruthy();
     expect(screen.queryByRole("button", { name: /Publicar/ })).toBeNull();
   });
@@ -255,7 +289,7 @@ describe("RagReleaseWorkspace", () => {
     api.listAllReleases.mockResolvedValue([makeRelease()]);
     api.buildRelease.mockRejectedValue({ status: 409, code: "IDEMPOTENCY_KEY_CONFLICT" });
     const user = userEvent.setup();
-    render(<RagReleaseWorkspace />);
+    renderRagReleaseWorkspace();
 
     await user.click(await screen.findByRole("button", { name: /Construir \(build\)/ }));
 
@@ -272,7 +306,7 @@ describe("RagReleaseWorkspace", () => {
     api.validateRelease.mockRejectedValue({ status: 409, code: "INVALID_RELEASE_TRANSITION" });
     api.getRelease.mockResolvedValue(makeRelease({ state: "validated" }));
     const user = userEvent.setup();
-    render(<RagReleaseWorkspace />);
+    renderRagReleaseWorkspace();
 
     await user.click(await screen.findByRole("button", { name: /Validar/ }));
 
@@ -283,7 +317,7 @@ describe("RagReleaseWorkspace", () => {
     selectInStorage("proj_alpha", "rel_1");
     api.listAllReleases.mockResolvedValue([makeRelease({ state: "published" })]);
     const user = userEvent.setup();
-    render(<RagReleaseWorkspace />);
+    renderRagReleaseWorkspace();
 
     await user.click(await screen.findByRole("button", { name: /Retirar/ }));
     // El botón de confirmación está deshabilitado sin motivo.
@@ -310,7 +344,7 @@ describe("RagReleaseWorkspace", () => {
       .mockResolvedValueOnce(makeAccepted())
       .mockResolvedValueOnce(makeAccepted());
     const user = userEvent.setup();
-    render(<RagReleaseWorkspace />);
+    renderRagReleaseWorkspace();
 
     const buildButton = await screen.findByRole("button", { name: /Construir \(build\)/ });
 
@@ -335,7 +369,7 @@ describe("RagReleaseWorkspace", () => {
   });
 
   it("sin proyecto no llama a la API y muestra estado direccional", async () => {
-    render(<RagReleaseWorkspace />);
+    renderRagReleaseWorkspace();
     expect(
       await screen.findByText(/Selecciona un proyecto para gestionar sus releases/),
     ).toBeTruthy();

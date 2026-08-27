@@ -385,6 +385,24 @@ class PostgresProcessingProfileRepository:
             row = cursor.fetchone()
         if row is None:
             raise ProcessingProfileNotFound(processing_profile_id.value)
+        return self._row_to_profile(row)
+
+    def list_for_project(
+        self, project_id: PlatformId
+    ) -> tuple[DocumentProcessingProfile, ...]:
+        with self._connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT processing_profile_id, project_id, provider, engine,"
+                " observed_revision, origin, sanitized_config_json, fingerprint,"
+                " status, created_at FROM document_processing_profiles"
+                " WHERE project_id = %s ORDER BY processing_profile_id",
+                (project_id.value,),
+            )
+            rows = cursor.fetchall()
+        return tuple(self._row_to_profile(row) for row in rows)
+
+    @staticmethod
+    def _row_to_profile(row: Sequence[object]) -> DocumentProcessingProfile:
         return DocumentProcessingProfile(
             processing_profile_id=_pid(IdentityKind.PROCESSING_PROFILE, str(row[0])),
             project_id=_pid(IdentityKind.PROJECT, str(row[1])),
@@ -416,6 +434,22 @@ class PostgresChunkingProfileRepository:
             row = cursor.fetchone()
         if row is None:
             raise ChunkingProfileNotFound(chunking_profile_id.value)
+        return self._row_to_profile(row)
+
+    def list_for_project(self, project_id: PlatformId) -> tuple[ChunkingProfile, ...]:
+        with self._connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT chunking_profile_id, project_id, strategy,"
+                " sanitized_config_json, fingerprint, status, created_at"
+                " FROM chunking_profiles WHERE project_id = %s"
+                " ORDER BY chunking_profile_id",
+                (project_id.value,),
+            )
+            rows = cursor.fetchall()
+        return tuple(self._row_to_profile(row) for row in rows)
+
+    @staticmethod
+    def _row_to_profile(row: Sequence[object]) -> ChunkingProfile:
         return ChunkingProfile(
             chunking_profile_id=_pid(IdentityKind.CHUNKING_PROFILE, str(row[0])),
             project_id=_pid(IdentityKind.PROJECT, str(row[1])),

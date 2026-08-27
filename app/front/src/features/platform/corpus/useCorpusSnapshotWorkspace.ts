@@ -5,7 +5,7 @@ import {
   listAllCorpusSnapshots,
   listAllDocuments,
 } from "../platformApi.js";
-import { usePlatformPreferences } from "../hooks/usePlatformPreferences.js";
+import { usePlatformProjectContext } from "../PlatformProjectContext.js";
 import { mapPipelineError } from "../../../shared/api/errorMapping.js";
 import type { CorpusSnapshot, ProjectDocumentRevision } from "../platformTypes.js";
 
@@ -70,8 +70,7 @@ function messageFromError(error: unknown): string {
 export function useCorpusSnapshotWorkspace() {
   // scope = null: este workspace solo lee la selección de proyecto vigente y
   // persiste el snapshot elegido (D6: solo IDs de navegación).
-  const { preferences, setSelectedCorpusSnapshot } = usePlatformPreferences(null);
-  const projectId = preferences.selectedProjectId;
+  const { preferences, projectId, setSelectedCorpusSnapshot } = usePlatformProjectContext();
   const selectedSnapshotId = preferences.selectedCorpusSnapshotId;
 
   const [candidates, setCandidates] = useState<CandidatesState>(

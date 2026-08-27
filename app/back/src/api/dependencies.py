@@ -633,6 +633,9 @@ def _build_rag_platform_services(
     from rag_platform.application.document_revision_service import (
         CreateSourceDocumentRevisionUseCase,
     )
+    from rag_platform.application.revision_review_service import (
+        SubmitRevisionReviewDecisionUseCase,
+    )
     from rag_platform.application.project_normalization_service import (
         NormalizeProjectDocumentsUseCase,
     )
@@ -683,6 +686,7 @@ def _build_rag_platform_services(
             InMemoryRagBuildRunRepository,
             InMemoryRagVariantRepository,
             InMemoryRawArtifactCatalogRepository,
+            InMemoryRevisionReviewDecisionRepository,
             InMemorySourceDocumentRepository,
             InMemoryTargetBindingResolver,
         )
@@ -708,6 +712,7 @@ def _build_rag_platform_services(
         configuration_fingerprints: object = projects
         build_ledger: object = InMemoryRagBuildRunRepository()
         revision_resolver: object = InMemoryRevisionArtifactResolver()
+        review_decisions: object = InMemoryRevisionReviewDecisionRepository()
     else:
         from embedding.infrastructure.postgres.repositories import (
             PostgresEmbeddingProfileRepository,
@@ -721,6 +726,7 @@ def _build_rag_platform_services(
         from rag_platform.infrastructure.postgres.document_repositories import (
             PostgresCorpusSnapshotRepository,
             PostgresNormalizedArtifactRepository,
+            PostgresRevisionReviewDecisionRepository,
             PostgresSourceDocumentRepository,
         )
         from rag_platform.infrastructure.postgres.project_repositories import (
@@ -760,6 +766,7 @@ def _build_rag_platform_services(
             connection=connection,
             data_root=data_root,
         )
+        review_decisions = PostgresRevisionReviewDecisionRepository(connection)
 
     # Intake documental project-aware (Gate 1 Fase 8): el upload compone el
     # registro raw ya existente con un writer de bytes; el listado es read-model.
@@ -776,7 +783,16 @@ def _build_rag_platform_services(
         access_policy=access_policy,
     )
     list_documents = ListProjectDocumentsUseCase(
-        documents=documents, normalized=normalized, access_policy=access_policy
+        documents=documents,
+        normalized=normalized,
+        access_policy=access_policy,
+        review_decisions=review_decisions,
+    )
+    submit_review_decision = SubmitRevisionReviewDecisionUseCase(
+        documents=documents,
+        decisions=review_decisions,
+        access_policy=access_policy,
+        decision_id_factory=lambda: f"rrd_{uuid.uuid4().hex}",
     )
     # Normalize síncrono reutilizando run_pipeline (on-prem: LLAMA_CLOUD_ENABLED=false).
     # env_file=None: el proceso servidor ya trae el entorno cargado al arrancar.
@@ -961,6 +977,7 @@ def _build_rag_platform_services(
         list_project_documents=list_documents,
         upload_project_document=upload_document,
         normalize_project_documents=normalize_documents,
+        submit_revision_review_decision=submit_review_decision,
         create_corpus_snapshot=CreateCorpusSnapshotUseCase(
             snapshots=snapshots, documents=documents, access_policy=access_policy
         ),

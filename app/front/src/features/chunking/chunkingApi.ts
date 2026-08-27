@@ -319,3 +319,28 @@ export async function loadChunkingChildren(options: {
   );
   return toPaginationChunk((await readJson<Record<string, unknown>>(response)) as Record<string, unknown>, toChild);
 }
+
+// Data boundary for `useChunkingWorkspace`: Legacy wires this to the global
+// `/api/chunking/*` endpoints above (default); Platform can inject a
+// project-scoped client without touching the hook's logic or JSX.
+export type ChunkingApiClient = {
+  loadProfiles: typeof loadChunkingProfiles;
+  createRun: typeof createChunkingRun;
+  loadRun: typeof loadChunkingRun;
+  loadRunDocuments: typeof loadChunkingRunDocuments;
+  loadStoredDocuments: typeof loadChunkingStoredDocuments;
+  loadValidationOptional: typeof loadChunkingValidationOptional;
+  loadParents: typeof loadChunkingParents;
+  loadChildren: typeof loadChunkingChildren;
+};
+
+export const legacyChunkingApiClient: ChunkingApiClient = {
+  loadProfiles: loadChunkingProfiles,
+  createRun: createChunkingRun,
+  loadRun: loadChunkingRun,
+  loadRunDocuments: loadChunkingRunDocuments,
+  loadStoredDocuments: loadChunkingStoredDocuments,
+  loadValidationOptional: loadChunkingValidationOptional,
+  loadParents: loadChunkingParents,
+  loadChildren: loadChunkingChildren,
+};

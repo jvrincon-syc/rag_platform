@@ -1,9 +1,12 @@
-import { AlertCircle, History, Loader2 } from "lucide-react";
+import { History } from "lucide-react";
+import { StatePanel } from "../../../components/ui/StatePanel.js";
 import type { HistoryState } from "./useCorpusSnapshotWorkspace.js";
 
-// Historial de snapshots del proyecto (read-model rehidratable). Marca el snapshot
-// seleccionado (persistido como ID de navegación) para que sobreviva a un refresh.
-// `manifest_hash` es la firma inmutable de procedencia del snapshot.
+// Historial de snapshots del proyecto (read-model rehidratable). Los estados
+// no-felices (loading/empty/error) pasan por StatePanel para ser consistentes con
+// el resto de la plataforma. Marca el snapshot seleccionado (persistido como ID de
+// navegación) para que sobreviva a un refresh. `manifest_hash` es la firma
+// inmutable de procedencia del snapshot.
 export function SnapshotHistory({
   state,
   selectedSnapshotId,
@@ -12,29 +15,20 @@ export function SnapshotHistory({
   selectedSnapshotId: string | null;
 }) {
   if (state.status === "idle" || state.status === "loading") {
-    return (
-      <div className="ui-empty">
-        <Loader2 className="spin" size={20} />
-        <span>Cargando historial...</span>
-      </div>
-    );
+    return <StatePanel kind="loading" message="Cargando historial..." />;
   }
 
   if (state.status === "error") {
-    return (
-      <div className="ui-empty">
-        <AlertCircle size={22} />
-        <span role="alert">{state.message}</span>
-      </div>
-    );
+    return <StatePanel kind="error" message={state.message} />;
   }
 
   if (state.status === "empty") {
     return (
-      <div className="ui-empty">
-        <History size={22} />
-        <span>Este proyecto aún no tiene snapshots. Crea el primero desde el constructor.</span>
-      </div>
+      <StatePanel
+        kind="info"
+        icon={<History size={22} />}
+        message="Este proyecto aún no tiene snapshots. Crea el primero desde el constructor."
+      />
     );
   }
 

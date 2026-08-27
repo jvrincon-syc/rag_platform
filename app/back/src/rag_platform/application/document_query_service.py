@@ -16,6 +16,7 @@ from datetime import datetime
 from rag_platform.application.context import (
     NormalizedArtifactRepository,
     PlatformAccessPolicy,
+    RevisionReviewDecisionRepository,
     SourceDocumentRepository,
 )
 from rag_platform.application.platform_access import (
@@ -38,6 +39,9 @@ class ProjectDocumentRevisionRow:
     raw_registered: bool
     normalized_registered: bool
     processing_status: str
+    eligibility_decision: str | None = None
+    eligibility_reason: str | None = None
+    eligibility_decided_at: datetime | None = None
 
 
 class ListProjectDocumentsUseCase:
@@ -49,10 +53,12 @@ class ListProjectDocumentsUseCase:
         documents: SourceDocumentRepository,
         normalized: NormalizedArtifactRepository,
         access_policy: PlatformAccessPolicy,
+        review_decisions: RevisionReviewDecisionRepository | None = None,
     ) -> None:
         self._documents = documents
         self._normalized = normalized
         self._access_policy = access_policy
+        self._review_decisions = review_decisions
 
     def execute(
         self, project_id: PlatformId, *, actor: PlatformActor
@@ -64,10 +70,16 @@ class ListProjectDocumentsUseCase:
         )
         revisions = self._documents.list_revisions_for_project(project_id)
         normalized_ids = self._normalized.list_normalized_revision_ids(project_id)
+        latest_decisions = (
+            {}
+            if self._review_decisions is None
+            else self._review_decisions.latest_for_project(project_id)
+        )
         rows: list[ProjectDocumentRevisionRow] = []
         for revision in revisions:
             revision_id = revision.source_document_revision_id.value
             is_normalized = revision_id in normalized_ids
+            decision = latest_decisions.get(revision_id)
             rows.append(
                 ProjectDocumentRevisionRow(
                     source_document_revision_id=revision_id,
@@ -81,6 +93,13 @@ class ListProjectDocumentsUseCase:
                     raw_registered=True,
                     normalized_registered=is_normalized,
                     processing_status="normalized" if is_normalized else "registered",
+                    eligibility_decision=(
+                        None if decision is None else decision.eligibility_decision.value
+                    ),
+                    eligibility_reason=None if decision is None else decision.reason,
+                    eligibility_decided_at=(
+                        None if decision is None else decision.decided_at
+                    ),
                 )
             )
         return tuple(rows)

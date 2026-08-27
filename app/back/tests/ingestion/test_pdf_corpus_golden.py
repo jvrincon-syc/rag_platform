@@ -38,7 +38,7 @@ def test_audited_pdf_sources_are_exactly_nine_documents_and_77_pages() -> None:
 def test_audited_pdf_candidate_passes_structural_and_semantic_gates(
     tmp_path: Path,
 ) -> None:
-    load_secrets_env(Path("secrets.env"))
+    load_secrets_env(Path("secrets.env"), apply=True)
     capabilities = check_ocr_environment()
     required_ocr = (
         capabilities.ocrmypdf_enabled

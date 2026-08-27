@@ -28,6 +28,30 @@ from ingestion.gui.server import (
 )
 
 
+class _ExplodingBody:
+    def read(self, _size: int = -1) -> bytes:
+        raise AssertionError("oversized uploads must be rejected before reading the body")
+
+
+def _multipart_body(*, category: str, folder: str, filename: str = "manual.pdf", file_bytes: bytes = b"%PDF-1.4") -> tuple[str, bytes]:
+    boundary = "----phase1"
+    body = (
+        f"--{boundary}\r\n"
+        'Content-Disposition: form-data; name="category"\r\n'
+        "\r\n"
+        f"{category}\r\n"
+        f"--{boundary}\r\n"
+        'Content-Disposition: form-data; name="folder"\r\n'
+        "\r\n"
+        f"{folder}\r\n"
+        f"--{boundary}\r\n"
+        f'Content-Disposition: form-data; name="file"; filename="{filename}"\r\n'
+        "Content-Type: application/pdf\r\n"
+        "\r\n"
+    ).encode("utf-8") + file_bytes + f"\r\n--{boundary}--\r\n".encode("utf-8")
+    return boundary, body
+
+
 def test_gui_pipeline_settings_can_force_local_without_api_key(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("LLAMA_CLOUD_ENABLED", "true")
     monkeypatch.delenv("LLAMA_CLOUD_API_KEY", raising=False)
@@ -485,6 +509,28 @@ def test_parse_multipart_form_reads_fields_and_uploaded_file() -> None:
     assert form["file"].file.read() == b"%PDF-1.4"
 
 
+def test_parse_multipart_form_rejects_content_length_above_limit_without_reading_body() -> None:
+    with pytest.raises(gui_server.UploadTooLargeError, match="200 MB"):
+        _parse_multipart_form(
+            content_type="multipart/form-data; boundary=----phase1",
+            content_length=str(200 * 1024 * 1024 + 1),
+            body=_ExplodingBody(),
+        )
+
+
+def test_read_json_body_rejects_content_length_above_limit_without_reading() -> None:
+    handler = _make_handler(
+        path="/api/settings",
+        headers={"Content-Length": str(10 * 1024 * 1024 + 1)},
+        body=b"",
+        bridge=None,
+    )
+    handler.rfile = _ExplodingBody()
+
+    with pytest.raises(ValueError, match="10 MB"):
+        handler._read_json_body()
+
+
 def test_gui_backend_builds_chunking_bridge_without_sharing_pipeline_connection(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -600,6 +646,162 @@ def _make_handler(*, path, headers, body, bridge):
     return handler
 
 
+def test_handle_upload_returns_413_for_oversized_payload() -> None:
+    handler = _make_handler(
+        path="/upload",
+        headers={
+            "Content-Type": "multipart/form-data; boundary=----phase1",
+            "Content-Length": str(200 * 1024 * 1024 + 1),
+        },
+        body=b"",
+        bridge=None,
+    )
+
+    handler._handle_upload()
+
+    assert handler._response_status_code == HTTPStatus.REQUEST_ENTITY_TOO_LARGE
+    assert json.loads(handler.wfile.getvalue().decode("utf-8")) == {
+        "ok": False,
+        "error": "upload excede el limite de 200 MB",
+    }
+
+
+def test_handle_upload_rejects_invalid_category_segment() -> None:
+    boundary, body = _multipart_body(category="carpeta con espacios", folder="sst")
+    handler = _make_handler(
+        path="/upload",
+        headers={
+            "Content-Type": f"multipart/form-data; boundary={boundary}",
+            "Content-Length": str(len(body)),
+        },
+        body=body,
+        bridge=None,
+    )
+
+    handler._handle_upload()
+
+    assert handler._response_status_code == HTTPStatus.BAD_REQUEST
+    assert json.loads(handler.wfile.getvalue().decode("utf-8")) == {
+        "ok": False,
+        "error": "category contains an invalid path segment",
+    }
+
+
+def test_handle_review_rejects_document_id_with_unsafe_characters() -> None:
+    handler = _make_handler(
+        path="/api/review/../escape",
+        headers={"Content-Length": "2"},
+        body=b"{}",
+        bridge=None,
+    )
+
+    handler._handle_review("../escape")
+
+    assert handler._response_status_code == HTTPStatus.BAD_REQUEST
+    assert json.loads(handler.wfile.getvalue().decode("utf-8")) == {
+        "ok": False,
+        "error": "document_id is invalid",
+    }
+
+
+@pytest.mark.parametrize(
+    ("method_name", "prepare", "path"),
+    [
+        (
+            "_handle_pipeline_run",
+            lambda monkeypatch: (
+                monkeypatch.setattr(
+                    Phase1GuiHandler,
+                    "_read_json_body",
+                    lambda self, required=False: {},
+                ),
+                monkeypatch.setattr(gui_server, "_llama_settings_for_pipeline_run", lambda _body: object()),
+                monkeypatch.setattr(
+                    gui_server,
+                    "_pipeline_run_options_from_body",
+                    lambda _body: {"ocr_review_threshold": 0.75},
+                ),
+                monkeypatch.setattr(
+                    gui_server,
+                    "run_pipeline",
+                    lambda **_kwargs: (_ for _ in ()).throw(RuntimeError("boom-run")),
+                ),
+            ),
+            "/pipeline/run",
+        ),
+        (
+            "_handle_validate",
+            lambda monkeypatch: (
+                monkeypatch.setattr(
+                    Phase1GuiHandler,
+                    "_read_json_body",
+                    lambda self, required=False: {},
+                ),
+                monkeypatch.setattr(
+                    gui_server,
+                    "_validation_target_from_body",
+                    lambda _body: type(
+                        "Target",
+                        (),
+                        {"name": "normalized", "normalized_root": ROOT},
+                    )(),
+                ),
+                monkeypatch.setattr(
+                    gui_server,
+                    "_write_validation_report",
+                    lambda *_args: (_ for _ in ()).throw(RuntimeError("boom-validate")),
+                ),
+            ),
+            "/validate",
+        ),
+        (
+            "_handle_promote",
+            lambda monkeypatch: (
+                monkeypatch.setattr(
+                    Phase1GuiHandler,
+                    "_read_json_body",
+                    lambda self, required=True: {},
+                ),
+                monkeypatch.setattr(
+                    gui_server,
+                    "_staging_target_from_body",
+                    lambda _body: type(
+                        "Target",
+                        (),
+                        {"name": "staging", "normalized_root": ROOT},
+                    )(),
+                ),
+                monkeypatch.setattr(
+                    gui_server,
+                    "_write_validation_report",
+                    lambda *_args: (_ for _ in ()).throw(RuntimeError("boom-promote")),
+                ),
+            ),
+            "/promote",
+        ),
+    ],
+)
+def test_gui_unexpected_failures_log_traceback_and_hide_internal_error(
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+    method_name: str,
+    prepare,
+    path: str,
+) -> None:
+    prepare(monkeypatch)
+    handler = _make_handler(path=path, headers={}, body=b"", bridge=None)
+    handler._request_id = "req-123"
+
+    with caplog.at_level("ERROR"):
+        getattr(handler, method_name)()
+
+    payload = json.loads(handler.wfile.getvalue().decode("utf-8"))
+    assert handler._response_status_code == HTTPStatus.INTERNAL_SERVER_ERROR
+    assert payload == {"ok": False, "error": "internal server error"}
+    assert "boom-" not in handler.wfile.getvalue().decode("utf-8")
+    assert any(record.exc_info for record in caplog.records)
+
+
 def test_platform_prefix_is_in_the_bridge_allowlist() -> None:
     assert "/api/platform/projects".startswith(gui_server.PIPELINE_API_PREFIXES)
 
@@ -680,11 +882,30 @@ def test_platform_bridge_exception_returns_500_envelope_instead_of_resetting_soc
     assert json.loads(handler.wfile.getvalue().decode("utf-8")) == {
         "error": {
             "code": "PIPELINE_BRIDGE_ERROR",
-            "message": "pipeline bridge failed: RuntimeError",
+            "message": "pipeline bridge failed",
             "run_id": None,
             "details": {},
         }
     }
+
+
+def test_platform_bridge_rejects_invalid_content_length_header() -> None:
+    bridge = _RecordingBridge(_BridgeResponse(200, b"{}"))
+    handler = _make_handler(
+        path="/api/platform/projects",
+        headers={"Content-Length": "-1"},
+        body=b"",
+        bridge=bridge,
+    )
+
+    handler._handle_pipeline_api("POST")
+
+    assert handler._response_status_code == HTTPStatus.BAD_REQUEST
+    assert json.loads(handler.wfile.getvalue().decode("utf-8")) == {
+        "ok": False,
+        "error": "Content-Length header is invalid",
+    }
+    assert bridge.calls == []
 
 
 def test_platform_bridge_calls_are_serialized_under_a_process_lock() -> None:
@@ -718,3 +939,126 @@ def test_platform_bridge_preserves_error_status_and_envelope(status_code: int) -
     handler._handle_pipeline_api("GET")
     assert handler._response_status_code == HTTPStatus(status_code)
     assert handler.wfile.getvalue() == envelope
+
+
+# --------------------------------------------------------------------------- #
+# _safe_rollback: InFailedSqlTransaction recovery                              #
+# --------------------------------------------------------------------------- #
+
+
+def test_safe_rollback_is_noop_for_none_connection() -> None:
+    gui_server._safe_rollback(None)
+
+
+def test_safe_rollback_is_noop_when_connection_is_healthy() -> None:
+    class _HealthyConnection:
+        def get_transaction_status(self) -> int:
+            return 0  # STATUS_IDLE
+
+        def rollback(self) -> None:
+            raise AssertionError("rollback should not be called on healthy connection")
+
+    gui_server._safe_rollback(_HealthyConnection())
+
+
+def test_safe_rollback_calls_rollback_when_transaction_is_aborted() -> None:
+    rolled_back = False
+
+    class _FailedConnection:
+        def get_transaction_status(self) -> int:
+            return gui_server._PSYycopg2_STATUS_INERROR
+
+        def rollback(self) -> None:
+            nonlocal rolled_back
+            rolled_back = True
+
+    gui_server._safe_rollback(_FailedConnection())
+    assert rolled_back is True
+
+
+def test_safe_rollback_is_noop_when_get_transaction_status_raises() -> None:
+    class _BrokenConnection:
+        def get_transaction_status(self) -> int:
+            raise RuntimeError("connection lost")
+
+    gui_server._safe_rollback(_BrokenConnection())
+
+
+def test_safe_rollback_is_noop_when_connection_has_no_get_transaction_status() -> None:
+    gui_server._safe_rollback(object())
+
+
+def test_handle_pipeline_api_calls_rollback_in_finally_on_success() -> None:
+    rolled_back = False
+
+    class _FakeConnection:
+        def get_transaction_status(self) -> int:
+            return 0  # healthy
+
+        def rollback(self) -> None:
+            nonlocal rolled_back
+            rolled_back = True
+
+    class _SuccessBridge:
+        def handle(self, **_kwargs):
+            return _BridgeResponse(200, b'{"ok":true}')
+
+    handler = _make_handler(
+        path="/api/platform/projects", headers={}, body=b"", bridge=_SuccessBridge()
+    )
+    handler.server.pipeline_connection = _FakeConnection()
+
+    handler._handle_pipeline_api("GET")
+
+    assert handler._response_status_code == HTTPStatus.OK
+    assert rolled_back is False  # healthy connection, no rollback needed
+
+
+def test_handle_pipeline_api_calls_rollback_in_finally_on_exception() -> None:
+    rolled_back = False
+
+    class _FailedConnection:
+        def get_transaction_status(self) -> int:
+            return gui_server._PSYycopg2_STATUS_INERROR
+
+        def rollback(self) -> None:
+            nonlocal rolled_back
+            rolled_back = True
+
+    class _ExplodingBridge:
+        def handle(self, **_kwargs):
+            raise RuntimeError("InFailedSqlTransaction")
+
+    handler = _make_handler(
+        path="/api/platform/projects", headers={}, body=b"", bridge=_ExplodingBridge()
+    )
+    handler.server.pipeline_connection = _FailedConnection()
+
+    handler._handle_pipeline_api("GET")
+
+    assert rolled_back is True
+    assert handler._response_status_code == HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+def test_handle_pipeline_api_calls_rollback_in_finally_on_bridge_500() -> None:
+    rolled_back = False
+
+    class _FailedConnection:
+        def get_transaction_status(self) -> int:
+            return gui_server._PSYycopg2_STATUS_INERROR
+
+        def rollback(self) -> None:
+            nonlocal rolled_back
+            rolled_back = True
+
+    envelope = b'{"error":{"code":"X","message":"m","run_id":null,"details":{}}}'
+    bridge = _RecordingBridge(_BridgeResponse(500, envelope))
+    handler = _make_handler(
+        path="/api/platform/projects", headers={}, body=b"", bridge=bridge
+    )
+    handler.server.pipeline_connection = _FailedConnection()
+
+    handler._handle_pipeline_api("GET")
+
+    assert rolled_back is True
+    assert handler._response_status_code == HTTPStatus.INTERNAL_SERVER_ERROR

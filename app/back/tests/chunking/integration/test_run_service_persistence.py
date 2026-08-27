@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -157,7 +158,16 @@ def _write_inventory(docs_root: Path, records: list[dict[str, object]]) -> None:
     )
 
 
-def _service(root: Path) -> ChunkingRunService:
+class _ExplodingOrchestrator:
+    def process_document(self, *, document: NormalizedDocumentBundle, profile: ChunkingProfileModel) -> Any:
+        raise RuntimeError("forced chunking failure")
+
+
+def _service(
+    root: Path,
+    *,
+    orchestrator: ChunkingOrchestrator | _ExplodingOrchestrator | None = None,
+) -> ChunkingRunService:
     docs_root = root / "docs_normalized"
     chunks_root = root / "chunks"
     chunk_repository = FilesystemChunkBundleRepository(output_root=chunks_root)
@@ -165,13 +175,47 @@ def _service(root: Path) -> ChunkingRunService:
         docs_normalized=docs_root,
         chunks_root=chunks_root,
         source=Schema2NormalizedDocumentSource(docs_root),
-        orchestrator=ChunkingOrchestrator(
+        orchestrator=orchestrator
+        or ChunkingOrchestrator(
             engine=LocalChunkingEngine(),
             bundle_repository=chunk_repository,
             run_repository=FilesystemRunRepository(output_root=chunks_root),
         ),
         chunk_repository=chunk_repository,
     )
+
+
+def _prepare_single_document_run(
+    root: Path,
+    *,
+    document_id: str = "doc_run",
+    orchestrator: ChunkingOrchestrator | _ExplodingOrchestrator | None = None,
+) -> ChunkingRunService:
+    docs_root = root / "docs_normalized"
+    docs_root.mkdir(parents=True, exist_ok=True)
+    source_relpath = f"manual/{document_id}.pdf"
+    _write_document(
+        docs_root,
+        document_id=document_id,
+        source_relpath=source_relpath,
+        markdown_body=(
+            "# Procedimiento\n\n"
+            + " ".join(["Contenido auditado con evidencia trazable." for _ in range(35)])
+        ),
+    )
+    _write_inventory(
+        docs_root,
+        [
+            {
+                "document_id": document_id,
+                "source_relpath": source_relpath,
+                "processing_status": "processed",
+                "source_hash": SOURCE_HASH,
+                "document_name": source_relpath.rsplit("/", 1)[-1],
+            }
+        ],
+    )
+    return _service(root, orchestrator=orchestrator)
 
 
 def test_rehidrata_corrida_y_reconstruye_idempotencia(tmp_path: Path) -> None:
@@ -254,6 +298,95 @@ def test_rehidrata_corrida_y_reconstruye_idempotencia(tmp_path: Path) -> None:
     assert completed["status"] == "completed"
     assert completed["completed_documents"] == 1
     reloaded_service.close()
+
+
+def test_execute_run_persiste_validacion_honesta_para_corrida_exitosa(
+    tmp_path: Path,
+) -> None:
+    service = _prepare_single_document_run(tmp_path, document_id="doc_success")
+    created = service.create_run(
+        request=ChunkingRunRequest(
+            scope="documents",
+            document_ids=("doc_success",),
+            profile_id="local-structural-v1",
+            force=False,
+        ),
+        idempotency_key="success-key",
+    )
+
+    service.execute_run(created.run_id)
+
+    validation = service.get_validation(created.run_id)
+    assert validation == {
+        "run_id": created.run_id,
+        "status": "passed",
+        "documents_checked": 1,
+        "errors": 0,
+        "warnings": 0,
+        "checks": [
+            {
+                "name": "documents_completed",
+                "passed": True,
+                "detail": "1/1",
+            },
+            {
+                "name": "run_status_ok",
+                "passed": True,
+                "detail": "completed",
+            },
+        ],
+    }
+    _assert_json_canonical(tmp_path / "chunks" / "_manifests" / f"{created.run_id}.validation.json")
+    service.close()
+
+
+def test_execute_run_guarded_persiste_validacion_failed_cuando_explota_el_chunking(
+    tmp_path: Path,
+) -> None:
+    service = _prepare_single_document_run(
+        tmp_path,
+        document_id="doc_failure",
+        orchestrator=_ExplodingOrchestrator(),
+    )
+    created = service.create_run(
+        request=ChunkingRunRequest(
+            scope="documents",
+            document_ids=("doc_failure",),
+            profile_id="local-structural-v1",
+            force=False,
+        ),
+        idempotency_key="failure-key",
+    )
+
+    service._execute_run_guarded(created.run_id)  # noqa: SLF001
+
+    run_payload = service.get_run_payload(created.run_id)
+    assert run_payload["status"] == "failed"
+    assert run_payload["completed_documents"] == 0
+    assert run_payload["warnings"] == ["forced chunking failure"]
+
+    validation = service.get_validation(created.run_id)
+    assert validation == {
+        "run_id": created.run_id,
+        "status": "failed",
+        "documents_checked": 1,
+        "errors": 2,
+        "warnings": 1,
+        "checks": [
+            {
+                "name": "documents_completed",
+                "passed": False,
+                "detail": "0/1",
+            },
+            {
+                "name": "run_status_ok",
+                "passed": False,
+                "detail": "failed",
+            },
+        ],
+    }
+    _assert_json_canonical(tmp_path / "chunks" / "_manifests" / f"{created.run_id}.validation.json")
+    service.close()
 
 
 def _byte_identity_bundle() -> NormalizedDocumentBundle:

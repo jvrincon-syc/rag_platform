@@ -7,7 +7,7 @@ import {
   updateConfiguration as apiUpdateConfiguration,
   updateProject as apiUpdateProject,
 } from "../platformApi.js";
-import { usePlatformPreferences } from "../hooks/usePlatformPreferences.js";
+import { usePlatformProjectContext } from "../PlatformProjectContext.js";
 import { mapPipelineError } from "../../../shared/api/errorMapping.js";
 import type {
   CreateProjectRequest,
@@ -40,7 +40,8 @@ function messageFromError(error: unknown): string {
 export function useProjectWorkspace() {
   // scope = null: Task 7 solo gestiona la selección de proyecto. La reconciliación
   // full-scope (variante/snapshot/release) pertenece a un provider posterior.
-  const { preferences, setSelectedProject } = usePlatformPreferences(null);
+  const { preferences, setKnownProjects, setSelectedProject, upsertProject } =
+    usePlatformProjectContext();
   const selectedProjectId = preferences.selectedProjectId;
 
   const [projects, setProjects] = useState<Project[]>([]);
@@ -74,7 +75,9 @@ export function useProjectWorkspace() {
       }
       // Trust boundary: el contrato garantiza `items`, pero se valida para no
       // romper el render ante una respuesta malformada.
-      setProjects(Array.isArray(page.items) ? page.items : []);
+      const items = Array.isArray(page.items) ? page.items : [];
+      setProjects(items);
+      setKnownProjects(items);
     } catch (error) {
       if (signal?.aborted) {
         return;
@@ -87,7 +90,7 @@ export function useProjectWorkspace() {
         setProjectsLoading(false);
       }
     }
-  }, []);
+  }, [setKnownProjects]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -149,6 +152,7 @@ export function useProjectWorkspace() {
           project,
           ...current.filter((item) => item.project_id !== project.project_id),
         ]);
+        upsertProject(project);
         setSelectedProject(project.project_id);
         setNotice({ tone: "success", message: `Proyecto "${project.display_name}" creado.` });
         return true;
@@ -159,7 +163,7 @@ export function useProjectWorkspace() {
         setCreatingProject(false);
       }
     },
-    [setSelectedProject],
+    [setSelectedProject, upsertProject],
   );
 
   const renameProject = useCallback(
@@ -174,6 +178,7 @@ export function useProjectWorkspace() {
         setProjects((current) =>
           current.map((item) => (item.project_id === updated.project_id ? updated : item)),
         );
+        upsertProject(updated);
         setNotice({ tone: "success", message: "Nombre del proyecto actualizado." });
         return true;
       } catch (error) {
@@ -183,7 +188,7 @@ export function useProjectWorkspace() {
         setRenamingProject(false);
       }
     },
-    [activeProjectId],
+    [activeProjectId, upsertProject],
   );
 
   const saveConfigurationVersion = useCallback(

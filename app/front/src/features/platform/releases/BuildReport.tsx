@@ -9,9 +9,13 @@ import type { BuildProgress } from "./useRagReleaseWorkspace.js";
 export function BuildReport({
   progress,
   polling,
+  statusError,
 }: {
   progress: BuildProgress;
   polling: boolean;
+  // Error de la última consulta de estado (fail-closed): mientras el build está
+  // en curso, un fallo de polling se muestra sin ocultarlo tras "encolado".
+  statusError?: string | null;
 }) {
   if (progress.status === "idle") {
     return (
@@ -31,6 +35,11 @@ export function BuildReport({
           {label}: el servidor lo está procesando{polling ? " (consultando estado…)" : ""}. Esta
           vista se actualiza sola hasta que termine.
         </span>
+        {statusError ? (
+          <span style={{ color: "var(--danger-ink)" }} role="alert">
+            La última consulta de estado falló: {statusError}. Reintentando…
+          </span>
+        ) : null}
       </div>
     );
   }

@@ -193,6 +193,13 @@ class RevisionNotReleaseEligible(RagPlatformError):
     http_status = 409
 
 
+class InvalidReviewDecision(RagPlatformError):
+    """La decision operacional de revision no cumple el contrato de Platform."""
+
+    code = "INVALID_REVIEW_DECISION"
+    http_status = 422
+
+
 class EmptyCorpusSnapshot(RagPlatformError):
     """Un corpus snapshot debe contener al menos una revisión."""
 

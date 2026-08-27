@@ -37,9 +37,46 @@ _PROFILE_COLUMNS = (
     "validation_status",
     "validated_at",
     "last_runtime_status",
-    "created_at",
-    "deprecated_at",
 )
+
+# tsvector building blocks for weighted FTS over metadata + body.
+# Parent-directory tokens (weight C) give context without false positives;
+# basename tokens (weight A) carry the core document identity.
+_FTS_TITLE_A = "setweight(to_tsvector('spanish', COALESCE({t}.section_title, '')), 'A')"
+_FTS_PATH_B = "setweight(to_tsvector('spanish', COALESCE({t}.section_path, '')), 'B')"
+_FTS_DIR_C = (
+    "setweight(to_tsvector('spanish', "
+    "array_to_string(regexp_to_array("
+    "regexp_replace("
+    "regexp_replace("
+    "regexp_replace("
+    "regexp_replace(COALESCE({t}.{c}, ''), E'.*[/\\\\\\\\]', '', 'g'),"
+    " E'\\\\.[^.]*$', '', 'g'),"
+    " E'(?i)\\\\bgeneral_sst\\\\b', '', 'g'),"
+    " E'(?i)\\\\bmanuales\\\\b', '', 'g'),"
+    " E'(?i)\\\\borganizacion\\\\b', '', 'g'),"
+    " E'(?i)\\\\bcapacitaciones\\\\b', '', 'g'),"
+    " E'(?i)\\\\bprotocolos\\\\b', '', 'g'),"
+    " E'(?i)\\\\bnormas_seguridad\\\\b', '', 'g'),"
+    " E'(?i)\\\\briesgos\\\\b', '', 'g'),"
+    " E'(?i)\\\\bcanales_comunicacion\\\\b', '', 'g'),"
+    " E'(?i)\\\\bcomunicaciones\\\\b', '', 'g'),"
+    " E'(?i)\\\\briesgo_fisico\\\\b', '', 'g'),"
+    " E'(?i)\\\\baspectos_ambientales\\\\b', '', 'g'),"
+    " E'(?i)\\\\bpreferidos\\\\b', '', 'g'),"
+    " E'(?i)\\\\brespaldo\\\\b', '', 'g'),"
+    " E'[/\\\\\\\\]+', ' ')), ' ')), 'C')"
+)
+_FTS_BASENAME_A = (
+    "setweight(to_tsvector('spanish', "
+    "array_to_string(regexp_to_array("
+    "regexp_replace("
+    "regexp_replace(COALESCE({t}.{c}, ''), E'.*[/\\\\\\\\]', '', 'g'),"
+    " E'\\\\.[^.]*$', '', 'g'),"
+    " E'[^a-zA-Z\\\\u00C0-\\\\u024F]+', ' ', 'g'),"
+    " ' '), ' ')), 'A')"
+)
+_FTS_BODY_C = "setweight(to_tsvector('spanish', {t}.text), 'C')"
 
 
 def _validated_table(vector_table: str) -> str:
@@ -409,9 +446,17 @@ class PostgresLexicalSearch:
     ) -> list[RetrievedEvidence]:
         """Return the closest child nodes by full-text rank."""
 
+        tsvector = " || ".join([
+            _FTS_TITLE_A.format(t="node"),
+            _FTS_PATH_B.format(t="node"),
+            _FTS_DIR_C.format(t="node", c="source_relpath"),
+            _FTS_BASENAME_A.format(t="node", c="source_relpath"),
+            _FTS_BODY_C.format(t="node"),
+        ])
+
         with self._connection.cursor() as cursor:
             cursor.execute(
-                """
+                f"""
                 SELECT node.node_id,
                        node.document_id,
                        NULL AS embedding_bundle_id,
@@ -422,8 +467,8 @@ class PostgresLexicalSearch:
                        node.section_title,
                        node.section_path,
                        node.metadata,
-                       ts_rank(
-                           to_tsvector('spanish', node.text),
+                       ts_rank_cd(
+                           {tsvector},
                            plainto_tsquery('spanish', %s)
                        ) AS score
                   FROM indexing_nodes AS node
@@ -434,8 +479,7 @@ class PostgresLexicalSearch:
                    AND node.corpus_version = %s
                    AND document.processing_status = 'processed'
                    AND document.review_status = 'approved'
-                   AND to_tsvector('spanish', node.text)
-                       @@ plainto_tsquery('spanish', %s)
+                   AND ({tsvector}) @@ plainto_tsquery('spanish', %s)
                  ORDER BY score DESC
                  LIMIT %s
                 """,

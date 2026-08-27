@@ -59,6 +59,9 @@ from rag_platform.application.release_retirement_service import (
 )
 from rag_platform.application.release_service import CreateRagReleaseDraftUseCase
 from rag_platform.application.release_validator import ValidateRagReleaseUseCase
+from rag_platform.application.revision_review_service import (
+    SubmitRevisionReviewDecisionUseCase,
+)
 from rag_platform.application.variant_matrix_service import (
     CreateRagVariantFromMatrixCellUseCase,
     GetVariantMatrixUseCase,
@@ -97,6 +100,8 @@ class RagPlatformServices:
     list_project_documents: ListProjectDocumentsUseCase
     upload_project_document: UploadProjectRawDocumentUseCase
     normalize_project_documents: NormalizeProjectDocumentsUseCase
+    # Decisión operacional de revisión, independiente de snapshot — Task 3 (parity plan)
+    submit_revision_review_decision: SubmitRevisionReviewDecisionUseCase
 
     # Corpus snapshot — Task 4
     create_corpus_snapshot: CreateCorpusSnapshotUseCase

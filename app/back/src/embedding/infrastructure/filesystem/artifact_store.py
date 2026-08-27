@@ -6,9 +6,10 @@ Layout, relative to the configured artifact root::
     <embedding_bundle_id>/{manifest.json,vectors.npy,chunk_map.jsonl}
 
 Staging is written first and promoted with a single ``os.replace`` so a crash can
-never publish a half-written bundle. Sealed directories are never overwritten and
-only relative paths are stored, so no absolute path ever reaches the database,
-the API or a log line.
+never publish a half-written bundle. Promotion retries briefly on transient Windows
+sharing violations (WinError 5/32) without ever falling back to a non-atomic copy.
+Sealed directories are never overwritten and only relative paths are stored, so no
+absolute path ever reaches the database, the API or a log line.
 """
 
 from __future__ import annotations
@@ -20,6 +21,7 @@ import json
 import os
 from pathlib import Path
 import shutil
+import time
 
 import numpy as np
 
@@ -33,6 +35,33 @@ STAGING_DIRNAME = "_staging"
 
 #: dtype every published vector artifact is stored with.
 VECTOR_DTYPE = "float32"
+
+#: Winerror codes for transient Windows locks: ERROR_ACCESS_DENIED (5) and
+#: ERROR_SHARING_VIOLATION (32). Antivirus, the indexer or a stray reader can
+#: hold a handle for milliseconds right after staging closes its own files.
+_PROMOTE_RETRY_WINERRORS = {5, 32}
+_MAX_PROMOTE_ATTEMPTS = 6
+
+
+def _replace_with_windows_retry(staging: Path, published: Path) -> None:
+    """Promote with ``os.replace``, tolerating short-lived Windows file locks."""
+
+    for attempt in range(_MAX_PROMOTE_ATTEMPTS):
+        try:
+            os.replace(staging, published)
+            return
+        except PermissionError as exc:
+            winerror = getattr(exc, "winerror", None)
+            if os.name != "nt" or winerror not in _PROMOTE_RETRY_WINERRORS:
+                raise
+            # Otro actor pudo haber publicado mientras esperábamos el lock.
+            if published.exists():
+                raise EmbeddingBundleInvalid(
+                    "sealed embedding bundle artifacts already exist"
+                ) from exc
+            if attempt == _MAX_PROMOTE_ATTEMPTS - 1:
+                raise
+            time.sleep(0.05 * (2**attempt))
 
 
 @dataclass(frozen=True)
@@ -140,7 +169,7 @@ class FilesystemEmbeddingBundleArtifactStore:
         if published.exists():
             raise EmbeddingBundleInvalid("sealed embedding bundle artifacts already exist")
         published.parent.mkdir(parents=True, exist_ok=True)
-        os.replace(staging, published)
+        _replace_with_windows_retry(staging, published)
         manifest = json.loads((published / MANIFEST_FILENAME).read_text(encoding="utf-8"))
         checksums = {str(key): str(value) for key, value in dict(manifest["checksums"]).items()}
         return BundleArtifactRefs(

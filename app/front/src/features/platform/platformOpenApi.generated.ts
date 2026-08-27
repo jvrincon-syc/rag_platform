@@ -434,6 +434,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/platform/projects/{project_id}/document-revisions/{source_document_revision_id}/review-decision": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit Revision Review Decision */
+        post: operations["submit_revision_review_decision_api_platform_projects__project_id__document_revisions__source_document_revision_id__review_decision_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/platform/projects/{project_id}/documents": {
         parameters: {
             query?: never;
@@ -978,6 +995,17 @@ export interface components {
          * @enum {string}
          */
         DocumentTypeTemplate: "generic" | "sst";
+        /**
+         * EligibilityDecision
+         * @description Decisión versionada de elegibilidad de una revisión para un snapshot.
+         *
+         *     Separa la promoción técnica de la elegibilidad de release (ADR-006 §3). Una
+         *     revisión ``needs_review`` exige una decisión explícita (``APPROVED_AFTER_REVIEW``
+         *     u ``OPERATOR_WAIVER``) antes de entrar a un corpus snapshot; ``BLOCKED`` la
+         *     rechaza. ``NOT_REQUIRED`` aplica a revisiones ya procesadas sin ``needs_review``.
+         * @enum {string}
+         */
+        EligibilityDecision: "not_required" | "approved_after_review" | "operator_waiver" | "blocked";
         /**
          * EmbeddingBundleChunkSchema
          * @description One row of the durable chunk map. Never carries a vector.
@@ -1597,6 +1625,12 @@ export interface components {
          * @description Fila de documento del proyecto para la GUI. **Nunca** expone rutas físicas.
          */
         ProjectDocumentRevisionSchema: {
+            /** Eligibility Decided At */
+            eligibility_decided_at?: string | null;
+            /** Eligibility Decision */
+            eligibility_decision?: string | null;
+            /** Eligibility Reason */
+            eligibility_reason?: string | null;
             /** File Size */
             file_size: number;
             /** Logical Document Id */
@@ -1901,6 +1935,24 @@ export interface components {
             /** Text */
             text: string;
         };
+        /** RevisionReviewDecisionSchema */
+        RevisionReviewDecisionSchema: {
+            /**
+             * Decided At
+             * Format: date-time
+             */
+            decided_at: string;
+            /** Decision Id */
+            decision_id: string;
+            /** Eligibility Decision */
+            eligibility_decision: string;
+            /** Project Id */
+            project_id: string;
+            /** Reason */
+            reason: string;
+            /** Source Document Revision Id */
+            source_document_revision_id: string;
+        };
         /**
          * RollbackRequestSchema
          * @description Revert one lane to a bundle that was already validated.
@@ -1927,6 +1979,15 @@ export interface components {
              * @default 10
              */
             top_k: number;
+        };
+        /**
+         * SubmitRevisionReviewDecisionRequestSchema
+         * @description Decisión operacional de revisión (``Aprobar``/``Rechazar`` en la GUI legacy).
+         */
+        SubmitRevisionReviewDecisionRequestSchema: {
+            decision: components["schemas"]["EligibilityDecision"];
+            /** Reason */
+            reason: string;
         };
         /** TargetBindingSchema */
         TargetBindingSchema: {
@@ -4345,6 +4406,87 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PaginatedCorpusSnapshotsSchema"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelopeSchema"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelopeSchema"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelopeSchema"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelopeSchema"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelopeSchema"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelopeSchema"];
+                };
+            };
+        };
+    };
+    submit_revision_review_decision_api_platform_projects__project_id__document_revisions__source_document_revision_id__review_decision_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+                source_document_revision_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubmitRevisionReviewDecisionRequestSchema"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RevisionReviewDecisionSchema"];
                 };
             };
             /** @description Bad Request */

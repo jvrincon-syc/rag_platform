@@ -1,5 +1,6 @@
 import { AlertCircle, Loader2, RefreshCw, Rocket } from "lucide-react";
 import { DashboardNotice } from "../../dashboard/components/DashboardChrome.js";
+import { CorpusSnapshotBuilderPanel } from "../corpus/CorpusSnapshotBuilderPanel.js";
 import { BuildReport } from "./BuildReport.js";
 import { ReleaseDraftForm } from "./ReleaseDraftForm.js";
 import { ReleaseHistory } from "./ReleaseHistory.js";
@@ -89,6 +90,18 @@ function RagReleaseBody({ workspace }: { workspace: ReturnType<typeof useRagRele
   return (
     <section className="release-grid">
       <div className="release-aside">
+        <section className="panel" aria-label="Snapshot de corpus">
+          <div className="panel-heading">
+            <div>
+              <h2>Snapshot de corpus</h2>
+              <span>Congela revisiones aprobadas antes de crear una release.</span>
+            </div>
+          </div>
+          <div className="ui-panel-body">
+            <CorpusSnapshotBuilderPanel compact />
+          </div>
+        </section>
+
         <section className="panel" aria-label="Nuevo draft de release">
           <div className="panel-heading">
             <div>
@@ -159,7 +172,11 @@ function RagReleaseBody({ workspace }: { workspace: ReturnType<typeof useRagRele
             </div>
           </div>
           <div className="ui-panel-body">
-            <BuildReport progress={workspace.buildProgress} polling={workspace.buildPolling} />
+            <BuildReport
+              progress={workspace.buildProgress}
+              polling={workspace.buildPolling}
+              statusError={workspace.buildStatusError}
+            />
           </div>
         </section>
       </div>

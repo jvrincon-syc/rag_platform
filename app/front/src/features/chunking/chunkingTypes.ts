@@ -2,12 +2,16 @@ export type ChunkingScope = "documents" | "corpus";
 
 export type ChunkingProfile = {
   profileId: string;
-  childMinTokens: number;
-  childTargetTokens: number;
-  childMaxTokens: number;
-  overlapRatio: number;
-  overlapMinTokens: number;
-  overlapMaxTokens: number;
+  // Nullable para el read-model de Platform: `ChunkingProfileReadSchema` NO
+  // expone parametros de tokens/overlap (solo strategy/fingerprint/status). El
+  // cliente Platform los devuelve `null` y la UI Legacy los pinta `N/D`, en vez
+  // de inventar umbrales (plan 2026-08-25, Task 6). Legacy siempre trae numeros.
+  childMinTokens: number | null;
+  childTargetTokens: number | null;
+  childMaxTokens: number | null;
+  overlapRatio: number | null;
+  overlapMinTokens: number | null;
+  overlapMaxTokens: number | null;
 };
 
 export type ChunkingRunRequest = {

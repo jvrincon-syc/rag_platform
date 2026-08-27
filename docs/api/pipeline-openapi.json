@@ -488,6 +488,17 @@
         "title": "DocumentTypeTemplate",
         "type": "string"
       },
+      "EligibilityDecision": {
+        "description": "Decisi\u00f3n versionada de elegibilidad de una revisi\u00f3n para un snapshot.\n\nSepara la promoci\u00f3n t\u00e9cnica de la elegibilidad de release (ADR-006 \u00a73). Una\nrevisi\u00f3n ``needs_review`` exige una decisi\u00f3n expl\u00edcita (``APPROVED_AFTER_REVIEW``\nu ``OPERATOR_WAIVER``) antes de entrar a un corpus snapshot; ``BLOCKED`` la\nrechaza. ``NOT_REQUIRED`` aplica a revisiones ya procesadas sin ``needs_review``.",
+        "enum": [
+          "not_required",
+          "approved_after_review",
+          "operator_waiver",
+          "blocked"
+        ],
+        "title": "EligibilityDecision",
+        "type": "string"
+      },
       "EmbeddingBundleChunkSchema": {
         "additionalProperties": false,
         "description": "One row of the durable chunk map. Never carries a vector.",
@@ -2248,6 +2259,40 @@
         "additionalProperties": false,
         "description": "Fila de documento del proyecto para la GUI. **Nunca** expone rutas f\u00edsicas.",
         "properties": {
+          "eligibility_decided_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Eligibility Decided At"
+          },
+          "eligibility_decision": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Eligibility Decision"
+          },
+          "eligibility_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Eligibility Reason"
+          },
           "file_size": {
             "title": "File Size",
             "type": "integer"
@@ -3059,6 +3104,46 @@
         "title": "RetrievedEvidenceSchema",
         "type": "object"
       },
+      "RevisionReviewDecisionSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "decided_at": {
+            "format": "date-time",
+            "title": "Decided At",
+            "type": "string"
+          },
+          "decision_id": {
+            "title": "Decision Id",
+            "type": "string"
+          },
+          "eligibility_decision": {
+            "title": "Eligibility Decision",
+            "type": "string"
+          },
+          "project_id": {
+            "title": "Project Id",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "source_document_revision_id": {
+            "title": "Source Document Revision Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "decision_id",
+          "project_id",
+          "source_document_revision_id",
+          "eligibility_decision",
+          "reason",
+          "decided_at"
+        ],
+        "title": "RevisionReviewDecisionSchema",
+        "type": "object"
+      },
       "RollbackRequestSchema": {
         "additionalProperties": false,
         "description": "Revert one lane to a bundle that was already validated.\n\nThe consumer scope is resolved server-side (see ``ActivationRequestSchema``).",
@@ -3108,6 +3193,27 @@
           "query"
         ],
         "title": "SearchRetrievalSchema",
+        "type": "object"
+      },
+      "SubmitRevisionReviewDecisionRequestSchema": {
+        "additionalProperties": false,
+        "description": "Decisi\u00f3n operacional de revisi\u00f3n (``Aprobar``/``Rechazar`` en la GUI legacy).",
+        "properties": {
+          "decision": {
+            "$ref": "#/components/schemas/EligibilityDecision"
+          },
+          "reason": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "decision",
+          "reason"
+        ],
+        "title": "SubmitRevisionReviewDecisionRequestSchema",
         "type": "object"
       },
       "TargetBindingSchema": {
@@ -6438,6 +6544,117 @@
           }
         },
         "summary": "List Project Corpus Snapshots",
+        "tags": [
+          "platform"
+        ]
+      }
+    },
+    "/api/platform/projects/{project_id}/document-revisions/{source_document_revision_id}/review-decision": {
+      "post": {
+        "operationId": "submit_revision_review_decision_api_platform_projects__project_id__document_revisions__source_document_revision_id__review_decision_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "source_document_revision_id",
+            "required": true,
+            "schema": {
+              "title": "Source Document Revision Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitRevisionReviewDecisionRequestSchema"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevisionReviewDecisionSchema"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeSchema"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeSchema"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeSchema"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeSchema"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeSchema"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeSchema"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Submit Revision Review Decision",
         "tags": [
           "platform"
         ]

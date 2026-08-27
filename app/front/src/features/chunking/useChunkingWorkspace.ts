@@ -1,14 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import {
-  createChunkingRun,
-  loadChunkingChildren,
-  loadChunkingParents,
-  loadChunkingProfiles,
-  loadChunkingRun,
-  loadChunkingRunDocuments,
-  loadChunkingStoredDocuments,
-  loadChunkingValidationOptional,
-} from "./chunkingApi.js";
+import { legacyChunkingApiClient, type ChunkingApiClient } from "./chunkingApi.js";
 import {
   createChunkingWorkspaceFormState,
   readChunkingWorkspaceSnapshot,
@@ -42,8 +33,10 @@ export type ChunkingNoticeState =
   | null;
 
 // Todo el estado de servidor y la orquestacion de la pantalla de chunking.
-// Los paneles solo reciben datos ya resueltos y callbacks.
-export function useChunkingWorkspace() {
+// Los paneles solo reciben datos ya resueltos y callbacks. `api` es inyectable
+// (default = cliente Legacy global) para que Platform pueda alimentar la MISMA
+// pantalla con datos project-aware sin duplicar UI ni logica.
+export function useChunkingWorkspace(api: ChunkingApiClient = legacyChunkingApiClient) {
   const [profiles, setProfiles] = useState<ChunkingProfile[]>([]);
   const [profilesLoading, setProfilesLoading] = useState(true);
   const [profilesError, setProfilesError] = useState<string | null>(null);
@@ -125,7 +118,7 @@ export function useChunkingWorkspace() {
       setProfilesLoading(true);
       setProfilesError(null);
       try {
-        const payload = await loadChunkingProfiles();
+        const payload = await api.loadProfiles();
         if (cancelled) return;
         setProfiles(payload);
         if (payload.length > 0) {
@@ -200,8 +193,8 @@ export function useChunkingWorkspace() {
     setValidationError(null);
     try {
       const [run, docs] = await Promise.all([
-        loadChunkingRun(runId),
-        loadChunkingRunDocuments({ runId, page }),
+        api.loadRun(runId),
+        api.loadRunDocuments({ runId, page }),
       ]);
       setRunSummary(run);
       setDocumentsPage(docs);
@@ -219,7 +212,7 @@ export function useChunkingWorkspace() {
         setChildrenPage(null);
       }
       try {
-        const validationReport = await loadChunkingValidationOptional(runId);
+        const validationReport = await api.loadValidationOptional(runId);
         setValidation(validationReport);
         if (validationReport) {
           setValidationError(null);
@@ -256,7 +249,7 @@ export function useChunkingWorkspace() {
     setStoredDocumentsLoading(true);
     setStoredDocumentsError(null);
     try {
-      const docs = await loadChunkingStoredDocuments({ page });
+      const docs = await api.loadStoredDocuments({ page });
       setStoredDocumentsPage(docs);
       setStoredDocumentsPageNumber(docs.page);
       if (docs.items.length > 0) {
@@ -285,7 +278,7 @@ export function useChunkingWorkspace() {
     setParentsLoading(true);
     setParentsError(null);
     try {
-      const payload = await loadChunkingParents({
+      const payload = await api.loadParents({
         documentId,
         runId: currentRunId ?? undefined,
         page,
@@ -315,7 +308,7 @@ export function useChunkingWorkspace() {
     setChildrenLoading(true);
     setChildrenError(null);
     try {
-      const payload = await loadChunkingChildren({
+      const payload = await api.loadChildren({
         parentId,
         page,
       });
@@ -350,7 +343,7 @@ export function useChunkingWorkspace() {
         setNotice({ tone: "warning", message: "Selecciona un perfil de chunking." });
         return;
       }
-      const run = await createChunkingRun({
+      const run = await api.createRun({
         idempotencyKey: form.idempotencyKey,
         request: {
           scope: form.scope,
@@ -391,7 +384,7 @@ export function useChunkingWorkspace() {
     setDocumentsPageNumber(page);
     setDocumentsLoading(true);
     try {
-      const payload = await loadChunkingRunDocuments({ runId: runSummary.runId, page });
+      const payload = await api.loadRunDocuments({ runId: runSummary.runId, page });
       setDocumentsPage(payload);
       if (payload.items.length > 0) {
         const nextDocumentId =

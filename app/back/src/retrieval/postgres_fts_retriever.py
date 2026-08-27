@@ -1,7 +1,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import re
 from typing import Any
+
+
+_FILTER_KEY_PATTERN = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
 
 @dataclass(frozen=True)
@@ -25,6 +29,8 @@ class PostgresFtsRetriever:
         where = ["to_tsvector('spanish', text) @@ plainto_tsquery('spanish', %(query)s)"]
         params: dict[str, Any] = {"query": ""}
         for key, value in filters.items():
+            if not _FILTER_KEY_PATTERN.fullmatch(key):
+                raise ValueError("unsafe filter key")
             where.append(f"metadata->>'{key}' = %({key})s")
             params[key] = value
         sql = (

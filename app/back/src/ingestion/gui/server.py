@@ -2,13 +2,14 @@ from __future__ import annotations
 
 import json
 import logging
+import os
+import re
 import shutil
 import sys
+import tempfile
 import threading
 from dataclasses import asdict, dataclass
-from datetime import datetime, timezone
-from email import policy
-from email.parser import BytesParser
+from datetime import datetime, timedelta, timezone
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from io import BytesIO
@@ -20,7 +21,7 @@ from uuid import uuid4
 
 from core.http_auth import ConfiguredBearerAuth, HttpAuthError
 from core.logging.logger import configure_structured_logging
-from core.logging.observability import measure_duration_ms
+from core.logging.observability import measure_duration_ms, sanitize_exception_text
 from ingestion.config.env import load_runtime_llama_settings, load_secrets_env
 from ingestion.config.llama_settings import LlamaSettings
 from api.app import create_app
@@ -69,6 +70,8 @@ REVIEW_DECISIONS_PATH = MANIFESTS_DIR / "review_decisions.json"
 GUI_SETTINGS_PATH = MANIFESTS_DIR / "gui_settings.json"
 GUI_AUTH_USERS_PATH = MANIFESTS_DIR / "gui_auth_users.json"
 ALLOWED_UPLOAD_SUFFIXES = {".pdf", ".md", ".markdown"}
+MAX_UPLOAD_BYTES = 200 * 1024 * 1024
+MAX_JSON_BODY_BYTES = 10 * 1024 * 1024
 ALLOWED_CORS_HEADERS = ("Content-Type", "Idempotency-Key", "Authorization")
 #: Orígenes de confianza para las rutas de auth de la GUI local (guarda CSRF).
 #: Un ``Origin`` presente que no esté aquí se rechaza; ausente (curl/same-origin)
@@ -85,6 +88,45 @@ ALLOWED_LLAMA_ROUTES = {
 }
 
 server_logger = logging.getLogger(__name__)
+_UPLOAD_SEGMENT_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$")
+_DOCUMENT_ID_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$")
+
+
+class UploadTooLargeError(ValueError):
+    """Raised when a multipart upload exceeds the fixed GUI limit."""
+
+
+class JsonBodyTooLargeError(ValueError):
+    """Raised when one JSON request body exceeds the fixed GUI limit."""
+
+
+class RequestBodyTooLargeError(ValueError):
+    """Raised when one generic request body exceeds the fixed GUI limit."""
+
+
+class GuiRegisterThrottle:
+    """In-memory per-client throttle for unauthenticated GUI registrations."""
+
+    def __init__(self, *, max_attempts: int = 5, window: timedelta = timedelta(hours=1)) -> None:
+        self._max_attempts = max_attempts
+        self._window = window
+        self._attempts: dict[str, list[datetime]] = {}
+        self._lock = threading.Lock()
+
+    def allow(self, client_key: str, *, now: datetime) -> bool:
+        cutoff = now - self._window
+        with self._lock:
+            recent = [
+                attempted_at
+                for attempted_at in self._attempts.get(client_key, [])
+                if attempted_at > cutoff
+            ]
+            if len(recent) >= self._max_attempts:
+                self._attempts[client_key] = recent
+                return False
+            recent.append(now)
+            self._attempts[client_key] = recent
+            return True
 
 # El bridge reenvía a una app FastAPI cableada con UNA sola conexión psycopg2
 # compartida (``build_pipeline_services_from_env``). ``ThreadingHTTPServer`` sirve
@@ -95,12 +137,37 @@ server_logger = logging.getLogger(__name__)
 # ponytail: lock global; migrar a psycopg2 ThreadedConnectionPool + conexión por
 # request si algún día importa el throughput / multi-operador.
 _PIPELINE_BRIDGE_LOCK = threading.Lock()
+_GUI_REGISTER_THROTTLE = GuiRegisterThrottle()
+
+# psycopg2 STATUS_INERROR: la conexión está en estado de transacción abortada.
+# Cualquier cursor.execute() en este estado levanta InFailedSqlTransaction.
+_PSYycopg2_STATUS_INERROR = 6
+
+
+def _safe_rollback(connection: object | None) -> None:
+    """Best-effort rollback to clear ``InFailedSqlTransaction`` on the shared connection.
+
+    If the connection is healthy (no failed transaction), this is a no-op.
+    Called in ``finally`` after every bridge request so that a single failed
+    query never poisons the shared connection for subsequent requests.
+    """
+    if connection is None:
+        return
+    getter = getattr(connection, "get_transaction_status", None)
+    if not callable(getter):
+        return
+    try:
+        status = getter()
+    except Exception:
+        return
+    if status == _PSYycopg2_STATUS_INERROR:
+        connection.rollback()
 
 
 @dataclass
 class UploadedFormFile:
     filename: str
-    file: BytesIO
+    file: BinaryIO
 
 
 @dataclass(frozen=True)
@@ -188,6 +255,129 @@ def _latest_validation_report(
     if not isinstance(payload, dict):
         return None
     return {"path": reports[0].relative_to(ROOT).as_posix(), **payload}
+
+
+def _parse_content_length_header(
+    raw: str | None,
+    *,
+    max_bytes: int | None = None,
+    too_large_error: type[ValueError] = RequestBodyTooLargeError,
+    too_large_message: str | None = None,
+) -> int:
+    if raw is None or raw == "":
+        return 0
+    try:
+        length = int(raw)
+    except ValueError as error:
+        raise ValueError("Content-Length header is invalid") from error
+    if length < 0:
+        raise ValueError("Content-Length header is invalid")
+    if max_bytes is not None and length > max_bytes:
+        raise too_large_error(
+            too_large_message
+            or f"request body exceeds the limit of {max_bytes // (1024 * 1024)} MB"
+        )
+    return length
+
+
+def _validate_upload_segment(value: str, field_name: str) -> str:
+    stripped = value.strip()
+    if not _UPLOAD_SEGMENT_PATTERN.fullmatch(stripped):
+        raise ValueError(f"{field_name} contains an invalid path segment")
+    return stripped
+
+
+def _document_id_is_valid(document_id: str) -> bool:
+    return bool(_DOCUMENT_ID_PATTERN.fullmatch(document_id))
+
+
+def _client_identifier(client_address: tuple[str, int] | None) -> str:
+    return client_address[0] if client_address else "unknown"
+
+
+def _multipart_boundary(content_type: str) -> bytes:
+    parts = [part.strip() for part in content_type.split(";") if part.strip()]
+    if not parts or parts[0].lower() != "multipart/form-data":
+        raise ValueError("multipart/form-data required")
+    for part in parts[1:]:
+        if not part.lower().startswith("boundary="):
+            continue
+        value = part.split("=", 1)[1].strip().strip('"')
+        if value:
+            return value.encode("utf-8")
+        break
+    raise ValueError("multipart boundary is required")
+
+
+def _copy_request_body_to_tempfile(body: BinaryIO, *, length: int) -> BinaryIO:
+    temp = tempfile.SpooledTemporaryFile(max_size=1024 * 1024, mode="w+b")
+    remaining = length
+    try:
+        while remaining > 0:
+            chunk = body.read(min(64 * 1024, remaining))
+            if not chunk:
+                raise ValueError("request body is truncated")
+            temp.write(chunk)
+            remaining -= len(chunk)
+        temp.seek(0)
+        return temp
+    except Exception:
+        temp.close()
+        raise
+
+
+def _parse_content_disposition(value: str) -> tuple[str, dict[str, str]]:
+    parts = [part.strip() for part in value.split(";") if part.strip()]
+    if not parts:
+        return "", {}
+    params: dict[str, str] = {}
+    for part in parts[1:]:
+        key, _, raw_value = part.partition("=")
+        if not key or not raw_value:
+            continue
+        params[key.strip().lower()] = raw_value.strip().strip('"')
+    return parts[0].lower(), params
+
+
+def _part_charset(headers: dict[str, str]) -> str:
+    content_type = headers.get("content-type")
+    if not content_type:
+        return "utf-8"
+    for part in content_type.split(";")[1:]:
+        key, _, value = part.strip().partition("=")
+        if key.lower() == "charset" and value:
+            return value.strip().strip('"')
+    return "utf-8"
+
+
+def _read_multipart_part_data(
+    stream: BinaryIO,
+    *,
+    boundary: bytes,
+    writer,
+) -> bool:
+    delimiter = b"--" + boundary
+    closing = delimiter + b"--"
+    previous = stream.readline()
+    if previous == b"":
+        raise ValueError("malformed multipart body")
+    if previous.startswith(delimiter):
+        line = previous.rstrip(b"\r\n")
+        if line not in {delimiter, closing}:
+            raise ValueError("malformed multipart boundary")
+        return line == closing
+    while True:
+        current = stream.readline()
+        if current == b"":
+            raise ValueError("malformed multipart body")
+        if current.startswith(delimiter):
+            writer(previous.rstrip(b"\r\n"))
+            line = current.rstrip(b"\r\n")
+            if line not in {delimiter, closing}:
+                raise ValueError("malformed multipart boundary")
+            return line == closing
+        writer(previous)
+        previous = current
 
 
 def _review_decision_map(
@@ -585,7 +775,18 @@ class Phase1GuiHandler(BaseHTTPRequestHandler):
                 status=HTTPStatus.INTERNAL_SERVER_ERROR,
             )
             return
-        length = int(self.headers.get("Content-Length") or 0)
+        try:
+            length = _parse_content_length_header(
+                self.headers.get("Content-Length"),
+                max_bytes=MAX_JSON_BODY_BYTES,
+                too_large_message="request body exceeds the limit of 10 MB",
+            )
+        except RequestBodyTooLargeError as exc:
+            self._send_error(HTTPStatus.REQUEST_ENTITY_TOO_LARGE, str(exc))
+            return
+        except ValueError as exc:
+            self._send_error(HTTPStatus.BAD_REQUEST, str(exc))
+            return
         body = self.rfile.read(length) if length else b""
         headers = {name: value for name, value in self.headers.items()}
         # Gate 3: si hay cookie de sesión, el bearer se inyecta server-side y se
@@ -636,7 +837,7 @@ class Phase1GuiHandler(BaseHTTPRequestHandler):
                 {
                     "error": {
                         "code": "PIPELINE_BRIDGE_ERROR",
-                        "message": f"pipeline bridge failed: {type(exc).__name__}",
+                        "message": "pipeline bridge failed",
                         "run_id": None,
                         "details": {},
                     }
@@ -644,6 +845,12 @@ class Phase1GuiHandler(BaseHTTPRequestHandler):
                 status=HTTPStatus.INTERNAL_SERVER_ERROR,
             )
             return
+        finally:
+            # Garantía: si cualquier query abortó la transacción (InFailedSqlTransaction),
+            # el rollback limpia el estado para que la siguiente request no herede el fallo.
+            # Sin esta limpieza, un solo error de query envenena la conexión compartida
+            # para TODAS las requests subsiguientes hasta reiniciar el proceso.
+            _safe_rollback(getattr(self.server, "pipeline_connection", None))
         self._response_status_code = HTTPStatus(response.status)
         self.send_response(response.status)
         self.send_header(
@@ -656,6 +863,26 @@ class Phase1GuiHandler(BaseHTTPRequestHandler):
 
     def _gui_auth(self) -> GuiAuthCoordinator | None:
         return getattr(self.server, "gui_auth", None)
+
+    def _gui_register_throttle(self) -> GuiRegisterThrottle:
+        throttle = getattr(self.server, "gui_register_throttle", None)
+        return throttle if throttle is not None else _GUI_REGISTER_THROTTLE
+
+    def _request_uses_tls(self) -> bool:
+        forwarded_proto = self.headers.get("X-Forwarded-Proto", "")
+        if any(part.strip().lower() == "https" for part in forwarded_proto.split(",")):
+            return True
+        forwarded = self.headers.get("Forwarded", "").lower()
+        if "proto=https" in forwarded:
+            return True
+        request = getattr(self, "request", None)
+        cipher = getattr(request, "cipher", None)
+        if callable(cipher):
+            try:
+                return cipher() is not None
+            except Exception:
+                return False
+        return False
 
     def _handle_auth_login(self) -> None:
         """Valida el token y abre una sesión GUI (cookie opaca server-side)."""
@@ -677,6 +904,9 @@ class Phase1GuiHandler(BaseHTTPRequestHandler):
                 raise ValueError("username is required")
             if not isinstance(password, str) or not password:
                 raise ValueError("password is required")
+        except JsonBodyTooLargeError as exc:
+            self._send_error(HTTPStatus.REQUEST_ENTITY_TOO_LARGE, str(exc))
+            return
         except (json.JSONDecodeError, ValueError) as exc:
             self._send_error(HTTPStatus.BAD_REQUEST, str(exc))
             return
@@ -703,7 +933,9 @@ class Phase1GuiHandler(BaseHTTPRequestHandler):
             session.public_metadata(),
             extra_headers={
                 "Set-Cookie": build_session_cookie(
-                    session.session_id, max_age=coordinator.cookie_max_age
+                    session.session_id,
+                    max_age=coordinator.cookie_max_age,
+                    secure=self._request_uses_tls(),
                 )
             },
         )
@@ -720,6 +952,16 @@ class Phase1GuiHandler(BaseHTTPRequestHandler):
         if not self._origin_is_trusted():
             self._send_error(HTTPStatus.FORBIDDEN, "untrusted origin")
             return
+        now = _utcnow()
+        if not self._gui_register_throttle().allow(
+            _client_identifier(self.client_address),
+            now=now,
+        ):
+            self._send_error(
+                HTTPStatus.TOO_MANY_REQUESTS,
+                "too many registration attempts from this client",
+            )
+            return
         try:
             body = self._read_json_body()
             username = body.get("username")
@@ -729,6 +971,9 @@ class Phase1GuiHandler(BaseHTTPRequestHandler):
             if not isinstance(password, str) or not password:
                 raise ValueError("password is required")
             project_scope = _parse_project_scope(body.get("project_scope"))
+        except JsonBodyTooLargeError as exc:
+            self._send_error(HTTPStatus.REQUEST_ENTITY_TOO_LARGE, str(exc))
+            return
         except (json.JSONDecodeError, ValueError) as exc:
             self._send_error(HTTPStatus.BAD_REQUEST, str(exc))
             return
@@ -737,7 +982,7 @@ class Phase1GuiHandler(BaseHTTPRequestHandler):
                 username=username.strip(),
                 password=password,
                 project_scope=project_scope,
-                now=_utcnow(),
+                now=now,
             )
         except HttpAuthError as exc:
             self._send_auth_error(exc)
@@ -758,6 +1003,7 @@ class Phase1GuiHandler(BaseHTTPRequestHandler):
                 "Set-Cookie": build_session_cookie(
                     session.session_id,
                     max_age=coordinator.cookie_max_age,
+                    secure=self._request_uses_tls(),
                 )
             },
         )
@@ -799,7 +1045,9 @@ class Phase1GuiHandler(BaseHTTPRequestHandler):
             coordinator.logout(session_id)
         self._send_json(
             {"ok": True},
-            extra_headers={"Set-Cookie": build_expired_cookie()},
+            extra_headers={
+                "Set-Cookie": build_expired_cookie(secure=self._request_uses_tls())
+            },
         )
 
     def _origin_is_trusted(self) -> bool:
@@ -865,6 +1113,19 @@ class Phase1GuiHandler(BaseHTTPRequestHandler):
             return
         try:
             body = self._read_json_body(required=False)
+        except JsonBodyTooLargeError as exc:
+            self._send_json(
+                {
+                    "error": {
+                        "code": "CHUNKING_INVALID_REQUEST",
+                        "message": str(exc),
+                        "run_id": None,
+                        "details": {},
+                    }
+                },
+                status=HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
+            )
+            return
         except (json.JSONDecodeError, ValueError) as exc:
             self._send_json(
                 {
@@ -891,56 +1152,78 @@ class Phase1GuiHandler(BaseHTTPRequestHandler):
         if not content_type.startswith("multipart/form-data"):
             self._send_error(HTTPStatus.BAD_REQUEST, "multipart/form-data required")
             return
-        form = _parse_multipart_form(
-            content_type=content_type,
-            content_length=self.headers.get("Content-Length", "0"),
-            body=self.rfile,
-        )
-        category = _field_value(form, "category")
-        folder = _field_value(form, "folder")
-        upload = form.get("file")
-        if (
-            not category
-            or not folder
-            or not isinstance(upload, UploadedFormFile)
-            or not upload.filename
-        ):
-            self._send_error(HTTPStatus.BAD_REQUEST, "category, folder and file are required")
-            return
-
-        filename = Path(upload.filename).name
-        suffix = Path(filename).suffix.lower()
-        if suffix not in ALLOWED_UPLOAD_SUFFIXES:
-            self._send_error(HTTPStatus.BAD_REQUEST, "only .pdf, .md and .markdown files are allowed")
+        form: dict[str, str | UploadedFormFile] = {}
+        try:
+            form = _parse_multipart_form(
+                content_type=content_type,
+                content_length=self.headers.get("Content-Length", "0"),
+                body=self.rfile,
+            )
+        except UploadTooLargeError as exc:
+            self._send_error(HTTPStatus.REQUEST_ENTITY_TOO_LARGE, str(exc))
             return
         try:
-            relpath = canonical_relpath(f"{category}/{folder}/{filename}")
-        except ValueError as exc:
-            self._send_error(HTTPStatus.BAD_REQUEST, str(exc))
-            return
+            category = _field_value(form, "category")
+            folder = _field_value(form, "folder")
+            upload = form.get("file")
+            if (
+                not category
+                or not folder
+                or not isinstance(upload, UploadedFormFile)
+                or not upload.filename
+            ):
+                self._send_error(HTTPStatus.BAD_REQUEST, "category, folder and file are required")
+                return
 
-        destination = DOCS_RAW / relpath
-        if destination.exists():
-            self._send_error(HTTPStatus.CONFLICT, "raw document already exists")
-            return
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        with destination.open("wb") as handle:
-            shutil.copyfileobj(upload.file, handle)
-        self._send_json(
-            {
-                "ok": True,
-                "sourceRelpath": relpath,
-                "path": destination.relative_to(ROOT).as_posix(),
-            },
-            status=HTTPStatus.CREATED,
-        )
+            try:
+                category = _validate_upload_segment(category, "category")
+                folder = _validate_upload_segment(folder, "folder")
+            except ValueError as exc:
+                self._send_error(HTTPStatus.BAD_REQUEST, str(exc))
+                return
+            filename = Path(upload.filename).name
+            suffix = Path(filename).suffix.lower()
+            if suffix not in ALLOWED_UPLOAD_SUFFIXES:
+                self._send_error(HTTPStatus.BAD_REQUEST, "only .pdf, .md and .markdown files are allowed")
+                return
+            try:
+                relpath = canonical_relpath(f"{category}/{folder}/{filename}")
+            except ValueError as exc:
+                self._send_error(HTTPStatus.BAD_REQUEST, str(exc))
+                return
+
+            destination = DOCS_RAW / relpath
+            if destination.exists():
+                self._send_error(HTTPStatus.CONFLICT, "raw document already exists")
+                return
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            with destination.open("wb") as handle:
+                shutil.copyfileobj(upload.file, handle)
+            self._send_json(
+                {
+                    "ok": True,
+                    "sourceRelpath": relpath,
+                    "path": destination.relative_to(ROOT).as_posix(),
+                },
+                status=HTTPStatus.CREATED,
+            )
+        finally:
+            for value in form.values():
+                if isinstance(value, UploadedFormFile):
+                    value.file.close()
 
     def _handle_review(self, document_id: str) -> None:
         if not document_id:
             self._send_error(HTTPStatus.BAD_REQUEST, "document_id is required")
             return
+        if not _document_id_is_valid(document_id):
+            self._send_error(HTTPStatus.BAD_REQUEST, "document_id is invalid")
+            return
         try:
             body = self._read_json_body()
+        except JsonBodyTooLargeError as exc:
+            self._send_error(HTTPStatus.REQUEST_ENTITY_TOO_LARGE, str(exc))
+            return
         except (json.JSONDecodeError, ValueError) as exc:
             self._send_error(HTTPStatus.BAD_REQUEST, str(exc))
             return
@@ -980,6 +1263,9 @@ class Phase1GuiHandler(BaseHTTPRequestHandler):
     def _handle_pipeline_run(self) -> None:
         try:
             body = self._read_json_body(required=False)
+        except JsonBodyTooLargeError as exc:
+            self._send_error(HTTPStatus.REQUEST_ENTITY_TOO_LARGE, str(exc))
+            return
         except (json.JSONDecodeError, ValueError) as exc:
             self._send_error(HTTPStatus.BAD_REQUEST, str(exc))
             return
@@ -1010,8 +1296,16 @@ class Phase1GuiHandler(BaseHTTPRequestHandler):
                 llama_settings_override=llama_settings,
                 request_id=getattr(self, "_request_id", None),
             )
-        except Exception as exc:
-            self._send_error(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
+        except Exception:
+            server_logger.exception(
+                "GUI pipeline run failed",
+                extra={
+                    "request_id": getattr(self, "_request_id", None),
+                    "stage": "pipeline",
+                    "event": "pipeline_run_failed",
+                },
+            )
+            self._send_error(HTTPStatus.INTERNAL_SERVER_ERROR, "internal server error")
             return
         self._send_json(
             {
@@ -1030,14 +1324,25 @@ class Phase1GuiHandler(BaseHTTPRequestHandler):
         try:
             body = self._read_json_body(required=False)
             target = _validation_target_from_body(body)
+        except JsonBodyTooLargeError as exc:
+            self._send_error(HTTPStatus.REQUEST_ENTITY_TOO_LARGE, str(exc))
+            return
         except (json.JSONDecodeError, ValueError) as exc:
             self._send_error(HTTPStatus.BAD_REQUEST, str(exc))
             return
         run_id = "gui_validation_" + datetime.now(timezone.utc).astimezone().strftime("%Y%m%d_%H%M%S")
         try:
             report, output = _write_validation_report(target, run_id)
-        except Exception as exc:
-            self._send_error(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
+        except Exception:
+            server_logger.exception(
+                "GUI validation failed",
+                extra={
+                    "request_id": getattr(self, "_request_id", None),
+                    "stage": "validation",
+                    "event": "validation_failed",
+                },
+            )
+            self._send_error(HTTPStatus.INTERNAL_SERVER_ERROR, "internal server error")
             return
         payload = {
             "ok": report.status == "passed",
@@ -1055,6 +1360,9 @@ class Phase1GuiHandler(BaseHTTPRequestHandler):
         try:
             body = self._read_json_body()
             target = _staging_target_from_body(body)
+        except JsonBodyTooLargeError as exc:
+            self._send_error(HTTPStatus.REQUEST_ENTITY_TOO_LARGE, str(exc))
+            return
         except (json.JSONDecodeError, ValueError) as exc:
             self._send_error(HTTPStatus.BAD_REQUEST, str(exc))
             return
@@ -1086,8 +1394,16 @@ class Phase1GuiHandler(BaseHTTPRequestHandler):
         except PromotionError as exc:
             self._send_error(HTTPStatus.CONFLICT, str(exc))
             return
-        except Exception as exc:
-            self._send_error(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
+        except Exception:
+            server_logger.exception(
+                "GUI promotion failed",
+                extra={
+                    "request_id": getattr(self, "_request_id", None),
+                    "stage": "promotion",
+                    "event": "promotion_failed",
+                },
+            )
+            self._send_error(HTTPStatus.INTERNAL_SERVER_ERROR, "internal server error")
             return
         self._send_json(
             {
@@ -1108,6 +1424,9 @@ class Phase1GuiHandler(BaseHTTPRequestHandler):
         try:
             body = self._read_json_body()
             settings = _save_gui_settings(body)
+        except JsonBodyTooLargeError as exc:
+            self._send_error(HTTPStatus.REQUEST_ENTITY_TOO_LARGE, str(exc))
+            return
         except (json.JSONDecodeError, ValueError) as exc:
             self._send_error(HTTPStatus.BAD_REQUEST, str(exc))
             return
@@ -1123,7 +1442,12 @@ class Phase1GuiHandler(BaseHTTPRequestHandler):
         self._send_json({"ok": True, "settings": settings, "status": build_status_payload()})
 
     def _read_json_body(self, *, required: bool = True) -> dict[str, Any]:
-        length = int(self.headers.get("Content-Length", "0"))
+        length = _parse_content_length_header(
+            self.headers.get("Content-Length", "0"),
+            max_bytes=MAX_JSON_BODY_BYTES,
+            too_large_error=JsonBodyTooLargeError,
+            too_large_message="JSON body exceeds the limit of 10 MB",
+        )
         if length == 0:
             if required:
                 raise ValueError("JSON body is required")
@@ -1196,32 +1520,77 @@ def _parse_multipart_form(
     content_length: str,
     body: BinaryIO,
 ) -> dict[str, str | UploadedFormFile]:
-    try:
-        length = int(content_length or "0")
-    except ValueError:
-        length = 0
-    raw_body = body.read(max(length, 0))
-    message = BytesParser(policy=policy.default).parsebytes(
-        b"Content-Type: "
-        + content_type.encode("utf-8")
-        + b"\r\nMIME-Version: 1.0\r\n\r\n"
-        + raw_body
+    length = _parse_content_length_header(
+        content_length,
+        max_bytes=MAX_UPLOAD_BYTES,
+        too_large_error=UploadTooLargeError,
+        too_large_message="upload excede el limite de 200 MB",
     )
+    boundary = _multipart_boundary(content_type)
+    buffered_body = _copy_request_body_to_tempfile(body, length=length)
     form: dict[str, str | UploadedFormFile] = {}
-    for part in message.iter_parts():
-        if part.get_content_disposition() != "form-data":
-            continue
-        name = part.get_param("name", header="content-disposition")
-        if not name:
-            continue
-        payload = part.get_payload(decode=True) or b""
-        filename = part.get_filename()
-        if filename is not None:
-            form[name] = UploadedFormFile(filename=filename, file=BytesIO(payload))
-            continue
-        charset = part.get_content_charset() or "utf-8"
-        form[name] = payload.decode(charset, errors="replace")
-    return form
+    try:
+        delimiter = b"--" + boundary
+        closing = delimiter + b"--"
+        first_line = buffered_body.readline().rstrip(b"\r\n")
+        if first_line != delimiter:
+            raise ValueError("invalid multipart boundary")
+        done = False
+        while not done:
+            headers: dict[str, str] = {}
+            while True:
+                line = buffered_body.readline()
+                if line == b"":
+                    raise ValueError("malformed multipart body")
+                if line in {b"\r\n", b"\n"}:
+                    break
+                name, separator, value = line.decode("utf-8", errors="replace").partition(":")
+                if not separator:
+                    raise ValueError("malformed multipart header")
+                headers[name.strip().lower()] = value.strip()
+            disposition, params = _parse_content_disposition(
+                headers.get("content-disposition", "")
+            )
+            if disposition != "form-data":
+                done = _read_multipart_part_data(
+                    buffered_body,
+                    boundary=boundary,
+                    writer=lambda _chunk: None,
+                )
+                continue
+            field_name = params.get("name")
+            if not field_name:
+                raise ValueError("multipart field name is required")
+            filename = params.get("filename")
+            if filename is not None:
+                upload_file = tempfile.SpooledTemporaryFile(max_size=1024 * 1024, mode="w+b")
+                done = _read_multipart_part_data(
+                    buffered_body,
+                    boundary=boundary,
+                    writer=upload_file.write,
+                )
+                upload_file.seek(0)
+                form[field_name] = UploadedFormFile(
+                    filename=filename,
+                    file=upload_file,
+                )
+                continue
+            payload = BytesIO()
+            done = _read_multipart_part_data(
+                buffered_body,
+                boundary=boundary,
+                writer=payload.write,
+            )
+            form[field_name] = payload.getvalue().decode(
+                _part_charset(headers),
+                errors="replace",
+            )
+            line = buffered_body.readline() if done else None
+            if line not in {None, b"", b"\r\n", b"\n"}:
+                buffered_body.seek(buffered_body.tell() - len(line))
+        return form
+    finally:
+        buffered_body.close()
 
 
 def _field_value(form: dict[str, str | UploadedFormFile], name: str) -> str:
@@ -1588,7 +1957,8 @@ def main() -> int:
             "port": 8765,
         },
     )
-    load_secrets_env(ROOT / "secrets.env")
+    runtime_environ = dict(os.environ)
+    runtime_environ.update(load_secrets_env(ROOT / "secrets.env") or {})
     server_logger.info(
         "Backend configuration loaded",
         extra={
@@ -1610,6 +1980,7 @@ def main() -> int:
     pipeline_services = build_pipeline_services_from_env(
         chunks_root=CHUNKING_ROOT,
         embeddings_root=EMBEDDINGS_ROOT,
+        environ=runtime_environ,
     )
     chunking_api = ChunkingApiBridge(
         docs_normalized=DOCS_NORMALIZED,
@@ -1620,6 +1991,7 @@ def main() -> int:
     server = ThreadingHTTPServer((host, port), Phase1GuiHandler)
     server.chunking_api = chunking_api
     server.pipeline_api = AsgiBridge(create_app(services=pipeline_services))
+    server.pipeline_connection = getattr(pipeline_services, "connection", None)
     # Sesión GUI local: el bearer se valida con la MISMA autoridad que FastAPI
     # (SST_HTTP_AUTH_CREDENTIALS_JSON) y vive server-side; el browser solo recibe
     # la cookie opaca.

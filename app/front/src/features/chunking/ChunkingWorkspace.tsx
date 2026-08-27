@@ -8,12 +8,15 @@ import { ChunkingParentsPanel } from "./components/ChunkingParentsPanel.js";
 import { ChunkingProfilePanel } from "./components/ChunkingProfilePanel.js";
 import { ChunkingRunPanel } from "./components/ChunkingRunPanel.js";
 import { chunkingRunStatusLabel, chunkingRunStatusTone } from "./chunkingState.js";
+import type { ChunkingApiClient } from "./chunkingApi.js";
 import { useChunkingWorkspace } from "./useChunkingWorkspace.js";
 
 // Solo compone: el estado vive en useChunkingWorkspace y la presentacion en
-// los paneles de ./components.
-export function ChunkingWorkspace() {
-  const workspace = useChunkingWorkspace();
+// los paneles de ./components. `api` es opcional (default = cliente Legacy
+// global); Platform puede inyectar un cliente project-aware sin duplicar esta
+// pantalla.
+export function ChunkingWorkspace({ api }: { api?: ChunkingApiClient } = {}) {
+  const workspace = useChunkingWorkspace(api);
 
   return (
     <section className="chunking-workspace">

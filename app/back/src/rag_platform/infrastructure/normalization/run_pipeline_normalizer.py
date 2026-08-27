@@ -68,7 +68,7 @@ def execute_normalize_pipeline(
     if env_file is not None:
         from ingestion.config.env import load_secrets_env
 
-        load_secrets_env(Path(env_file))
+        load_secrets_env(Path(env_file), apply=True)
     if not allow_cloud:
         os.environ["LLAMA_CLOUD_ENABLED"] = "false"
 

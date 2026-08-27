@@ -3,6 +3,7 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { DocumentIntakeWorkspace } from "./DocumentIntakeWorkspace.js";
+import { PlatformProjectProvider } from "../PlatformProjectContext.js";
 import { writePlatformPreferences } from "../platformPersistence.js";
 import { DEFAULT_PLATFORM_PREFERENCES } from "../platformState.js";
 import * as platformApi from "../platformApi.js";
@@ -63,6 +64,14 @@ function selectProjectInStorage(projectId: string): void {
   writePlatformPreferences({ ...DEFAULT_PLATFORM_PREFERENCES, selectedProjectId: projectId });
 }
 
+function renderDocumentIntakeWorkspace() {
+  return render(
+    <PlatformProjectProvider>
+      <DocumentIntakeWorkspace />
+    </PlatformProjectProvider>,
+  );
+}
+
 beforeEach(() => {
   window.localStorage.clear();
   api.listAllDocuments.mockResolvedValue([]);
@@ -76,7 +85,7 @@ describe("DocumentIntakeWorkspace", () => {
     selectProjectInStorage("proj_alpha");
 
     const user = userEvent.setup();
-    render(<DocumentIntakeWorkspace />);
+    renderDocumentIntakeWorkspace();
 
     await screen.findByRole("heading", { name: "Intake documental" });
 
@@ -98,7 +107,7 @@ describe("DocumentIntakeWorkspace", () => {
     expect(await screen.findByText("srev_new")).toBeTruthy();
   });
 
-  it("renderiza estados raw/normalized/review y los IDs canónicos", async () => {
+  it("renderiza estados normalized/review en la tabla y los IDs canónicos en el inspector", async () => {
     selectProjectInStorage("proj_alpha");
     api.listAllDocuments.mockResolvedValue([
       makeRevision({
@@ -111,17 +120,85 @@ describe("DocumentIntakeWorkspace", () => {
       }),
     ]);
 
-    render(<DocumentIntakeWorkspace />);
+    const user = userEvent.setup();
+    renderDocumentIntakeWorkspace();
 
-    // IDs canónicos visibles.
-    expect(await screen.findByText("srev_1")).toBeTruthy();
-    expect(screen.getByText("ldoc_1")).toBeTruthy();
-    // Estados en texto (no solo color).
-    const table = screen.getByRole("table", { name: "Revisiones de documentos del proyecto" });
+    // Estados en texto (no solo color) dentro de la tabla neutral.
+    const table = await screen.findByRole("table", {
+      name: "Revisiones de documentos del proyecto",
+    });
     const rows = within(table).getAllByRole("row");
     expect(within(rows[1]).getByText("Normalizado")).toBeTruthy();
-    expect(screen.getByText("needs_review")).toBeTruthy();
-    expect(screen.getByText("normalized")).toBeTruthy();
+    expect(within(rows[1]).getByText("needs_review")).toBeTruthy();
+
+    // Los IDs canónicos y el processing_status viven en el inspector auditable.
+    await user.click(
+      within(rows[1]).getByRole("button", { name: /Ver detalle de/ }),
+    );
+    const inspector = screen.getByRole("complementary", { name: "Detalle de revisión" });
+    expect(within(inspector).getByText("srev_1")).toBeTruthy();
+    expect(within(inspector).getByText("ldoc_1")).toBeTruthy();
+    expect(within(inspector).getByText("normalized")).toBeTruthy();
+  });
+
+  it("filtra por texto sobre la ruta del documento", async () => {
+    selectProjectInStorage("proj_alpha");
+    api.listAllDocuments.mockResolvedValue([
+      makeRevision({ source_document_revision_id: "srev_1", source_relpath: "manuales/seguridad/proc.pdf" }),
+      makeRevision({
+        source_document_revision_id: "srev_2",
+        logical_document_id: "ldoc_2",
+        source_relpath: "guias/uso.md",
+      }),
+    ]);
+
+    const user = userEvent.setup();
+    renderDocumentIntakeWorkspace();
+
+    await screen.findByText("manuales/seguridad/proc.pdf");
+    await user.type(screen.getByRole("searchbox", { name: "Buscar por ruta o ID" }), "guias");
+
+    expect(screen.getByText("guias/uso.md")).toBeTruthy();
+    expect(screen.queryByText("manuales/seguridad/proc.pdf")).toBeNull();
+  });
+
+  it("filtra por estado dejando solo las revisiones needs_review", async () => {
+    selectProjectInStorage("proj_alpha");
+    api.listAllDocuments.mockResolvedValue([
+      makeRevision({ source_document_revision_id: "srev_1", source_relpath: "manuales/ok.pdf" }),
+      makeRevision({
+        source_document_revision_id: "srev_2",
+        source_relpath: "manuales/pendiente.pdf",
+        review_state: "needs_review",
+      }),
+    ]);
+
+    const user = userEvent.setup();
+    renderDocumentIntakeWorkspace();
+
+    await screen.findByText("manuales/ok.pdf");
+    await user.selectOptions(
+      screen.getByRole("combobox", { name: "Filtrar por estado" }),
+      "needs_review",
+    );
+
+    expect(screen.getByText("manuales/pendiente.pdf")).toBeTruthy();
+    expect(screen.queryByText("manuales/ok.pdf")).toBeNull();
+  });
+
+  it("el inspector del inventario de intake es de detalle: aprobar/rechazar vive en la pantalla de Revisión, no aquí", async () => {
+    selectProjectInStorage("proj_alpha");
+    api.listAllDocuments.mockResolvedValue([
+      makeRevision({ review_state: "needs_review", processing_status: "normalized" }),
+    ]);
+
+    const user = userEvent.setup();
+    renderDocumentIntakeWorkspace();
+
+    await user.click(await screen.findByRole("button", { name: /Ver detalle de/ }));
+
+    expect(screen.queryByRole("button", { name: /Aprobar/ })).toBeNull();
+    expect(screen.queryByRole("button", { name: /Rechazar/ })).toBeNull();
   });
 
   it("selecciona en bloque solo las revisiones que no requieren decision manual", async () => {
@@ -136,7 +213,7 @@ describe("DocumentIntakeWorkspace", () => {
     ]);
 
     const user = userEvent.setup();
-    render(<DocumentIntakeWorkspace />);
+    renderDocumentIntakeWorkspace();
 
     await user.click(await screen.findByRole("button", { name: "Seleccionar todos" }));
 
@@ -152,7 +229,7 @@ describe("DocumentIntakeWorkspace", () => {
     api.listAllVariants.mockResolvedValue([makeVariant()]);
 
     const user = userEvent.setup();
-    render(<DocumentIntakeWorkspace />);
+    renderDocumentIntakeWorkspace();
 
     await user.click(
       await screen.findByRole("checkbox", { name: /Seleccionar revisión srev_1/ }),
@@ -170,7 +247,7 @@ describe("DocumentIntakeWorkspace", () => {
   });
 
   it("sin proyecto muestra estado vacío direccional y no llama a la API", async () => {
-    render(<DocumentIntakeWorkspace />);
+    renderDocumentIntakeWorkspace();
 
     expect(
       await screen.findByText(/Selecciona un proyecto para ver sus documentos/),
@@ -189,7 +266,7 @@ describe("DocumentIntakeWorkspace", () => {
     });
 
     const user = userEvent.setup();
-    render(<DocumentIntakeWorkspace />);
+    renderDocumentIntakeWorkspace();
 
     await user.click(
       await screen.findByRole("checkbox", { name: /Seleccionar revisión srev_1/ }),

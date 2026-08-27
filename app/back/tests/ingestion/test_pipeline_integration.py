@@ -93,6 +93,7 @@ def test_pipeline_processes_markdown_and_tracks_pdf_needing_review(tmp_path: Pat
     needs_review = json.loads((normalized / "_manifests" / "needs_review.json").read_text(encoding="utf-8"))
     assert needs_review["items"][0]["source_relpath"].endswith("scan.pdf")
     assert set(needs_review["items"][0]["reasons"]) & {
+        "processing_error",
         "pdf_extractor_unconfigured",
         "ocrmypdf_unavailable",
         "ocrmypdf_processing_failed",
@@ -1046,6 +1047,74 @@ def test_pipeline_reports_llama_provider_failures_without_local_extractor_reason
     assert summary["needs_review"] == 1
     assert needs_review["items"][0]["reasons"] == ["llama_cloud_provider_error"]
     assert "Llama Cloud" in needs_review["items"][0]["details"][0]
+
+
+def test_pipeline_marks_unexpected_pdf_failures_as_processing_error(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    docs_raw = tmp_path / "data" / "docs_raw"
+    normalized = tmp_path / "data" / "normalized"
+    docs_raw.mkdir(parents=True)
+    (docs_raw / "manual.pdf").write_bytes(b"%PDF-1.4")
+
+    def fail_reader(*_args, **_kwargs):
+        raise ValueError("disk full")
+
+    monkeypatch.setattr(pipeline_module, "_read_document", fail_reader)
+
+    summary = run_pipeline(
+        docs_raw=docs_raw,
+        docs_normalized=normalized,
+        corpus_version="test",
+        pipeline_version="2.0.0",
+        run_id="pdf_processing_error",
+    )
+
+    needs_review = json.loads(
+        (normalized / "_manifests" / "needs_review.json").read_text(encoding="utf-8")
+    )
+
+    assert summary["needs_review"] == 1
+    assert needs_review["items"][0]["reasons"] == ["processing_error"]
+    assert needs_review["items"][0]["error"] == "disk full"
+    assert "log del pipeline" in needs_review["items"][0]["details"][0]
+
+
+def test_pipeline_redacts_filesystem_paths_from_review_error_messages(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    docs_raw = tmp_path / "data" / "docs_raw"
+    normalized = tmp_path / "data" / "candidate"
+    docs_raw.mkdir(parents=True)
+    source_path = docs_raw / "manual.pdf"
+    source_path.write_bytes(b"%PDF-1.4 fake")
+
+    absolute_path = (tmp_path / "private" / "secret.pdf").resolve()
+
+    def _explode(*_args, **_kwargs):
+        raise ValueError(f"disk full while opening {absolute_path}")
+
+    monkeypatch.setattr(pipeline_module, "_read_document", _explode)
+
+    summary = run_pipeline(
+        docs_raw=docs_raw,
+        docs_normalized=tmp_path / "data" / "live",
+        staging_root=normalized,
+        corpus_version="test",
+        pipeline_version="2.0.0",
+        run_id="pdf_processing_error_redacted",
+    )
+
+    needs_review = json.loads(
+        (normalized / "_manifests" / "needs_review.json").read_text(encoding="utf-8")
+    )
+
+    assert summary["needs_review"] == 1
+    assert needs_review["items"][0]["reasons"] == ["processing_error"]
+    assert "***redacted***" in needs_review["items"][0]["error"]
+    assert str(absolute_path) not in needs_review["items"][0]["error"]
 
 
 def test_pipeline_configures_region_tesseract_from_environment(monkeypatch) -> None:

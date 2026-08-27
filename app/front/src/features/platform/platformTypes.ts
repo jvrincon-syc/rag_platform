@@ -31,6 +31,9 @@ export type ProjectDocumentRevision = Schemas["ProjectDocumentRevisionSchema"];
 export type PaginatedProjectDocuments = Schemas["PaginatedProjectDocumentsSchema"];
 export type NormalizeProjectDocumentsRequest = Schemas["NormalizeProjectDocumentsRequestSchema"];
 export type ProjectNormalizeReport = Schemas["ProjectNormalizeReportSchema"];
+export type SubmitRevisionReviewDecisionRequest =
+  Schemas["SubmitRevisionReviewDecisionRequestSchema"];
+export type RevisionReviewDecision = Schemas["RevisionReviewDecisionSchema"];
 
 // Corpus snapshots
 export type CorpusSnapshot = Schemas["CorpusSnapshotSchema"];

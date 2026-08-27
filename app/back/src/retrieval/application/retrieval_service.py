@@ -7,10 +7,10 @@ only answers alone when ``lexical_fallback_policy`` explicitly allows it.
 
 from __future__ import annotations
 
+import logging
 from collections.abc import Sequence
 from dataclasses import dataclass
-from datetime import datetime, timezone
-import logging
+from datetime import UTC, datetime
 
 from core.logging.observability import EventStatus, ObservabilityDomain
 from embedding.application.events import emit_pipeline_event
@@ -21,6 +21,7 @@ from embedding.application.ports import (
 from embedding.domain.errors import EmbeddingDomainError
 from embedding.domain.models import ReadinessCheck
 from indexing.application.bundle_first.ports import IndexingTargetRepository
+
 from retrieval.application.ports import (
     LexicalSearchPort,
     ParentExpansionPort,
@@ -28,6 +29,11 @@ from retrieval.application.ports import (
     VectorSearchPort,
 )
 from retrieval.application.query_embedding_service import QueryEmbeddingService
+from retrieval.domain.dedup import (
+    content_fingerprint,
+    format_source_rank,
+    select_unique_slots,
+)
 from retrieval.domain.errors import (
     LexicalFallbackNotAllowed,
     RetrievalProfileBlocked,
@@ -40,7 +46,11 @@ from retrieval.domain.models import (
     RetrievalValidation,
     RetrievedEvidence,
 )
-
+from retrieval.fusion import (
+    RetrievedCandidate,
+    reciprocal_rank_fusion,
+    vector_primary_hybrid_fusion,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -48,9 +58,22 @@ logger = logging.getLogger(__name__)
 #: no real user question ever reaches ``readiness_checks``.
 SMOKE_VALIDATION_QUERY = "validacion sintetica de recuperacion"
 
+#: Piso por lane antes de fusionar/dedup: el corte final a ``top_k`` ocurre
+#: DESPUÉS de descartar gemelos y excedentes por párrafo.
+_MIN_HYBRID_CANDIDATE_POOL = 50
+
+#: Máximo de hijos del mismo párrafo que sobreviven al dedup.
+_MAX_CHILDREN_PER_PARENT = 2
+
 
 def _now() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
+
+
+def _hybrid_candidate_pool_size(top_k: int) -> int:
+    """Overfetch per lane so fusion/dedup keeps enough survivors for answer quality."""
+
+    return max(_MIN_HYBRID_CANDIDATE_POOL, top_k * 12)
 
 
 @dataclass(frozen=True)
@@ -359,6 +382,10 @@ class RetrievalSearchService:
     ) -> list[RetrievedEvidence]:
         """Return evidence for one query.
 
+        Hybrid by default: vector and lexical lanes both feed a reciprocal-rank
+        fusion, followed by content dedup (md/PDF twins) and a per-parent cap.
+        ``lexical_fallback_policy="never"`` disables the lexical signal entirely.
+
         Raises:
             RetrievalProfileBlocked: When the lane cannot serve the query and the
                 fallback policy forbids answering lexically.
@@ -366,10 +393,21 @@ class RetrievalSearchService:
 
         profile = self._query_embedding.resolve_profile(retrieval_profile)
         target = self._targets.get(retrieval_profile.indexing_target_id)
+        candidate_pool_size = _hybrid_candidate_pool_size(top_k)
         try:
             embeddings = self._query_embedding.embed_queries(
                 retrieval_profile=retrieval_profile,
                 queries=[query],
+            )
+            vector_candidates = self._vector_search.search(
+                project_id=retrieval_profile.project_id,
+                vector_table=target.vector_table,
+                embedding_profile_id=profile.profile_id,
+                indexing_target_id=target.indexing_target_id,
+                corpus_version=retrieval_profile.corpus_version,
+                distance_metric=profile.distance_metric,
+                query_embedding=embeddings[0].vector,
+                top_k=candidate_pool_size,
             )
         except EmbeddingDomainError as error:
             return self._lexical_only(
@@ -378,20 +416,41 @@ class RetrievalSearchService:
                 top_k=top_k,
                 reason=error.code,
             )
-
-        candidates = self._vector_search.search(
-            project_id=retrieval_profile.project_id,
-            vector_table=target.vector_table,
-            embedding_profile_id=profile.profile_id,
-            indexing_target_id=target.indexing_target_id,
-            corpus_version=retrieval_profile.corpus_version,
-            distance_metric=profile.distance_metric,
-            query_embedding=embeddings[0].vector,
-            top_k=top_k,
-        )
         self._retrieval_profiles.record_runtime_status(
             retrieval_profile_id=retrieval_profile.retrieval_profile_id,
             last_runtime_status="ok",
+        )
+
+        lexical_candidates: list[RetrievedEvidence] = []
+        if retrieval_profile.lexical_fallback_policy != "never":
+            # Señal secundaria: si el FTS falla no debe tumbar la búsqueda
+            # (degradación a vector-only, nunca al revés).
+            try:
+                lexical_candidates = self._lexical_search.search(
+                    project_id=retrieval_profile.project_id,
+                    query=query,
+                    embedding_profile_id=retrieval_profile.embedding_profile_id,
+                    corpus_version=retrieval_profile.corpus_version,
+                    top_k=candidate_pool_size,
+                )
+            except Exception as error:  # noqa: BLE001 - degradación controlada
+                emit_pipeline_event(
+                    logger=logger,
+                    domain=ObservabilityDomain.RETRIEVAL,
+                    event="lexical_hybrid_unavailable",
+                    status=EventStatus.WARNING,
+                    message="Lexical hybrid signal failed; continuing vector-only",
+                    capability="retrieve",
+                    attributes={
+                        "retrieval_profile_id": retrieval_profile.retrieval_profile_id,
+                        "error": repr(error),
+                    },
+                )
+
+        candidates = self._fuse_and_dedup(
+            vector_candidates=vector_candidates,
+            lexical_candidates=lexical_candidates,
+            top_k=top_k,
         )
         return self._with_parents(
             candidates=candidates,
@@ -399,6 +458,97 @@ class RetrievalSearchService:
             embedding_profile_id=profile.profile_id,
             corpus_version=retrieval_profile.corpus_version,
         )
+
+    def _fuse_and_dedup(
+        self,
+        *,
+        vector_candidates: list[RetrievedEvidence],
+        lexical_candidates: list[RetrievedEvidence],
+        top_k: int,
+    ) -> list[RetrievedEvidence]:
+        """Fusiona ambas lanes con RRF, aplica dedup y corta a ``top_k``."""
+
+        evidence_by_node: dict[str, RetrievedEvidence] = {}
+        ranked_lists: list[list[RetrievedCandidate]] = []
+        for lane in (vector_candidates, lexical_candidates):
+            if not lane:
+                continue
+            for evidence in lane:
+                evidence_by_node.setdefault(evidence.node_id, evidence)
+            ranked_lists.append(
+                [
+                    RetrievedCandidate(
+                        node_id=evidence.node_id,
+                        text=evidence.text,
+                        score=evidence.score,
+                        source=evidence.source,
+                        metadata=dict(evidence.metadata),
+                    )
+                    for evidence in lane
+                ]
+            )
+        if not ranked_lists:
+            return []
+
+        fused = vector_primary_hybrid_fusion(
+            vector_candidates=ranked_lists[0] if ranked_lists else [],
+            lexical_candidates=ranked_lists[1] if len(ranked_lists) > 1 else [],
+        )
+
+        fingerprints = [content_fingerprint(item.text) for item in fused]
+        parent_ids = [
+            evidence_by_node[item.node_id].parent_node_id for item in fused
+        ]
+        source_ranks = [
+            format_source_rank(
+                str(evidence_by_node[item.node_id].metadata.get("source_relpath"))
+                if evidence_by_node[item.node_id].metadata.get("source_relpath") is not None
+                else None
+            )
+            for item in fused
+        ]
+        slots, dropped, slot_to_merged = select_unique_slots(
+            fingerprints=fingerprints,
+            parent_ids=parent_ids,
+            source_ranks=source_ranks,
+            max_per_parent=_MAX_CHILDREN_PER_PARENT,
+        )
+
+        selected: list[RetrievedEvidence] = []
+        for position, (_slot, chosen_index) in enumerate(slots):
+            winner = fused[chosen_index]
+            base = evidence_by_node[winner.node_id]
+            merged_indices = slot_to_merged.get(_slot, [chosen_index])
+            merged_sources: list[str] = []
+            for mi in merged_indices:
+                for src in fused[mi].metadata.get("retrieval_sources", []):
+                    if src not in merged_sources:
+                        merged_sources.append(src)
+            selected.append(
+                base.model_copy(
+                    update={
+                        "score": winner.score,
+                        "metadata": {
+                            **base.metadata,
+                            "original_score": base.score,
+                            "fusion_score": winner.score,
+                            "fusion_sources": merged_sources or [base.source],
+                            "fusion_position": position + 1,
+                        },
+                    }
+                )
+            )
+        if selected and dropped:
+            first = selected[0]
+            selected[0] = first.model_copy(
+                update={
+                    "metadata": {
+                        **first.metadata,
+                        "dedup_dropped_count": dropped,
+                    }
+                }
+            )
+        return selected[:top_k]
 
     def _lexical_only(
         self,

@@ -188,6 +188,15 @@ def test_dos_reservas_concurrentes_reales_solo_un_dueno() -> None:
     import psycopg2
     from psycopg2.extensions import parse_dsn
 
+    # `postgres_live` = correr solo si hay un Postgres REAL alcanzable. Un DSN
+    # placeholder o inalcanzable (p. ej. `host=x`) no es "vivo": se skipea en vez
+    # de reventar el test (y de dejar excepciones sin manejar en los threads).
+    try:
+        _probe = psycopg2.connect(**parse_dsn(dsn))
+        _probe.close()
+    except psycopg2.OperationalError as exc:
+        pytest.skip(f"Postgres no accesible para test live: {exc}")
+
     key_hash = sha256(f"concurrency-{uuid.uuid4().hex}".encode("utf-8")).hexdigest()
     record = _record(key_hash=key_hash)
     barrier = threading.Barrier(2)

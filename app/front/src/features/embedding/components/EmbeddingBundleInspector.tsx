@@ -14,7 +14,9 @@ type EmbeddingBundleInspectorProps = {
   chunksPage: PaginatedResponse<EmbeddingBundleChunk> | null;
   chunksLoading: boolean;
   validation: EmbeddingBundleValidation | null;
+  validationError?: string | null;
   readiness: EmbeddingIndexingReadiness | null;
+  readinessError?: string | null;
 };
 
 // Replaces the removed run-documents and run-items tables. It inspects a sealed
@@ -27,7 +29,9 @@ export function EmbeddingBundleInspector({
   chunksPage,
   chunksLoading,
   validation,
+  validationError = null,
   readiness,
+  readinessError = null,
 }: EmbeddingBundleInspectorProps) {
   return (
     <section className="panel" aria-label="Inspector de embedding bundle">
@@ -139,6 +143,11 @@ export function EmbeddingBundleInspector({
                   </div>
                 ))}
               </div>
+            ) : validationError ? (
+              <div className="notice notice-danger" role="alert">
+                <AlertCircle size={16} />
+                <span>{validationError}</span>
+              </div>
             ) : null}
 
             {readiness ? (
@@ -158,6 +167,11 @@ export function EmbeddingBundleInspector({
                 ) : (
                   <span>El bundle esta listo para indexing.</span>
                 )}
+              </div>
+            ) : readinessError ? (
+              <div className="notice notice-danger" role="alert">
+                <AlertCircle size={16} />
+                <span>{readinessError}</span>
               </div>
             ) : null}
           </>

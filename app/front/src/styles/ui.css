@@ -373,33 +373,84 @@ th {
 
 .ui-status-chip,
 .ui-meta {
+  align-items: center;
+  border: 1px solid transparent;
   border-radius: 999px;
   display: inline-flex;
   font-size: 11px;
   font-weight: 760;
+  gap: 5px;
   line-height: 1;
-  padding: 6px 9px;
+  padding: 5px 9px;
 }
 
+/* Pastillas de estado con código de color: relleno suave + borde del mismo tono
+   para que el estado salte a la vista sin depender solo del color (el texto
+   siempre está presente). Tonos semánticos, no hex crudos. */
 .ui-status-chip.neutral,
 .ui-meta {
   background: var(--neutral-soft);
+  border-color: var(--neutral-border);
   color: var(--neutral-ink);
 }
 
 .ui-status-chip.success {
   background: var(--success-soft);
+  border-color: var(--success-border);
   color: var(--success-ink);
 }
 
 .ui-status-chip.warning {
   background: var(--warning-soft);
+  border-color: var(--warning-border);
   color: var(--warning-ink);
 }
 
 .ui-status-chip.danger {
   background: var(--danger-soft);
+  border-color: var(--danger-border);
   color: var(--danger-ink);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ui-status-chip {
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+  }
+}
+
+/* Énfasis contextual de selección: el conteo corriente se realza como pastilla de
+   acento cuando hay al menos una fila seleccionada. El control (el texto del
+   conteo) está SIEMPRE presente; solo cambia su tratamiento visual. */
+.inventory-selection-summary {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.inventory-selection-summary.active {
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-border);
+  border-radius: 999px;
+  color: var(--accent-ink);
+  font-weight: 760;
+  padding: 5px 11px;
+}
+
+/* Con selección activa la barra del inventario gana un fondo de acento sutil que
+   agrupa conteo y acciones en bloque, sin ocultar ni mover controles. */
+.inventory-tools.has-selection {
+  background: var(--accent-warm);
+  border: 1px solid var(--accent-line);
+  border-radius: 12px;
+  margin: -6px -8px 0;
+  padding: 8px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .inventory-selection-summary,
+  .inventory-tools.has-selection {
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  }
 }
 
 .ui-progress {

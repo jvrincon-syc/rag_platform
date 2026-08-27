@@ -193,3 +193,12 @@
     min-width: 0;
   }
 }
+
+/* Variante sin sidebar: el mismo shell Legacy, pero cuando Platform controla la
+   navegación y oculta el sidebar interno, el workspace ocupa una sola columna
+   (si no, caería en la columna de 224px del grid de 2 columnas y se amontonaría).
+   Va al final del archivo para ganar por orden de fuente sobre los media queries
+   que redefinen `grid-template-columns` de `.app-shell`. */
+.app-shell--no-sidebar {
+  grid-template-columns: minmax(0, 1fr);
+}

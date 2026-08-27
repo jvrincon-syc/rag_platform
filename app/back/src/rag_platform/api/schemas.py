@@ -31,6 +31,7 @@ from rag_platform.domain.models import (
     CorpusSnapshot,
     DocumentProcessingProfile,
     DocumentTypeTemplate,
+    EligibilityDecision,
     ProjectConfiguration,
     ProjectDocumentType,
     ProjectEmbeddingProfile,
@@ -209,6 +210,25 @@ class ProjectDocumentRevisionSchema(StrictModel):
     raw_registered: bool
     normalized_registered: bool
     processing_status: str
+    eligibility_decision: str | None = None
+    eligibility_reason: str | None = None
+    eligibility_decided_at: datetime | None = None
+
+
+class SubmitRevisionReviewDecisionRequestSchema(StrictModel):
+    """Decisión operacional de revisión (``Aprobar``/``Rechazar`` en la GUI legacy)."""
+
+    decision: EligibilityDecision
+    reason: str = Field(min_length=1, max_length=2000)
+
+
+class RevisionReviewDecisionSchema(StrictModel):
+    decision_id: str
+    project_id: str
+    source_document_revision_id: str
+    eligibility_decision: str
+    reason: str
+    decided_at: datetime
 
 
 class UploadProjectDocumentRequestSchema(StrictModel):
@@ -491,6 +511,9 @@ def document_row_to_schema(
         raw_registered=row.raw_registered,
         normalized_registered=row.normalized_registered,
         processing_status=row.processing_status,
+        eligibility_decision=row.eligibility_decision,
+        eligibility_reason=row.eligibility_reason,
+        eligibility_decided_at=row.eligibility_decided_at,
     )
 
 

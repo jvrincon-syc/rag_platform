@@ -88,8 +88,10 @@ describe("OperatorApp auth gate", () => {
 
     render(<OperatorApp />);
 
-    expect(await screen.findByRole("heading", { name: "Consola de operador" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Crear cuenta" })).toBeTruthy();
+    // El botón "Crear cuenta" solo aparece con el formulario ya montado (tras el
+    // probe de sesión); esperarlo async evita el flake de leer antes de tiempo.
+    expect(await screen.findByRole("button", { name: "Crear cuenta" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Consola de operador" })).toBeTruthy();
     expect(screen.queryByRole("heading", { name: "RAG Platform" })).toBeNull();
   });
 
@@ -99,8 +101,10 @@ describe("OperatorApp auth gate", () => {
 
     render(<OperatorApp />);
 
-    await screen.findByRole("heading", { name: "Consola de operador" });
-    await user.type(screen.getByLabelText("Usuario"), "op-1");
+    // Espera el CAMPO del formulario (solo existe tras resolver el probe de
+    // sesión), no el heading — que también está en el estado "Comprobando
+    // sesión…". Así el test no depende del timing del probe bajo carga.
+    await user.type(await screen.findByLabelText("Usuario"), "op-1");
     await user.type(screen.getByLabelText("Contraseña"), "Clave123!");
     await user.click(screen.getByRole("button", { name: "Entrar" }));
 

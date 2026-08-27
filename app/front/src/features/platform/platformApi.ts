@@ -37,6 +37,8 @@ import type {
   ReleaseBuildAccepted,
   ReleaseBuildStatus,
   RetireReleaseRequest,
+  RevisionReviewDecision,
+  SubmitRevisionReviewDecisionRequest,
   UpdateProjectConfigurationRequest,
   UpdateProjectRequest,
   Variant,
@@ -177,6 +179,19 @@ export function normalizeDocuments(
   options?: PipelinePostOptions,
 ): Promise<ProjectNormalizeReport> {
   return postJson<ProjectNormalizeReport>(`${BASE}/projects/${projectId}/normalize`, body, options);
+}
+
+export function submitRevisionReviewDecision(
+  projectId: string,
+  sourceDocumentRevisionId: string,
+  body: SubmitRevisionReviewDecisionRequest,
+  options?: PipelinePostOptions,
+): Promise<RevisionReviewDecision> {
+  return postJson<RevisionReviewDecision>(
+    `${BASE}/projects/${projectId}/document-revisions/${sourceDocumentRevisionId}/review-decision`,
+    body,
+    options,
+  );
 }
 
 // --- Corpus snapshots ----------------------------------------------------- //

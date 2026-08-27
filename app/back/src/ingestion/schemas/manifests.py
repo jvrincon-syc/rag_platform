@@ -93,6 +93,7 @@ class ReviewItem(StrictModel):
     source_relpath: RelativePosixPath
     reasons: list[str] = Field(min_length=1)
     details: list[str] = Field(default_factory=list)
+    error: Optional[str] = None
 
 
 class ReviewManifest(StrictModel):

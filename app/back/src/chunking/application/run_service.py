@@ -360,6 +360,7 @@ class ChunkingRunService:
             state.status = "failed"
             state.warnings.append(str(error))
             self._persist_run_manifest(state)
+            self._persist_validation(state)
             logger.exception(
                 "chunking_run_failed",
                 extra={
@@ -521,15 +522,31 @@ class ChunkingRunService:
 
     def _persist_validation(self, state: ChunkingRunState) -> None:
         path = self._validation_path(state.run_id)
+        documents_completed = state.completed_documents == state.requested_documents
+        run_status_ok = state.status in {"completed", "completed_with_warnings"}
+        checks = [
+            {
+                "name": "documents_completed",
+                "passed": documents_completed,
+                "detail": f"{state.completed_documents}/{state.requested_documents}",
+            },
+            {
+                "name": "run_status_ok",
+                "passed": run_status_ok,
+                "detail": state.status,
+            },
+        ]
+        missing_documents = max(state.requested_documents - state.completed_documents, 0)
+        errors = missing_documents + (0 if run_status_ok else 1)
         path.write_text(
             json.dumps(
                 {
                     "run_id": state.run_id,
-                    "status": "passed",
+                    "status": "passed" if all(check["passed"] for check in checks) else "failed",
                     "documents_checked": state.requested_documents,
-                    "errors": 0,
+                    "errors": errors,
                     "warnings": len(state.warnings),
-                    "checks": [],
+                    "checks": checks,
                 },
                 ensure_ascii=True,
                 indent=2,

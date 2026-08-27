@@ -32,7 +32,11 @@ export function ReleaseDraftForm({
   onCreate: () => void;
 }) {
   const missing: string[] = [];
-  if (variants.length === 0) missing.push("una variante RAG (créala en la matriz)");
+  if (variants.length === 0) {
+    missing.push(
+      "una variante RAG (se resuelve/crea automáticamente al operar en Operación/Chunking/Embedding-Indexing)",
+    );
+  }
   if (snapshots.length === 0) missing.push("un snapshot de corpus");
   if (bindingKeys.length === 0) missing.push("un target binding en la configuración");
 

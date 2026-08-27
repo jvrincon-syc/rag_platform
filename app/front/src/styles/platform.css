@@ -247,6 +247,31 @@ button.variant-cell.selected {
   margin: 4px 0 0 4px;
 }
 
+.platform-nav-row {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.platform-project-chip {
+  gap: 8px;
+  margin-right: 4px;
+  max-width: min(100%, 420px);
+}
+
+.platform-project-chip span {
+  color: var(--muted);
+}
+
+.platform-project-chip strong {
+  color: var(--accent-ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* Corpus Snapshot Workspace: constructor + historial. Reusa .panel/.table-wrap/
    .ui-*; aquí solo la rejilla y la barra de acción. Sin hex de marca. */
 .corpus-grid {

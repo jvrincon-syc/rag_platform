@@ -270,3 +270,65 @@ def test_normalize_fuera_de_scope_403(env: tuple[TestClient, Path]) -> None:
     )
     assert denied.status_code == 403
     assert denied.json()["error"]["code"] == "PLATFORM_ACCESS_DENIED"
+
+
+# --------------------------------------------------------------------------- #
+# Decisión operacional de revisión (Task 3, parity plan 2026-08-25)            #
+# --------------------------------------------------------------------------- #
+
+
+def test_review_decision_endpoint_persists_and_read_model_exposes(
+    env: tuple[TestClient, Path],
+) -> None:
+    client, _ = env
+    _create_project(client, "demo")
+    srev = _upload(
+        client,
+        "demo",
+        source_relpath="manuals/guia.md",
+        content=b"hola",
+    ).json()["source_document_revision_id"]
+
+    response = client.post(
+        f"/api/platform/projects/proj_demo/document-revisions/{srev}/review-decision",
+        json={
+            "decision": "blocked",
+            "reason": "OCR incompleto; no apto para publicar.",
+        },
+    )
+
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["project_id"] == "proj_demo"
+    assert body["source_document_revision_id"] == srev
+    assert body["eligibility_decision"] == "blocked"
+    assert "decided_by" not in body
+
+    listed = client.get("/api/platform/projects/proj_demo/documents").json()["items"]
+    assert listed[0]["eligibility_decision"] == "blocked"
+    assert listed[0]["eligibility_reason"] == "OCR incompleto; no apto para publicar."
+    assert listed[0]["eligibility_decided_at"] is not None
+
+
+def test_review_decision_endpoint_rejects_actor_id_in_body(
+    env: tuple[TestClient, Path],
+) -> None:
+    client, _ = env
+    _create_project(client, "demo")
+    srev = _upload(
+        client,
+        "demo",
+        source_relpath="manuals/guia.md",
+        content=b"hola",
+    ).json()["source_document_revision_id"]
+
+    response = client.post(
+        f"/api/platform/projects/proj_demo/document-revisions/{srev}/review-decision",
+        json={
+            "decision": "blocked",
+            "reason": "No apto.",
+            "actor_id": "body-attacker",
+        },
+    )
+
+    assert response.status_code == 422

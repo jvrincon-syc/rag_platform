@@ -55,6 +55,8 @@ from rag_platform.api.schemas import (
     ReleaseBuildStatusSchema,
     ReleaseSchema,
     RetireReleaseRequestSchema,
+    RevisionReviewDecisionSchema,
+    SubmitRevisionReviewDecisionRequestSchema,
     UpdateProjectConfigurationRequestSchema,
     UpdateProjectRequestSchema,
     VariantMatrixCellSchema,
@@ -403,6 +405,39 @@ def normalize_project_documents(
         actor=actor,
     )
     return normalize_outcome_to_schema(outcome)
+
+
+@router.post(
+    "/projects/{project_id}/document-revisions/{source_document_revision_id}/review-decision",
+    response_model=RevisionReviewDecisionSchema,
+)
+def submit_revision_review_decision(
+    project_id: str,
+    source_document_revision_id: str,
+    payload: SubmitRevisionReviewDecisionRequestSchema,
+    services: RagPlatformServices = Depends(get_platform_services),
+    actor: PlatformActor = Depends(get_actor),
+) -> RevisionReviewDecisionSchema:
+    # Decisión operacional independiente de la membresía en un snapshot (Task 3):
+    # `blocked` se persiste igual, sin forzar la revisión dentro de un snapshot.
+    record = services.submit_revision_review_decision.execute(
+        project_id=_parse_id(IdentityKind.PROJECT, project_id),
+        source_document_revision_id=_parse_id(
+            IdentityKind.SOURCE_DOCUMENT_REVISION,
+            source_document_revision_id,
+        ),
+        decision=payload.decision,
+        reason=payload.reason,
+        actor=actor,
+    )
+    return RevisionReviewDecisionSchema(
+        decision_id=record.decision_id,
+        project_id=record.project_id,
+        source_document_revision_id=record.source_document_revision_id,
+        eligibility_decision=record.eligibility_decision.value,
+        reason=record.reason,
+        decided_at=record.decided_at,
+    )
 
 
 # --------------------------------------------------------------------------- #

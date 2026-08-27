@@ -11,6 +11,7 @@ from time import perf_counter
 from pydantic import ValidationError
 
 from core.logging.observability import measure_duration_ms
+from core.logging.observability import sanitize_exception_text
 from ingestion.application.platform_metadata import (
     PlatformMetadataContext,
     apply_platform_metadata,
@@ -832,9 +833,15 @@ def _is_cloud_pdf_failure(
 def _failure_recommendation(reason: str, exc: Exception) -> str:
     if reason == "llama_cloud_provider_error":
         return "Revisar error de proveedor Llama Cloud en el log antes de reintentar."
+    if reason == "processing_error":
+        return "Revisar el log del pipeline: fallo inesperado procesando el documento."
     if isinstance(exc, OcrDependencyError):
         return "Instalar/configurar OCRmyPDF y el idioma spa de Tesseract."
     return "Configurar extractor PDF/OCR para este documento."
+
+
+def _is_missing_pdf_extractor_error(exc: Exception) -> bool:
+    return "No PDF extractor configured" in str(exc)
 
 
 def _apply_only_sources(
@@ -1199,11 +1206,14 @@ def run_pipeline(
                     reasons = exc.reasons
                 elif _is_cloud_pdf_failure(record, llama_settings_override):
                     reasons = ["llama_cloud_provider_error"]
-                elif record.detected_extension == ".pdf":
+                elif record.detected_extension == ".pdf" and _is_missing_pdf_extractor_error(exc):
                     reasons = ["pdf_extractor_unconfigured"]
+                elif record.detected_extension == ".pdf":
+                    reasons = ["processing_error"]
                 else:
                     reasons = ["processing_error"]
                 reason = reasons[0]
+                safe_error = sanitize_exception_text(str(exc))
                 status = "needs_review" if record.detected_extension == ".pdf" else "failed"
                 record.processing_status = status
                 summary[status] += 1
@@ -1216,7 +1226,7 @@ def run_pipeline(
                         "stage": "ocr" if isinstance(exc, OcrDependencyError) else "reading",
                         "recommended_action": _failure_recommendation(reason, exc),
                         "review_status": "pending",
-                        "error": str(exc),
+                        "error": safe_error,
                     }
                 )
                 run_documents.append(
@@ -1266,6 +1276,7 @@ def run_pipeline(
                         source_relpath=item["source_relpath"],
                         reasons=item["reasons"],
                         details=[item.get("recommended_action", "")],
+                        error=item.get("error"),
                     )
                     for item in needs_review
                 ],

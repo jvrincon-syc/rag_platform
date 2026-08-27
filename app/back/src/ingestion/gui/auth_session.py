@@ -170,12 +170,17 @@ def parse_cookie(cookie_header: str | None, name: str) -> str | None:
     return None
 
 
-def build_session_cookie(session_id: str, *, max_age: int) -> str:
+def build_session_cookie(session_id: str, *, max_age: int, secure: bool = False) -> str:
+    secure_flag = "; Secure" if secure else ""
     return (
         f"{SESSION_COOKIE_NAME}={session_id}; HttpOnly; SameSite=Strict; "
-        f"Path=/; Max-Age={max_age}"
+        f"Path=/; Max-Age={max_age}{secure_flag}"
     )
 
 
-def build_expired_cookie() -> str:
-    return f"{SESSION_COOKIE_NAME}=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0"
+def build_expired_cookie(*, secure: bool = False) -> str:
+    secure_flag = "; Secure" if secure else ""
+    return (
+        f"{SESSION_COOKIE_NAME}=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0"
+        f"{secure_flag}"
+    )

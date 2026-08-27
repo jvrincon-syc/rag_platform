@@ -12,7 +12,10 @@ import { RetrievalValidationPanel } from "../retrieval/components/RetrievalValid
 import { PipelineHeader } from "./PipelineHeader.js";
 import { PipelineSummary } from "./PipelineSummary.js";
 import { PipelineHandoffPanel } from "./PipelineHandoffPanel.js";
-import { useEmbeddingIndexingPipeline } from "./useEmbeddingIndexingPipeline.js";
+import {
+  useEmbeddingIndexingPipeline,
+  type EmbeddingIndexingApiClient,
+} from "./useEmbeddingIndexingPipeline.js";
 import { deriveStageStatus } from "./pipelineStageStatus.js";
 import type {
   EmbeddingIndexingStage,
@@ -24,6 +27,9 @@ type EmbeddingIndexingWorkspaceProps = {
   embeddingIndexingState: EmbeddingIndexingState;
   onStageChange: (stage: EmbeddingIndexingStage) => void;
   onEmbeddingIndexingStateChange: (patch: Partial<EmbeddingIndexingState>) => void;
+  // `api` es opcional (default = cliente Legacy global). Platform puede inyectar
+  // un cliente project-aware sin duplicar esta pantalla ni sus paneles.
+  api?: EmbeddingIndexingApiClient;
 };
 
 // Unified workspace for the bundle-first pipeline. It composes the feature
@@ -34,10 +40,12 @@ export function EmbeddingIndexingWorkspace({
   embeddingIndexingState,
   onStageChange,
   onEmbeddingIndexingStateChange,
+  api,
 }: EmbeddingIndexingWorkspaceProps) {
   const pipeline = useEmbeddingIndexingPipeline({
     persistedState: embeddingIndexingState,
     onPersistedStateChange: onEmbeddingIndexingStateChange,
+    api,
   });
   const { embedding, indexing, activation, retrieval } = pipeline;
 
@@ -102,13 +110,20 @@ export function EmbeddingIndexingWorkspace({
             chunksPage={embedding.bundleChunks}
             chunksLoading={embedding.bundleChunksLoading}
             validation={embedding.bundleValidation}
+            validationError={embedding.bundleValidationError}
             readiness={embedding.bundleReadiness}
+            readinessError={embedding.bundleReadinessError}
           />
         </div>
       ) : null}
 
       {activeStage === "indexing" ? (
         <div className="pipeline-stage-grid">
+          {indexing.overviewError ? (
+            <div className="notice notice-danger" role="alert">
+              {indexing.overviewError}
+            </div>
+          ) : null}
           <IndexingRunPanel
             embeddingBundleId={indexing.embeddingBundleId}
             embeddingBundleReady={indexing.embeddingBundleReady}
@@ -141,6 +156,7 @@ export function EmbeddingIndexingWorkspace({
           <ActivationPanel
             run={activation.run}
             readiness={activation.readiness}
+            readinessError={activation.readinessError}
             lexicalFallbackPolicy={activation.lexicalFallbackPolicy}
             onPolicyChange={activation.setLexicalFallbackPolicy}
             activationBusy={activation.busy}

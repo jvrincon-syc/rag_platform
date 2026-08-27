@@ -39,6 +39,28 @@
   background: var(--accent-soft);
 }
 
+/* Micro-interacciones del inventario neutral (Documents + Corpus): hover de fila
+   sutil y realce de la fila seleccionada/inspeccionada. Alcance acotado a
+   `.inventory-main` para no tocar tablas Legacy. El estado no depende del hover:
+   la selección se comunica por checkbox + resaltado + texto. */
+.inventory-main tbody tr:hover td {
+  background: var(--panel-soft);
+}
+
+.inventory-main tbody tr.selected-row:hover td {
+  background: var(--accent-soft);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .inventory-main tbody tr td {
+    transition: background-color 0.12s ease;
+  }
+
+  .row-detail-button {
+    transition: color 0.12s ease;
+  }
+}
+
 .reason-list {
   display: flex;
   flex-wrap: wrap;
@@ -197,6 +219,28 @@
 .ingestion-unregistered {
   background: var(--neutral-soft);
   color: var(--neutral-ink);
+}
+
+/* Layout NEUTRAL del inventario documental compartido (components/ui/inventory):
+   tabla ancha + inspector lateral. Se define aquí, en el CSS neutral ya global,
+   para no depender de `.inventory-workspace` (dashboard.css, legacy). */
+.inventory-layout {
+  align-items: start;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
+}
+
+.inventory-main {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+@media (max-width: 1180px) {
+  .inventory-layout {
+    grid-template-columns: 1fr;
+  }
 }
 
 .pipeline-band {

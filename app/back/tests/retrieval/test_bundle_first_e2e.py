@@ -82,7 +82,7 @@ def test_e2e_devuelve_evidencia_del_target_correcto(stack) -> None:
     assert child.embedding_bundle_id == bundle_id
     assert child.parent_node_id is not None
     assert child.page_start == 1
-    assert len(evidence) == 3
+    assert len(evidence) == 2
     assert all(item.node_id != child.parent_node_id for item in evidence)
     assert stack.indexing_runs.get(run_id).activation_status == "active"
 
@@ -482,6 +482,44 @@ def test_usa_fallback_lexical_solo_cuando_la_politica_lo_permite(stack) -> None:
     )
     with pytest.raises(LexicalFallbackNotAllowed):
         stack.search.search(retrieval_profile=strict, query="safety rules")
+
+
+def test_hybrid_search_solicita_un_pool_mayor_antes_de_fusionar(
+    stack,
+    monkeypatch,
+) -> None:
+    _bundle, _run, retrieval_profile_id = _activate(stack)
+    retrieval_profile = stack.retrieval_profiles.get(retrieval_profile_id)
+    vector_top_ks: list[int] = []
+    lexical_top_ks: list[int] = []
+
+    original_vector_search = stack.vector_search.search
+    original_lexical_search = stack.search._lexical_search.search  # noqa: SLF001
+
+    def _record_vector_search(**kwargs):
+        vector_top_ks.append(kwargs["top_k"])
+        return original_vector_search(**kwargs)
+
+    def _record_lexical_search(**kwargs):
+        lexical_top_ks.append(kwargs["top_k"])
+        return original_lexical_search(**kwargs)
+
+    monkeypatch.setattr(stack.vector_search, "search", _record_vector_search)
+    monkeypatch.setattr(
+        stack.search._lexical_search,  # noqa: SLF001
+        "search",
+        _record_lexical_search,
+    )
+
+    evidence = stack.search.search(
+        retrieval_profile=retrieval_profile,
+        query="safety rules",
+        top_k=8,
+    )
+
+    assert evidence
+    assert vector_top_ks == [96]
+    assert lexical_top_ks == [96]
 
 
 def test_la_validacion_no_almacena_preguntas_reales(stack) -> None:

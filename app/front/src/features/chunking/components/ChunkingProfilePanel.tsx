@@ -2,6 +2,14 @@ import { AlertCircle, Blocks, Loader2, RefreshCw } from "lucide-react";
 import { chunkingProfileSummary } from "../chunkingState.js";
 import type { ChunkingProfile, ChunkingRunSummary } from "../chunkingTypes.js";
 
+// Platform no expone parametros de tokens (`ChunkingProfileReadSchema` no los
+// trae); esos campos llegan `null` y se pintan asi en vez de inventar umbrales.
+const NOT_EXPOSED = "N/D - no expuesto por Platform";
+
+function tokenCell(value: number | null): string {
+  return value === null ? NOT_EXPOSED : String(value);
+}
+
 export function ChunkingProfilePanel({
   profile,
   profilesLoading,
@@ -41,24 +49,28 @@ export function ChunkingProfilePanel({
             </div>
             <div>
               <dt>Children min</dt>
-              <dd>{profile.childMinTokens}</dd>
+              <dd>{tokenCell(profile.childMinTokens)}</dd>
             </div>
             <div>
               <dt>Target</dt>
-              <dd>{profile.childTargetTokens}</dd>
+              <dd>{tokenCell(profile.childTargetTokens)}</dd>
             </div>
             <div>
               <dt>Max</dt>
-              <dd>{profile.childMaxTokens}</dd>
+              <dd>{tokenCell(profile.childMaxTokens)}</dd>
             </div>
             <div>
               <dt>Overlap</dt>
-              <dd>{Math.round(profile.overlapRatio * 100)}%</dd>
+              <dd>
+                {profile.overlapRatio === null
+                  ? NOT_EXPOSED
+                  : `${Math.round(profile.overlapRatio * 100)}%`}
+              </dd>
             </div>
             <div>
               <dt>Overlap min/max</dt>
               <dd>
-                {profile.overlapMinTokens} / {profile.overlapMaxTokens}
+                {tokenCell(profile.overlapMinTokens)} / {tokenCell(profile.overlapMaxTokens)}
               </dd>
             </div>
           </dl>

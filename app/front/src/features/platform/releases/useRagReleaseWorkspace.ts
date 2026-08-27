@@ -13,7 +13,7 @@ import {
   retireRelease,
   validateRelease,
 } from "../platformApi.js";
-import { usePlatformPreferences } from "../hooks/usePlatformPreferences.js";
+import { usePlatformProjectContext } from "../PlatformProjectContext.js";
 import { usePollingLoop } from "../../embeddingIndexing/shared/usePollingLoop.js";
 import { mapPipelineError } from "../../../shared/api/errorMapping.js";
 import type { CorpusSnapshot, Release, ReleaseBuildStatus, Variant } from "../platformTypes.js";
@@ -79,8 +79,7 @@ function messageFromError(error: unknown): string {
 export function useRagReleaseWorkspace() {
   // scope = null: solo lee la selección de proyecto vigente y persiste la release
   // elegida (D6: solo IDs de navegación).
-  const { preferences, setSelectedRagRelease } = usePlatformPreferences(null);
-  const projectId = preferences.selectedProjectId;
+  const { preferences, projectId, setSelectedRagRelease } = usePlatformProjectContext();
   const selectedReleaseId = preferences.selectedRagReleaseId;
   const preferredVariantId = preferences.selectedRagVariantId;
   const preferredSnapshotId = preferences.selectedCorpusSnapshotId;
@@ -502,6 +501,10 @@ export function useRagReleaseWorkspace() {
     selectedRelease,
     buildProgress,
     buildPolling: buildPoll.polling,
+    // Fail-closed: si la consulta de estado del build falla (401/403/404/red), el
+    // loop reintenta pero el error debe verse. No se oculta tras "encolado" hasta
+    // el timeout. `null` mientras la última consulta fue exitosa.
+    buildStatusError: buildPoll.error?.message ?? null,
     notice,
     creating,
     busyAction,

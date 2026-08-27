@@ -11,7 +11,10 @@ from datetime import datetime, timezone
 import threading
 import uuid
 
-from rag_platform.application.context import PlatformAccessPolicy
+from rag_platform.application.context import (
+    PlatformAccessPolicy,
+    RevisionReviewDecisionRecord,
+)
 from rag_platform.domain.artifact_catalog import RawDocumentArtifactRecord
 from rag_platform.domain.errors import (
     BuildStepNotFound,
@@ -378,6 +381,37 @@ class InMemorySourceDocumentRepository:
         return tuple(revisions)
 
 
+class InMemoryRevisionReviewDecisionRepository:
+    """Decisiones operacionales de revisión en memoria (Task 3, tests/dry-run)."""
+
+    def __init__(self) -> None:
+        self._records: dict[str, RevisionReviewDecisionRecord] = {}
+        self._lock = threading.Lock()
+
+    def add(
+        self, record: RevisionReviewDecisionRecord
+    ) -> RevisionReviewDecisionRecord:
+        with self._lock:
+            self._records[record.decision_id] = record
+        return record
+
+    def latest_for_project(
+        self, project_id: PlatformId
+    ) -> dict[str, RevisionReviewDecisionRecord]:
+        with self._lock:
+            records = [
+                record
+                for record in self._records.values()
+                if record.project_id == project_id.value
+            ]
+        latest: dict[str, RevisionReviewDecisionRecord] = {}
+        for record in sorted(
+            records, key=lambda item: (item.decided_at, item.decision_id)
+        ):
+            latest[record.source_document_revision_id] = record
+        return latest
+
+
 class InMemoryNormalizedArtifactRepository:
     """Normalizados por identidad exacta en memoria (Fase 2)."""
 
@@ -481,7 +515,7 @@ class InMemoryCorpusSnapshotRepository:
         snapshots.sort(
             key=lambda s: (s.created_at, s.corpus_snapshot_id.value)
         )
-        return tuple(snapshots)
+        return tuple(snapshots) 
 
 
 class InMemoryChunkBundleReuseRepository:

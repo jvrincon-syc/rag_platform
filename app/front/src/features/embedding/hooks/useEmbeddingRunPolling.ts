@@ -11,17 +11,23 @@ export type EmbeddingRunPollingState = {
   timedOut: boolean;
 };
 
+// Cargador del run inyectable (default = global). Platform puede pasar un
+// loader project-aware para que el polling no pegue a endpoints globales
+// mientras aparenta scope de proyecto (audit 2026-08-25).
+export type EmbeddingRunLoader = typeof loadEmbeddingRun;
+
 // Polls a non-terminal embedding run until it reaches a terminal state, using
 // the shared abortable, visibility-aware polling loop.
 export function useEmbeddingRunPolling(
   embeddingRunId: string | null,
-  options?: { intervalMs?: number; enabled?: boolean },
+  options?: { intervalMs?: number; enabled?: boolean; loadRun?: EmbeddingRunLoader },
 ): EmbeddingRunPollingState {
+  const loadRun = options?.loadRun ?? loadEmbeddingRun;
   const { value, polling, error, timedOut } = usePollingLoop<EmbeddingRun>({
     resourceId: embeddingRunId,
     enabled: options?.enabled,
     intervalMs: options?.intervalMs,
-    fetchOnce: (signal) => loadEmbeddingRun(embeddingRunId as string, { signal }),
+    fetchOnce: (signal) => loadRun(embeddingRunId as string, { signal }),
     isTerminal: (run) => embeddingRunIsTerminal(run.status),
   });
 

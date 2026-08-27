@@ -3,13 +3,11 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { CorpusSnapshotWorkspace } from "./CorpusSnapshotWorkspace.js";
+import { PlatformProjectProvider } from "../PlatformProjectContext.js";
 import { readPlatformPreferences, writePlatformPreferences } from "../platformPersistence.js";
 import { DEFAULT_PLATFORM_PREFERENCES } from "../platformState.js";
 import * as platformApi from "../platformApi.js";
-import type {
-  CorpusSnapshot,
-  ProjectDocumentRevision,
-} from "../platformTypes.js";
+import type { CorpusSnapshot, ProjectDocumentRevision } from "../platformTypes.js";
 
 // Cliente HTTP mockeado en el límite de red: ningún test toca fetch.
 vi.mock("../platformApi.js", () => ({
@@ -51,6 +49,14 @@ function selectProjectInStorage(projectId: string): void {
   writePlatformPreferences({ ...DEFAULT_PLATFORM_PREFERENCES, selectedProjectId: projectId });
 }
 
+function renderCorpusSnapshotWorkspace() {
+  return render(
+    <PlatformProjectProvider>
+      <CorpusSnapshotWorkspace />
+    </PlatformProjectProvider>,
+  );
+}
+
 beforeEach(() => {
   window.localStorage.clear();
   api.listAllDocuments.mockResolvedValue([]);
@@ -59,14 +65,129 @@ beforeEach(() => {
 });
 
 describe("CorpusSnapshotWorkspace", () => {
-  it("renderiza las revisiones normalizadas candidatas con sus IDs", async () => {
+  it("renderiza las revisiones normalizadas candidatas reutilizando el inventario neutral", async () => {
     selectProjectInStorage("proj_alpha");
     api.listAllDocuments.mockResolvedValue([makeRevision()]);
 
-    render(<CorpusSnapshotWorkspace />);
+    renderCorpusSnapshotWorkspace();
 
-    expect(await screen.findByText("srev_1")).toBeTruthy();
-    expect(screen.getByText("ldoc_1")).toBeTruthy();
+    // displayName = source_relpath; segunda línea = source_document_revision_id.
+    expect(await screen.findByText("manuales/proc.pdf")).toBeTruthy();
+    expect(screen.getByText("srev_1")).toBeTruthy();
+    // La caja de búsqueda y el filtro por estado vienen del inventario reutilizado.
+    expect(screen.getByRole("searchbox", { name: /Buscar por ruta o ID/ })).toBeTruthy();
+    expect(screen.getByRole("combobox", { name: /Filtrar por estado/ })).toBeTruthy();
+  });
+
+  it("sin proyecto muestra estado vacío direccional y no llama a la API", async () => {
+    renderCorpusSnapshotWorkspace();
+
+    expect(
+      await screen.findByText(/Selecciona un proyecto para construir un snapshot/),
+    ).toBeTruthy();
+    expect(api.listAllDocuments).not.toHaveBeenCalled();
+    expect(api.listAllCorpusSnapshots).not.toHaveBeenCalled();
+  });
+
+  it("muestra el estado de carga mientras resuelven las revisiones", async () => {
+    selectProjectInStorage("proj_alpha");
+    // Promesa colgada: candidates permanece en loading.
+    api.listAllDocuments.mockReturnValue(new Promise<ProjectDocumentRevision[]>(() => {}));
+
+    renderCorpusSnapshotWorkspace();
+
+    expect(await screen.findByText(/Cargando revisiones elegibles/)).toBeTruthy();
+  });
+
+  it("con proyecto sin revisiones normalizadas muestra estado vacío direccional", async () => {
+    selectProjectInStorage("proj_alpha");
+    // Sin RAW normalizado: el hook filtra y candidates queda empty.
+    api.listAllDocuments.mockResolvedValue([]);
+
+    renderCorpusSnapshotWorkspace();
+
+    expect(await screen.findByText(/No hay revisiones normalizadas/)).toBeTruthy();
+  });
+
+  it("ante un error de carga surfacea el mensaje fail-closed con opción de reintentar", async () => {
+    selectProjectInStorage("proj_alpha");
+    api.listAllDocuments.mockRejectedValue({ status: 403, code: "FORBIDDEN" });
+
+    renderCorpusSnapshotWorkspace();
+
+    expect((await screen.findAllByText(/No autorizado para esta operación/)).length).toBeGreaterThan(0);
+    expect(screen.getByRole("button", { name: /Reintentar/ })).toBeTruthy();
+  });
+
+  it("la búsqueda filtra las revisiones por ruta o ID", async () => {
+    selectProjectInStorage("proj_alpha");
+    api.listAllDocuments.mockResolvedValue([
+      makeRevision({ source_document_revision_id: "srev_1", source_relpath: "manuales/proc.pdf" }),
+      makeRevision({
+        source_document_revision_id: "srev_2",
+        logical_document_id: "ldoc_2",
+        source_relpath: "anexos/plan.pdf",
+      }),
+    ]);
+
+    const user = userEvent.setup();
+    renderCorpusSnapshotWorkspace();
+
+    await screen.findByText("manuales/proc.pdf");
+    await user.type(screen.getByRole("searchbox", { name: /Buscar por ruta o ID/ }), "anexos");
+
+    expect(screen.getByText("anexos/plan.pdf")).toBeTruthy();
+    expect(screen.queryByText("manuales/proc.pdf")).toBeNull();
+  });
+
+  it("el filtro por estado aísla las revisiones needs_review sin ocultarlas del corpus", async () => {
+    selectProjectInStorage("proj_alpha");
+    api.listAllDocuments.mockResolvedValue([
+      makeRevision({ source_document_revision_id: "srev_1", review_state: "processed" }),
+      makeRevision({
+        source_document_revision_id: "srev_2",
+        logical_document_id: "ldoc_2",
+        source_relpath: "anexos/plan.pdf",
+        review_state: "needs_review",
+      }),
+    ]);
+
+    const user = userEvent.setup();
+    renderCorpusSnapshotWorkspace();
+
+    await screen.findByText("manuales/proc.pdf");
+    await user.selectOptions(
+      screen.getByRole("combobox", { name: /Filtrar por estado/ }),
+      "needs_review",
+    );
+
+    expect(screen.getByText("anexos/plan.pdf")).toBeTruthy();
+    expect(screen.queryByText("manuales/proc.pdf")).toBeNull();
+  });
+
+  it("selecciona en bloque solo las revisiones elegibles sin auto-incluir needs_review", async () => {
+    selectProjectInStorage("proj_alpha");
+    api.listAllDocuments.mockResolvedValue([
+      makeRevision({ source_document_revision_id: "srev_1", review_state: "processed" }),
+      makeRevision({
+        source_document_revision_id: "srev_2",
+        logical_document_id: "ldoc_2",
+        source_relpath: "anexos/plan.pdf",
+        review_state: "needs_review",
+      }),
+    ]);
+
+    const user = userEvent.setup();
+    renderCorpusSnapshotWorkspace();
+
+    await user.click(
+      await screen.findByRole("button", { name: "Seleccionar todas las elegibles" }),
+    );
+
+    expect(screen.getByText("1 de 2 seleccionadas")).toBeTruthy();
+    const checkboxes = screen.getAllByRole("checkbox", { name: /Incluir revisión/ });
+    expect((checkboxes[0] as HTMLInputElement).checked).toBe(true);
+    expect((checkboxes[1] as HTMLInputElement).checked).toBe(false);
   });
 
   it("crea un snapshot de revisiones processed sin eligibility_decisions", async () => {
@@ -74,7 +195,7 @@ describe("CorpusSnapshotWorkspace", () => {
     api.listAllDocuments.mockResolvedValue([makeRevision()]);
 
     const user = userEvent.setup();
-    render(<CorpusSnapshotWorkspace />);
+    renderCorpusSnapshotWorkspace();
 
     await user.click(
       await screen.findByRole("checkbox", { name: /Incluir revisión srev_1/ }),
@@ -94,17 +215,22 @@ describe("CorpusSnapshotWorkspace", () => {
     api.listAllDocuments.mockResolvedValue([makeRevision({ review_state: "needs_review" })]);
 
     const user = userEvent.setup();
-    render(<CorpusSnapshotWorkspace />);
+    renderCorpusSnapshotWorkspace();
+
+    // Antes de seleccionar, la fila needs_review pide decisión al incluir (no select).
+    expect(await screen.findByText(/Requiere decisión al incluir/)).toBeTruthy();
 
     await user.click(
       await screen.findByRole("checkbox", { name: /Incluir revisión srev_1/ }),
     );
-    // Sin decisión, Crear está deshabilitado (gate fail-closed cliente).
+    // Seleccionada sin decisión: Crear está bloqueado con motivo visible.
     expect(screen.getByRole("button", { name: /Crear snapshot/ })).toHaveProperty(
       "disabled",
       true,
     );
+    expect(screen.getByText(/Faltan decisiones de elegibilidad/)).toBeTruthy();
 
+    // Al aparecer el select y elegir una decisión, el gate se libera.
     await user.selectOptions(
       screen.getByRole("combobox", { name: /Decisión de elegibilidad para srev_1/ }),
       "approved_after_review",
@@ -123,7 +249,7 @@ describe("CorpusSnapshotWorkspace", () => {
     api.listAllDocuments.mockResolvedValue([makeRevision()]);
 
     const user = userEvent.setup();
-    render(<CorpusSnapshotWorkspace />);
+    renderCorpusSnapshotWorkspace();
 
     await user.click(
       await screen.findByRole("checkbox", { name: /Incluir revisión srev_1/ }),
@@ -140,16 +266,6 @@ describe("CorpusSnapshotWorkspace", () => {
     expect(Object.keys(stored)).not.toContain("manifest_hash");
   });
 
-  it("sin proyecto muestra estado vacío direccional y no llama a la API", async () => {
-    render(<CorpusSnapshotWorkspace />);
-
-    expect(
-      await screen.findByText(/Selecciona un proyecto para construir un snapshot/),
-    ).toBeTruthy();
-    expect(api.listAllDocuments).not.toHaveBeenCalled();
-    expect(api.listAllCorpusSnapshots).not.toHaveBeenCalled();
-  });
-
   it("ante 409 cross-project surfacea un mensaje fail-closed", async () => {
     selectProjectInStorage("proj_alpha");
     api.listAllDocuments.mockResolvedValue([makeRevision()]);
@@ -159,7 +275,7 @@ describe("CorpusSnapshotWorkspace", () => {
     });
 
     const user = userEvent.setup();
-    render(<CorpusSnapshotWorkspace />);
+    renderCorpusSnapshotWorkspace();
 
     await user.click(
       await screen.findByRole("checkbox", { name: /Incluir revisión srev_1/ }),
@@ -167,29 +283,5 @@ describe("CorpusSnapshotWorkspace", () => {
     await user.click(screen.getByRole("button", { name: /Crear snapshot/ }));
 
     expect(await screen.findByText(/inválida o pertenece a otro proyecto/)).toBeTruthy();
-  });
-
-  it("selecciona en bloque solo las revisiones elegibles sin auto-incluir needs_review", async () => {
-    selectProjectInStorage("proj_alpha");
-    api.listAllDocuments.mockResolvedValue([
-      makeRevision({ source_document_revision_id: "srev_1", review_state: "processed" }),
-      makeRevision({
-        source_document_revision_id: "srev_2",
-        logical_document_id: "ldoc_2",
-        review_state: "needs_review",
-      }),
-    ]);
-
-    const user = userEvent.setup();
-    render(<CorpusSnapshotWorkspace />);
-
-    await user.click(
-      await screen.findByRole("button", { name: "Seleccionar todas las elegibles" }),
-    );
-
-    expect(screen.getByText("1 de 2 seleccionadas")).toBeTruthy();
-    const checkboxes = screen.getAllByRole("checkbox", { name: /Incluir revisión/ });
-    expect((checkboxes[0] as HTMLInputElement).checked).toBe(true);
-    expect((checkboxes[1] as HTMLInputElement).checked).toBe(false);
   });
 });

@@ -46,7 +46,6 @@
     "src/features/platform/platformState.ts",
     "src/features/platform/platformPersistence.ts",
     "src/features/platform/hooks/usePlatformPreferences.ts",
-    "src/features/platform/variants/useVariantMatrixWorkspace.ts",
     "src/features/platform/documents/useDocumentIntakeWorkspace.ts",
     "src/features/platform/corpus/useCorpusSnapshotWorkspace.ts",
     "src/features/platform/releases/useIdempotentReleaseAction.ts",

@@ -17,6 +17,7 @@ import tempfile
 import threading
 
 from pydantic import Field
+from pydantic import model_validator
 
 from ingestion.schemas.common import StrictModel
 
@@ -43,8 +44,24 @@ class PersistedBearerCredential(StrictModel):
     """One local GUI bearer persisted as a one-way token digest."""
 
     principal_id: str = Field(min_length=1)
-    token_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    token_digest: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    token_salt: str | None = Field(default=None, pattern=r"^[0-9a-f]{32}$")
+    token_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
     project_scope: tuple[str, ...] | None = None
+
+    @model_validator(mode="after")
+    def validate_digest_shape(self) -> "PersistedBearerCredential":
+        if self.token_digest is not None or self.token_salt is not None:
+            if self.token_digest is None or self.token_salt is None:
+                raise ValueError("salted bearer credentials require token_digest and token_salt")
+            return self
+        if self.token_sha256 is None:
+            raise ValueError("persisted bearer credential must include a token digest")
+        return self
+
+    @property
+    def storage_key(self) -> str:
+        return self.token_digest or self.token_sha256 or ""
 
 
 class PersistedBearerRegistry(StrictModel):
@@ -188,10 +205,24 @@ class ConfiguredBearerAuth:
                 )
         token_sha256 = _token_sha256(token)
         for credential in local_credentials:
-            if secrets.compare_digest(credential.token_sha256, token_sha256):
+            if (
+                credential.token_salt is not None
+                and credential.token_digest is not None
+                and secrets.compare_digest(
+                    credential.token_digest,
+                    _token_digest(token, credential.token_salt),
+                )
+            ):
                 return AuthenticatedPrincipal(
                     principal_id=credential.principal_id,
-                    project_scope=credential.project_scope,
+                    project_scope=credential.project_scope or None,
+                )
+            if credential.token_sha256 is not None and secrets.compare_digest(
+                credential.token_sha256, token_sha256
+            ):
+                return AuthenticatedPrincipal(
+                    principal_id=credential.principal_id,
+                    project_scope=credential.project_scope or None,
                 )
         raise HttpAuthInvalidCredentials("invalid bearer token")
 
@@ -226,7 +257,7 @@ class ConfiguredBearerAuth:
                 static_tokens,
                 session_tokens=set(self._session_credentials),
             )
-            token_sha256 = _token_sha256(issued_token)
+            token_salt = secrets.token_hex(16)
             credential = BearerCredential(
                 principal_id=normalized_principal_id,
                 token=issued_token,
@@ -234,11 +265,12 @@ class ConfiguredBearerAuth:
             )
             persisted = PersistedBearerCredential(
                 principal_id=normalized_principal_id,
-                token_sha256=token_sha256,
-                project_scope=project_scope,
+                token_digest=_token_digest(issued_token, token_salt),
+                token_salt=token_salt,
+                project_scope=project_scope or None,
             )
             updated_credentials = dict(self._local_credentials)
-            updated_credentials[persisted.token_sha256] = persisted
+            updated_credentials[persisted.storage_key] = persisted
             self._persist_local_credentials(updated_credentials)
             self._local_credentials = updated_credentials
             return credential
@@ -285,7 +317,6 @@ class ConfiguredBearerAuth:
             if (
                 candidate in static_tokens
                 or candidate in session_tokens
-                or _token_sha256(candidate) in self._local_credentials
             ):
                 continue
             return candidate
@@ -317,11 +348,11 @@ class ConfiguredBearerAuth:
                 raise ValueError(
                     f"{self._local_registry_path} contains duplicate principal ids"
                 )
-            if credential.token_sha256 in credentials_by_hash:
+            if credential.storage_key in credentials_by_hash:
                 raise ValueError(
                     f"{self._local_registry_path} contains duplicate token hashes"
                 )
-            credentials_by_hash[credential.token_sha256] = credential
+            credentials_by_hash[credential.storage_key] = credential
         return credentials_by_hash
 
     def _persist_local_credentials(
@@ -334,12 +365,16 @@ class ConfiguredBearerAuth:
             credentials=tuple(
                 sorted(credentials.values(), key=lambda item: item.principal_id)
             )
-        ).model_dump(mode="json")
+        ).model_dump(mode="json", exclude_none=True)
         _write_atomic_json(self._local_registry_path, payload)
 
 
 def _token_sha256(token: str) -> str:
     return hashlib.sha256(token.encode("utf-8")).hexdigest()
+
+
+def _token_digest(token: str, salt: str) -> str:
+    return hashlib.sha256(f"{salt}:{token}".encode("utf-8")).hexdigest()
 
 
 def _write_atomic_json(path: Path, payload: object) -> None:

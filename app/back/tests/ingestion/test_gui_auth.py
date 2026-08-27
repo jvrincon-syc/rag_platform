@@ -209,6 +209,74 @@ def test_register_handler_crea_usuario_y_pone_cookie(tmp_path) -> None:
     }
 
 
+def test_register_handler_rate_limits_after_five_attempts_per_ip_per_hour(tmp_path, monkeypatch) -> None:
+    monkeypatch.setattr(gui_server_module, "_utcnow", lambda: _T0)
+    coordinator = _empty_coordinator(tmp_path)
+
+    class _Throttle:
+        def __init__(self) -> None:
+            self.calls = 0
+
+        def allow(self, _client_key: str, *, now: datetime) -> bool:
+            self.calls += 1
+            return self.calls <= 5
+
+    throttle = _Throttle()
+
+    for attempt in range(5):
+        body = _body_bytes(
+            {"username": f"nuevo-operador-{attempt}", "password": _PASSWORD}
+        )
+        handler = _make_handler(
+            path="/api/auth/register",
+            headers={"Content-Length": str(len(body))},
+            body=body,
+            coordinator=coordinator,
+        )
+        handler.client_address = ("127.0.0.1", 8765)
+        handler.server.gui_register_throttle = throttle
+
+        handler._handle_auth_register()
+
+        assert handler._response_status_code == HTTPStatus.OK
+
+    blocked_body = _body_bytes({"username": "nuevo-operador-6", "password": _PASSWORD})
+    blocked = _make_handler(
+        path="/api/auth/register",
+        headers={"Content-Length": str(len(blocked_body))},
+        body=blocked_body,
+        coordinator=coordinator,
+    )
+    blocked.client_address = ("127.0.0.1", 8765)
+    blocked.server.gui_register_throttle = throttle
+
+    blocked._handle_auth_register()
+
+    assert blocked._response_status_code == HTTPStatus.TOO_MANY_REQUESTS
+    assert json.loads(blocked.wfile.getvalue()) == {
+        "ok": False,
+        "error": "too many registration attempts from this client",
+    }
+
+
+def test_register_handler_sets_secure_cookie_when_tls_is_detected(tmp_path) -> None:
+    body = _body_bytes({"username": "nuevo-operador", "password": _PASSWORD})
+    handler = _make_handler(
+        path="/api/auth/register",
+        headers={
+            "Content-Length": str(len(body)),
+            "X-Forwarded-Proto": "https",
+        },
+        body=body,
+        coordinator=_empty_coordinator(tmp_path),
+    )
+
+    handler._handle_auth_register()
+
+    assert handler._response_status_code == HTTPStatus.OK
+    assert "; Secure" in handler.sent_headers["Set-Cookie"]
+
+
 def test_register_handler_acepta_project_scope_del_body(tmp_path) -> None:
     body = _body_bytes(
         {
@@ -267,6 +335,24 @@ def test_login_handler_autentica_con_usuario_y_contrasena(tmp_path) -> None:
     }
 
 
+def test_login_handler_sets_secure_cookie_when_tls_is_detected(tmp_path) -> None:
+    body = _body_bytes({"username": "op-1", "password": _PASSWORD})
+    handler = _make_handler(
+        path="/api/auth/login",
+        headers={
+            "Content-Length": str(len(body)),
+            "Forwarded": "for=127.0.0.1;proto=https",
+        },
+        body=body,
+        coordinator=_coordinator(tmp_path),
+    )
+
+    handler._handle_auth_login()
+
+    assert handler._response_status_code == HTTPStatus.OK
+    assert "; Secure" in handler.sent_headers["Set-Cookie"]
+
+
 def test_login_handler_falla_cuando_contrasena_es_invalida(tmp_path) -> None:
     body = _body_bytes({"username": "op-1", "password": "otra-clave"})
     handler = _make_handler(
@@ -316,6 +402,24 @@ def test_logout_handler_revoca_la_sesion(tmp_path) -> None:
     assert handler._response_status_code == HTTPStatus.OK
     assert "Max-Age=0" in handler.sent_headers["Set-Cookie"]
     assert coordinator.resolve(session.session_id, now=_T0) is None
+
+
+def test_logout_handler_sets_secure_cookie_when_tls_is_detected(tmp_path) -> None:
+    coordinator = _coordinator(tmp_path)
+    session = coordinator.login(username="op-1", password=_PASSWORD, now=_T0)
+    handler = _make_handler(
+        path="/api/auth/logout",
+        headers={
+            "Cookie": f"{SESSION_COOKIE_NAME}={session.session_id}",
+            "X-Forwarded-Proto": "https",
+        },
+        coordinator=coordinator,
+    )
+
+    handler._handle_auth_logout()
+
+    assert handler._response_status_code == HTTPStatus.OK
+    assert "; Secure" in handler.sent_headers["Set-Cookie"]
 
 
 def test_platform_con_cookie_valida_inyecta_bearer_server_side(tmp_path, monkeypatch) -> None:

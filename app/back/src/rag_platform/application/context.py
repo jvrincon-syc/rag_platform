@@ -13,6 +13,8 @@ autenticado.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+from datetime import datetime
 from typing import Protocol, runtime_checkable
 
 from rag_platform.domain.identity import PlatformId, ProjectDocumentContext
@@ -24,6 +26,7 @@ from rag_platform.domain.models import (
     ChunkingProfile,
     CorpusSnapshot,
     DocumentProcessingProfile,
+    EligibilityDecision,
     NormalizedDocumentArtifact,
     ProjectConfiguration,
     ProjectIndexingTargetBinding,
@@ -203,6 +206,34 @@ class SourceDocumentRepository(Protocol):
         El orden es determinista (``uploaded_at`` y luego id) para que la lista de
         documentos de la GUI sobreviva a un refresh sin reordenarse.
         """
+
+
+@dataclass(frozen=True)
+class RevisionReviewDecisionRecord:
+    """Decisión operacional de revisión, independiente de la membresía en un snapshot."""
+
+    decision_id: str
+    project_id: str
+    source_document_revision_id: str
+    eligibility_decision: EligibilityDecision
+    reason: str
+    decided_by: str
+    decided_at: datetime
+
+
+@runtime_checkable
+class RevisionReviewDecisionRepository(Protocol):
+    """Persistencia append-only de decisiones operacionales de revisión (Task 3)."""
+
+    def add(
+        self, record: RevisionReviewDecisionRecord
+    ) -> RevisionReviewDecisionRecord:
+        """Persiste una decisión del operador."""
+
+    def latest_for_project(
+        self, project_id: PlatformId
+    ) -> dict[str, RevisionReviewDecisionRecord]:
+        """Devuelve la última decisión por revisión para un proyecto."""
 
 
 @runtime_checkable

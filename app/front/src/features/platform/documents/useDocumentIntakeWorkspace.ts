@@ -6,7 +6,7 @@ import {
   normalizeDocuments,
   uploadDocument,
 } from "../platformApi.js";
-import { usePlatformPreferences } from "../hooks/usePlatformPreferences.js";
+import { usePlatformProjectContext } from "../PlatformProjectContext.js";
 import { mapPipelineError } from "../../../shared/api/errorMapping.js";
 import type {
   ProjectDocumentRevision,
@@ -70,8 +70,7 @@ function messageFromError(error: unknown): string {
 
 export function useDocumentIntakeWorkspace() {
   // scope = null: este workspace solo lee la selección de proyecto vigente.
-  const { preferences } = usePlatformPreferences(null);
-  const projectId = preferences.selectedProjectId;
+  const { projectId } = usePlatformProjectContext();
 
   const [documents, setDocuments] = useState<DocumentsState>(
     projectId ? { status: "loading" } : { status: "no-project" },

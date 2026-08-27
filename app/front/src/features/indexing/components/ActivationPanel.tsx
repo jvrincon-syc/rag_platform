@@ -18,6 +18,7 @@ export const LEXICAL_FALLBACK_POLICY_OPTIONS: readonly {
 type ActivationPanelProps = {
   run: IndexingRun | null;
   readiness: IndexingRetrievalReadiness | null;
+  readinessError?: string | null;
   lexicalFallbackPolicy: string;
   onPolicyChange: (policy: string) => void;
   activationBusy: boolean;
@@ -35,6 +36,7 @@ const POLICY_LABEL_ID = "activation-policy-label";
 export function ActivationPanel({
   run,
   readiness,
+  readinessError = null,
   lexicalFallbackPolicy,
   onPolicyChange,
   activationBusy,
@@ -126,6 +128,11 @@ export function ActivationPanel({
                 ))}
               </ul>
             ) : null}
+          </div>
+        ) : readinessError ? (
+          <div className="notice notice-danger" role="alert">
+            <AlertCircle size={16} />
+            <span>{readinessError}</span>
           </div>
         ) : null}
 

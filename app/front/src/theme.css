@@ -29,17 +29,22 @@
   --accent-warm: #f6f2ff;
   --accent-wash: rgba(79, 91, 213, 0.12);
 
-  /* Estados: nunca se usan como color de marca */
+  /* Estados: nunca se usan como color de marca. Cada estado tiene relleno suave,
+     tinta legible y BORDE del mismo tono para que los chips sean vívidos y
+     escaneables (color + texto, nunca solo color). */
   --success: #007c78;
   --success-soft: #e0f4f1;
   --success-border: #82c7c2;
   --success-ink: #00615d;
   --warning: #c87500;
   --warning-soft: #fff2d6;
+  --warning-border: #f1cf8d;
   --warning-ink: #8b5600;
   --neutral-soft: #eef2f5;
+  --neutral-border: #d6dee4;
   --neutral-ink: #536371;
   --danger: #d33b3b;
   --danger-soft: #ffe4e4;
+  --danger-border: #e5bcbc;
   --danger-ink: #c52727;
 }
