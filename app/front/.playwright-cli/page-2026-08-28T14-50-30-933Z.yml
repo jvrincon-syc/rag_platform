@@ -1,0 +1,35 @@
+- generic [ref=f1e3]:
+  - complementary [ref=f1e19]:
+    - generic [ref=f1e20]: RAG Platform
+    - navigation "Superficies de operador" [ref=f1e26]:
+      - button "Platform" [ref=f1e27] [cursor=pointer]
+      - button "Legacy pipeline" [ref=f1e34] [cursor=pointer]
+    - generic [ref=f1e40]:
+      - generic [ref=f1e41]:
+        - generic [ref=f1e42]: Sesión
+        - strong [ref=f1e43]: prueba3
+        - generic [ref=f1e44]: Todos los proyectos
+      - button "Cerrar sesión" [ref=f1e45] [cursor=pointer]
+  - generic [ref=f1e50]:
+    - generic [ref=f1e51]:
+      - navigation "Vista de plataforma" [ref=f1e52]:
+        - button "Projects" [ref=f1e53] [cursor=pointer]
+        - button "Operacion" [ref=f1e54] [cursor=pointer]
+        - button "Revision" [ref=f1e55] [cursor=pointer]
+        - button "Inventario" [ref=f1e56] [cursor=pointer]
+        - button "Chunking" [ref=f1e57] [cursor=pointer]
+        - button "Embedding/Indexing" [ref=f1e58] [cursor=pointer]
+        - button "RAG / Releases" [active] [ref=f1e59] [cursor=pointer]
+      - generic "Proyecto activo" [ref=f1e60]:
+        - strong [ref=f1e62]: SST General
+    - main [ref=f1e265]:
+      - generic [ref=f1e266]:
+        - generic [ref=f1e267]:
+          - heading "Ciclo de vida de releases" [level=1] [ref=f1e268]
+          - paragraph [ref=f1e269]: De un draft (variante + snapshot + binding lógico) a build, validación, publicación y retiro. El backend resuelve la receta; React nunca orquesta chunking/embedding/indexing legacy.
+        - button "Actualizar" [ref=f1e271] [cursor=pointer]
+      - status [ref=f1e277]:
+        - generic [ref=f1e282]: HTTP 500
+      - generic [ref=f1e284]:
+        - alert [ref=f1e287]: HTTP 500
+        - button "Reintentar" [ref=f1e288] [cursor=pointer]

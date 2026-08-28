@@ -1,0 +1,12 @@
+- main [ref=f3e4]:
+  - complementary [ref=f3e5]:
+    - generic [ref=f3e6]:
+      - generic [ref=f3e7]: chatbot·sst
+      - paragraph [ref=f3e8]: Consola interna para construir, comparar y publicar releases RAG por proyecto.
+      - generic [ref=f3e9]: project → variant → release
+  - region "Acceso de operador" [ref=f3e10]:
+    - generic [ref=f3e11]:
+      - generic [ref=f3e12]:
+        - heading "Consola de operador" [level=1] [ref=f3e13]
+        - paragraph [ref=f3e14]: Entra para administrar proyectos, variantes y releases.
+      - generic [ref=f3e15]: Comprobando sesión…

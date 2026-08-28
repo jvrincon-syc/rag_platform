@@ -75,6 +75,7 @@ class JsonlLogger:
             "metrics": sanitize_observability_payload(metrics or {}),
             "attributes": sanitize_observability_payload(attributes or {}),
         }
+        self.path.parent.mkdir(parents=True, exist_ok=True)
         with self.path.open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(payload, ensure_ascii=False) + "\n")
 

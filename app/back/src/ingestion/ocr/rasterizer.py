@@ -65,7 +65,7 @@ def _render_with_pdfium(
             render_options["crop"] = crop
         bitmap = page.render(**render_options)
         image = bitmap.to_pil()
-        temp_root = Path(os.getenv("OCR_TEMP_DIR", ".tmp/ocr"))
+        temp_root = Path(r"C:\Users\jvrincon\Documents\chatbot_sst\chatbot-sst\.tmp\ocr")
         temp_root.mkdir(parents=True, exist_ok=True)
         image_path = temp_root / f"region-{uuid4().hex}.png"
         image.save(image_path, format="PNG")

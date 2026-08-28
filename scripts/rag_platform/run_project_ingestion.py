@@ -66,6 +66,7 @@ from rag_platform.infrastructure.postgres.artifact_catalog_repositories import (
     PostgresRawArtifactCatalogRepository,
 )
 from rag_platform.infrastructure.postgres.document_repositories import (  # noqa: E402
+    PostgresNormalizedArtifactRepository,
     PostgresSourceDocumentRepository,
 )
 from rag_platform.infrastructure.postgres.project_repositories import (  # noqa: E402
@@ -345,6 +346,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         # fuente de la lógica staging/promote/cloud-gating). `--force` reprocesa
         # aunque el hash no cambie para sellar la provenance por el path de plataforma.
         from rag_platform.infrastructure.normalization.run_pipeline_normalizer import (
+            RunPipelineProjectNormalizer,
             execute_normalize_pipeline,
         )
 
@@ -365,6 +367,27 @@ def main(argv: Sequence[str] | None = None) -> int:
         summary["rag_variant_id"] = normalize_plan["rag_variant_id"]
         summary["normalized_root"] = str(normalized_root)
         summary["normalize"] = pipeline_summary
+
+        # Registro del read-model (mismo defecto que tenía el endpoint HTTP antes
+        # de este fix): reabre una conexión corta solo para esto porque
+        # execute_normalize_pipeline corrió con la conexión ya cerrada.
+        register_connection = _connect(dsn)
+        try:
+            with register_connection:
+                RunPipelineProjectNormalizer(
+                    storage, normalized_artifacts=PostgresNormalizedArtifactRepository(register_connection)
+                ).register_normalized(
+                    project=project,
+                    revisions=tuple(
+                        revisions_by_relpath[canonical_relpath(record.source_relpath)]
+                        for record in selected_records
+                    ),
+                    normalized_root=normalized_root,  # type: ignore[arg-type]
+                    processing_profile_fingerprint=fingerprint,
+                )
+        finally:
+            register_connection.close()
+
         _emit(summary, as_json=args.json)
         # Fail-closed: un documento fallido no se reporta como éxito.
         return 1 if pipeline_summary.get("failed") else 0

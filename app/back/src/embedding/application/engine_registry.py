@@ -40,6 +40,7 @@ from indexing.application.embedding_provider import (
 from indexing.domain.models import IndexingProfile
 from indexing.infrastructure.embeddings.bge import (
     BgeEmbeddingProvider,
+    BgeModelCache,
     EmbeddingProviderUnavailableError,
 )
 from indexing.infrastructure.embeddings.factory import DeterministicEmbeddingProvider
@@ -202,6 +203,15 @@ def _bge_revision(provider: EmbeddingProvider) -> str:
 def _hub_snapshot_revision(model_name: str) -> str:
     """Resolve the cached Hugging Face snapshot commit for one model name."""
 
+    # First touch of transformers/huggingface_hub in the whole build request
+    # (runs during get_runtime_status(), before _load_bge_model ever executes)
+    # -- those libraries cache HF_HUB_OFFLINE as a module-level constant read
+    # at THEIR OWN import time, so setting it later (e.g. in bge.py) is too
+    # late once this import has already happened. Must set it here too, on a
+    # box with no reliable route to huggingface.co this otherwise hangs on
+    # AutoConfig.from_pretrained for minutes even with a warm local cache.
+    os.environ.setdefault("HF_HUB_OFFLINE", "1")
+    os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
     try:
         from transformers import AutoConfig
     except ImportError:
@@ -232,6 +242,9 @@ class DefaultEmbeddingEngineRegistry:
 
     environ: Mapping[str, str] | None = None
     allow_mock: bool = False
+    # Shared with the reranker by the composition root so both adapters reuse
+    # one loaded BGE-M3 runtime instead of each loading their own ~2GB copy.
+    bge_model_cache: BgeModelCache | None = None
     _cache: dict[str, EmbeddingEngine] = field(default_factory=dict, init=False)
 
     def resolve_document_engine(self, profile: EmbeddingProfile) -> EmbeddingEngine:
@@ -365,6 +378,7 @@ class DefaultEmbeddingEngineRegistry:
             provider: EmbeddingProvider = BgeEmbeddingProvider(
                 profile=legacy_profile,
                 settings=settings,
+                model_cache=self.bge_model_cache,
             )
             revision_reader = _bge_revision
         elif profile.provider == "voyage":

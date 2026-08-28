@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Hammer, Loader2, Rocket, ShieldCheck, XOctagon } from "lucide-react";
+import { Bot, Hammer, Loader2, Rocket, ShieldCheck, XOctagon } from "lucide-react";
 import type { Release } from "../platformTypes.js";
 
 // Máquina de estados EXACTA (ReleaseState): draft → validated → published → retired,
@@ -40,6 +40,51 @@ export function ReleaseLifecycle({
 
   return (
     <div className="release-lifecycle">
+      <section className="release-focus-card" aria-label="Resumen de la release seleccionada">
+        <div className="release-focus-header">
+          <div className="release-focus-title">
+            <strong>
+              <code>{release.rag_release_id}</code>
+            </strong>
+            <span>
+              {release.rag_variant_id} · release #{release.release_number}
+            </span>
+          </div>
+          <div className="ui-status-row">
+            <span className={`ui-status-chip ${toneForReleaseState(state)}`}>{state}</span>
+            <span className={state === "published" ? "ui-status-chip success" : "ui-status-chip neutral"}>
+              {state === "published" ? "Usable por API chatbot" : "Aún no usable por API chatbot"}
+            </span>
+          </div>
+        </div>
+
+        <dl className="ui-data-grid release-focus-grid">
+          <div>
+            <dt>Variante RAG</dt>
+            <dd>{release.rag_variant_id}</dd>
+          </div>
+          <div>
+            <dt>Snapshot</dt>
+            <dd>{release.corpus_snapshot_id}</dd>
+          </div>
+          <div>
+            <dt>Binding key</dt>
+            <dd>{release.target_binding_key}</dd>
+          </div>
+          <div>
+            <dt>Manifest</dt>
+            <dd>{release.release_manifest_hash ?? "—"}</dd>
+          </div>
+        </dl>
+
+        <p className={state === "published" ? "release-chatbot-note live" : "release-chatbot-note"}>
+          <Bot size={15} aria-hidden="true" />
+          {state === "published"
+            ? "La API chatbot puede responder con esta release cuando el cliente envía este rag_release_id."
+            : 'La API chatbot la bloqueará hasta que esta release llegue a estado "published".'}
+        </p>
+      </section>
+
       <ol className="release-rail" aria-label={`Estado de la release: ${state}`}>
         {RAIL.map((step, index) => {
           const status =
@@ -79,6 +124,19 @@ export function ReleaseLifecycle({
       />
     </div>
   );
+}
+
+function toneForReleaseState(state: string): "neutral" | "warning" | "success" | "danger" {
+  if (state === "validated") {
+    return "warning";
+  }
+  if (state === "published") {
+    return "success";
+  }
+  if (state === "failed") {
+    return "danger";
+  }
+  return "neutral";
 }
 
 function ReleaseActions({

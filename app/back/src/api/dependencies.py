@@ -17,6 +17,15 @@ from pathlib import Path
 from typing import Literal, TYPE_CHECKING
 
 from fastapi import Request, status
+from chatbot.application.service import DispatchChatbotQuestionUseCase
+from chatbot.infrastructure.release_scoped_retrieval import (
+    InMemoryReleaseScopedRetrievalPort,
+    PostgresReleaseScopedRetrievalPort,
+)
+from chatbot.infrastructure.webhook import (
+    ConfiguredChatbotWebhookDispatcher,
+    MissingChatbotWebhookDispatcher,
+)
 from core.api.http import http_error
 from core.consumer_scope import ConsumerScope
 from core.feature_flags import FeatureFlags
@@ -94,6 +103,7 @@ from indexing.infrastructure.postgres.bundle_first import (
     PostgresIndexingRunRepository,
     PsycopgTransactionManager,
 )
+from indexing.infrastructure.embeddings.bge import BgeModelCache
 from indexing.infrastructure.postgres.vector_repository import PostgresVectorRepository
 from retrieval.application.query_embedding_service import QueryEmbeddingService
 from retrieval.application.retrieval_service import (
@@ -105,6 +115,7 @@ from retrieval.application.retrieval_service import (
     SearchRetrievalUseCase,
     ValidateRetrievalUseCase,
 )
+from retrieval.infrastructure.bge_reranker import BgeReranker
 from retrieval.infrastructure.in_memory.repositories import (
     InMemoryLexicalSearch,
     InMemoryParentExpansion,
@@ -117,6 +128,7 @@ from retrieval.infrastructure.postgres.repositories import (
     PostgresRetrievalProfileRepository,
     PostgresVectorSearch,
 )
+from retrieval.reranking import NoOpReranker
 
 
 if TYPE_CHECKING:
@@ -170,6 +182,7 @@ class PipelineServices:
     retrieval_profile_status: GetRetrievalProfileStatusUseCase
     retrieval_validate: ValidateRetrievalUseCase
     retrieval_search: SearchRetrievalUseCase
+    chatbot_dispatch_question: DispatchChatbotQuestionUseCase
     http_authenticator: ConfiguredBearerAuth
     connection: object | None = None
     # RAG platform admin services (Fase 6). Only wired when the
@@ -214,6 +227,7 @@ def build_pipeline_services(
     seed_chunk_bundles: Iterable[ChunkBundleRef] = (),
     lexical_profile_id: str = "",
     http_authenticator: ConfiguredBearerAuth | None = None,
+    chatbot_webhook_dispatcher: object | None = None,
     idempotency_connection: object | None = None,
     build_services_factory: object | None = None,
 ) -> PipelineServices:
@@ -233,8 +247,17 @@ def build_pipeline_services(
     flags = feature_flags or FeatureFlags.from_env()
     scope = consumer_scope or ConsumerScope.from_env()
     authenticator = http_authenticator or ConfiguredBearerAuth(os.environ)
+    webhook_dispatcher = chatbot_webhook_dispatcher or _build_chatbot_webhook_dispatcher(
+        os.environ
+    )
     persistence_mode: PersistenceMode = "postgres" if connection is not None else "memory"
-    registry = DefaultEmbeddingEngineRegistry(allow_mock=allow_mock_engine)
+    # Shared once per process so the query-embedding engine and the reranker
+    # reuse the same loaded BGE-M3 runtime instead of each paying their own
+    # ~13s cold load (see indexing/infrastructure/embeddings/bge.py::BgeModelCache).
+    bge_model_cache = BgeModelCache()
+    registry = DefaultEmbeddingEngineRegistry(
+        allow_mock=allow_mock_engine, bge_model_cache=bge_model_cache
+    )
     artifacts = FilesystemEmbeddingBundleArtifactStore(root=embeddings_root)
     content_reader = FilesystemChunkBundleContentReader(chunks_root=chunks_root)
 
@@ -254,6 +277,7 @@ def build_pipeline_services(
         vector_search: object = InMemoryVectorSearch(vectors=vectors, nodes=nodes)
         lexical_search: object = InMemoryLexicalSearch(nodes=nodes)
         parent_expansion: object = InMemoryParentExpansion(nodes=nodes)
+        reranker: object = NoOpReranker()
     else:
         profiles = PostgresEmbeddingProfileRepository(connection)
         targets = PostgresIndexingTargetRepository(connection)
@@ -273,6 +297,7 @@ def build_pipeline_services(
         vector_search = PostgresVectorSearch(connection)
         lexical_search = PostgresLexicalSearch(connection)
         parent_expansion = PostgresParentExpansion(connection)
+        reranker = BgeReranker(model_cache=bge_model_cache)
 
     readiness_evaluator = EmbeddingIndexingReadinessEvaluator(targets=targets)
     builder = EmbeddingBundleBuilder(
@@ -304,6 +329,7 @@ def build_pipeline_services(
         vector_search=vector_search,
         lexical_search=lexical_search,
         parent_expansion=parent_expansion,
+        reranker=reranker,
     )
     retrieval_readiness = RetrievalReadinessEvaluator(
         retrieval_profiles=retrieval_profiles,
@@ -312,6 +338,27 @@ def build_pipeline_services(
         vector_search=vector_search,
         query_embedding=query_embedding,
     )
+    if connection is None:
+        release_retrieval = InMemoryReleaseScopedRetrievalPort(
+            indexing_runs=indexing_runs,
+            bundles=bundles,
+            profiles=profiles,
+            targets=targets,
+            retrieval_profiles=retrieval_profiles,
+            query_embedding=query_embedding,
+            vectors=vectors,
+            nodes=nodes,
+            reranker=reranker,
+        )
+    else:
+        release_retrieval = PostgresReleaseScopedRetrievalPort(
+            connection=connection,
+            profiles=profiles,
+            targets=targets,
+            retrieval_profiles=retrieval_profiles,
+            query_embedding=query_embedding,
+            reranker=reranker,
+        )
     services = PipelineServices(
         feature_flags=flags,
         consumer_scope=scope,
@@ -414,6 +461,11 @@ def build_pipeline_services(
         retrieval_search=SearchRetrievalUseCase(
             retrieval_profiles=retrieval_profiles,
             search=search,
+        ),
+        chatbot_dispatch_question=DispatchChatbotQuestionUseCase(
+            release_retrieval=release_retrieval,
+            consumer_scope=scope,
+            webhook=webhook_dispatcher,
         ),
         http_authenticator=authenticator,
     )
@@ -801,7 +853,7 @@ def _build_rag_platform_services(
         documents=documents,
         variants=variants,
         processing_profiles=processing,
-        normalizer=RunPipelineProjectNormalizer(storage_roots),
+        normalizer=RunPipelineProjectNormalizer(storage_roots, normalized_artifacts=normalized),
         access_policy=access_policy,
     )
 
@@ -1242,6 +1294,24 @@ def _default_gui_auth_registry_path(chunks_root: Path) -> Path:
     return chunks_root.parent / "docs_normalized" / "_manifests" / "gui_auth_registry.json"
 
 
+def _build_chatbot_webhook_dispatcher(
+    environ: Mapping[str, str],
+) -> MissingChatbotWebhookDispatcher | ConfiguredChatbotWebhookDispatcher:
+    """Build the configured webhook dispatcher, or a fail-closed placeholder."""
+
+    target_url = (environ.get("SST_CHATBOT_WEBHOOK_URL") or "").strip()
+    if not target_url:
+        return MissingChatbotWebhookDispatcher()
+    raw_timeout = (environ.get("SST_CHATBOT_WEBHOOK_TIMEOUT_SECONDS") or "").strip()
+    timeout_seconds = float(raw_timeout) if raw_timeout else 10.0
+    bearer_token = (environ.get("SST_CHATBOT_WEBHOOK_BEARER_TOKEN") or "").strip()
+    return ConfiguredChatbotWebhookDispatcher(
+        target_url=target_url,
+        bearer_token=bearer_token or None,
+        timeout_seconds=timeout_seconds,
+    )
+
+
 def build_pipeline_services_from_env(
     *,
     chunks_root: Path,
@@ -1280,6 +1350,12 @@ def build_pipeline_services_from_env(
         env,
         local_registry_path=_default_gui_auth_registry_path(chunks_root),
     )
+    # Igual que ``http_authenticator``: debe construirse desde ``env`` (con
+    # secrets.env ya mezclado), no delegarse al default de
+    # ``build_pipeline_services`` que lee ``os.environ`` crudo. Si no, el
+    # dispatcher del webhook del chatbot queda fail-closed aun con
+    # SST_CHATBOT_WEBHOOK_URL correctamente configurado en secrets.env.
+    chatbot_webhook_dispatcher = _build_chatbot_webhook_dispatcher(env)
 
     # El worker del build asíncrono (Fase 8 §D-3b) necesita, en Postgres, un bundle
     # con CONEXIÓN PROPIA por build (no compartir la del request). Esta factory abre
@@ -1302,6 +1378,7 @@ def build_pipeline_services_from_env(
         feature_flags=flags,
         allow_mock_engine=allow_mock_engine,
         http_authenticator=http_authenticator,
+        chatbot_webhook_dispatcher=chatbot_webhook_dispatcher,
         idempotency_connection=idempotency_connection,
         build_services_factory=build_services_factory,
     )

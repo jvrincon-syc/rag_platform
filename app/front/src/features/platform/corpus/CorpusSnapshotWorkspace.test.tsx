@@ -257,12 +257,12 @@ describe("CorpusSnapshotWorkspace", () => {
     await user.click(screen.getByRole("button", { name: /Crear snapshot/ }));
 
     await waitFor(() =>
-      expect(readPlatformPreferences().selectedCorpusSnapshotId).toBe("corpus_new"),
+      expect(readPlatformPreferences()!.selectedCorpusSnapshotId).toBe("corpus_new"),
     );
     // El historial se recarga tras crear (segunda llamada al helper plano).
     await waitFor(() => expect(api.listAllCorpusSnapshots.mock.calls.length).toBeGreaterThan(1));
     // No se filtró nada sensible: solo el ID de navegación.
-    const stored = readPlatformPreferences();
+    const stored = readPlatformPreferences()!;
     expect(Object.keys(stored)).not.toContain("manifest_hash");
   });
 
@@ -283,5 +283,19 @@ describe("CorpusSnapshotWorkspace", () => {
     await user.click(screen.getByRole("button", { name: /Crear snapshot/ }));
 
     expect(await screen.findByText(/inválida o pertenece a otro proyecto/)).toBeTruthy();
+  });
+
+  it("un snapshot del historial es clickeable y persiste la selección", async () => {
+    selectProjectInStorage("proj_alpha");
+    api.listAllCorpusSnapshots.mockResolvedValue([
+      makeSnapshot({ corpus_snapshot_id: "corpus_old" }),
+    ]);
+
+    const user = userEvent.setup();
+    renderCorpusSnapshotWorkspace();
+
+    await user.click(await screen.findByText("corpus_old"));
+
+    expect(readPlatformPreferences()!.selectedCorpusSnapshotId).toBe("corpus_old");
   });
 });

@@ -79,6 +79,92 @@
         "title": "Body_upload_project_document_api_platform_projects__project_id__documents_post",
         "type": "object"
       },
+      "ChatbotQuestionDispatchResult": {
+        "additionalProperties": false,
+        "description": "Public HTTP response after dispatching a question to the webhook.",
+        "properties": {
+          "chunks_sent": {
+            "minimum": 0.0,
+            "title": "Chunks Sent",
+            "type": "integer"
+          },
+          "conversation_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conversation Id"
+          },
+          "dispatch_id": {
+            "minLength": 1,
+            "title": "Dispatch Id",
+            "type": "string"
+          },
+          "dispatched_at": {
+            "format": "date-time",
+            "title": "Dispatched At",
+            "type": "string"
+          },
+          "message_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message Id"
+          },
+          "project_id": {
+            "minLength": 1,
+            "title": "Project Id",
+            "type": "string"
+          },
+          "question": {
+            "minLength": 1,
+            "title": "Question",
+            "type": "string"
+          },
+          "rag_release_id": {
+            "minLength": 1,
+            "title": "Rag Release Id",
+            "type": "string"
+          },
+          "rag_variant_id": {
+            "minLength": 1,
+            "title": "Rag Variant Id",
+            "type": "string"
+          },
+          "retrieval_profile_id": {
+            "minLength": 1,
+            "title": "Retrieval Profile Id",
+            "type": "string"
+          },
+          "webhook_status_code": {
+            "maximum": 599.0,
+            "minimum": 100.0,
+            "title": "Webhook Status Code",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "dispatch_id",
+          "project_id",
+          "rag_variant_id",
+          "rag_release_id",
+          "retrieval_profile_id",
+          "question",
+          "chunks_sent",
+          "webhook_status_code"
+        ],
+        "title": "ChatbotQuestionDispatchResult",
+        "type": "object"
+      },
       "ChunkBundleSchema": {
         "additionalProperties": false,
         "description": "Read-only view of one registered chunk bundle.",
@@ -453,6 +539,69 @@
           "variant_slug"
         ],
         "title": "CreateVariantRequestSchema",
+        "type": "object"
+      },
+      "DispatchChatbotQuestionSchema": {
+        "additionalProperties": false,
+        "description": "Request sent by the chatbot edge to resolve one concrete RAG release.",
+        "properties": {
+          "conversation_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conversation Id"
+          },
+          "message_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message Id"
+          },
+          "project_id": {
+            "minLength": 1,
+            "title": "Project Id",
+            "type": "string"
+          },
+          "question": {
+            "minLength": 1,
+            "title": "Question",
+            "type": "string"
+          },
+          "rag_release_id": {
+            "minLength": 1,
+            "title": "Rag Release Id",
+            "type": "string"
+          },
+          "rag_variant_id": {
+            "minLength": 1,
+            "title": "Rag Variant Id",
+            "type": "string"
+          },
+          "top_k": {
+            "default": 10,
+            "maximum": 25.0,
+            "minimum": 1.0,
+            "title": "Top K",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "project_id",
+          "rag_variant_id",
+          "rag_release_id",
+          "question"
+        ],
+        "title": "DispatchChatbotQuestionSchema",
         "type": "object"
       },
       "DocumentTypeSchema": {
@@ -3578,6 +3727,117 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/chatbot/questions": {
+      "post": {
+        "operationId": "dispatch_question_api_chatbot_questions_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DispatchChatbotQuestionSchema"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatbotQuestionDispatchResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeSchema"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeSchema"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeSchema"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeSchema"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeSchema"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeSchema"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeSchema"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeSchema"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Dispatch Question",
+        "tags": [
+          "chatbot"
+        ]
+      }
+    },
     "/api/embedding/bundles/{embedding_bundle_id}": {
       "get": {
         "operationId": "get_bundle_api_embedding_bundles__embedding_bundle_id__get",

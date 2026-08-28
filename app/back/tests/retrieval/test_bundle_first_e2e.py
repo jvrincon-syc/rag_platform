@@ -43,6 +43,15 @@ from pipeline_fixtures import (
 SCOPE_TYPE = "chatbot"
 SCOPE_ID = "sst-default"
 
+#: Distintos entre si (bajo solapamiento de palabras) para que el gate de
+#: contenido complementario del dedup por parent (retrieval/domain/dedup.py)
+#: no colapse los 3 hijos del mismo parent a 1 solo sobreviviente.
+_DISTINCT_CHILD_TEXTS = [
+    "Fire evacuation procedures for the warehouse floor.",
+    "Overtime pay policy for weekend shift workers.",
+    "Vacation request approval workflow for managers.",
+]
+
 
 @pytest.fixture
 def stack(tmp_path: Path):
@@ -62,7 +71,13 @@ def _activate(stack) -> tuple[str, str, str]:
     return bundle_id, run_id, result.retrieval_profile_id
 
 
-def test_e2e_devuelve_evidencia_del_target_correcto(stack) -> None:
+def test_e2e_devuelve_evidencia_del_target_correcto(tmp_path: Path) -> None:
+    # Stack local con hijos textualmente distintos (no la fixture `stack`
+    # compartida, cuyo texto "safety rules" otros tests del archivo
+    # dependen literalmente de encontrar): el gate de contenido
+    # complementario del dedup por parent (retrieval/domain/dedup.py) colapsa
+    # a 1 sobreviviente si los 2 primeros hijos son casi el mismo texto.
+    stack = build_pipeline_stack(tmp_path, child_texts=_DISTINCT_CHILD_TEXTS)
     bundle_id, run_id, retrieval_profile_id = _activate(stack)
 
     retrieval_profile = stack.retrieval_profiles.get(retrieval_profile_id)
@@ -476,12 +491,84 @@ def test_usa_fallback_lexical_solo_cuando_la_politica_lo_permite(stack) -> None:
 
     assert evidence
     assert evidence[0].source == "lexical"
+    assert evidence[0].metadata["retrieval_mode"] == "lexical_fallback"
 
     strict = stack.retrieval_profiles.upsert(
         retrieval_profile.model_copy(update={"lexical_fallback_policy": "never"})
     )
     with pytest.raises(LexicalFallbackNotAllowed):
         stack.search.search(retrieval_profile=strict, query="safety rules")
+
+
+def test_hybrid_sano_invoca_lexical_aun_si_la_politica_es_never(
+    stack,
+    monkeypatch,
+) -> None:
+    _bundle, _run, retrieval_profile_id = _activate(stack)
+    retrieval_profile = stack.retrieval_profiles.upsert(
+        stack.retrieval_profiles.get(retrieval_profile_id).model_copy(
+            update={"lexical_fallback_policy": "never"}
+        )
+    )
+    lexical_queries: list[str] = []
+    original_lexical_search = stack.search._lexical_search.search  # noqa: SLF001
+
+    def _record_lexical_search(**kwargs):
+        lexical_queries.append(kwargs["query"])
+        return original_lexical_search(**kwargs)
+
+    monkeypatch.setattr(
+        stack.search._lexical_search,  # noqa: SLF001
+        "search",
+        _record_lexical_search,
+    )
+
+    evidence = stack.search.search(
+        retrieval_profile=retrieval_profile,
+        query="safety rules",
+        top_k=3,
+    )
+
+    assert evidence
+    assert lexical_queries == ["safety rules"]
+    assert evidence[0].metadata["retrieval_mode"] == "hybrid"
+
+
+def test_vector_sano_y_falla_lexical_degrada_sin_rotular_fallback(
+    stack,
+    monkeypatch,
+) -> None:
+    _bundle, _run, retrieval_profile_id = _activate(stack)
+    retrieval_profile = stack.retrieval_profiles.upsert(
+        stack.retrieval_profiles.get(retrieval_profile_id).model_copy(
+            update={"lexical_fallback_policy": "never"}
+        )
+    )
+
+    def _explode_lexical(**_kwargs):
+        raise RuntimeError("fts unavailable")
+
+    monkeypatch.setattr(
+        stack.search._lexical_search,  # noqa: SLF001
+        "search",
+        _explode_lexical,
+    )
+
+    evidence = stack.search.search(
+        retrieval_profile=retrieval_profile,
+        query="safety rules",
+        top_k=3,
+    )
+
+    assert evidence
+    assert all(item.source == "vector" for item in evidence)
+    assert evidence[0].metadata["retrieval_mode"] == "vector_only_degraded"
+    assert evidence[0].metadata["degraded_reason"] == "lexical_hybrid_unavailable"
+    assert "lexical_fallback" not in str(evidence[0].metadata["retrieval_mode"])
+    assert (
+        stack.retrieval_profiles.get(retrieval_profile.retrieval_profile_id).last_runtime_status
+        == "failed"
+    )
 
 
 def test_hybrid_search_solicita_un_pool_mayor_antes_de_fusionar(

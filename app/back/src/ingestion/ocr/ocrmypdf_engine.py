@@ -33,13 +33,12 @@ class OcrMyPdfEngine:
         runner: Callable = subprocess.run,
         text_extractor=None,
     ) -> None:
-        self.ocrmypdf_cmd = ocrmypdf_cmd or os.getenv("OCRMYPDF_CMD", "ocrmypdf")
-        self.tesseract_cmd = tesseract_cmd or os.getenv("TESSERACT_CMD", "tesseract")
-        self.language = language or os.getenv("TESSERACT_LANGUAGE", "spa")
-        configured_temp_dir = os.getenv("OCR_TEMP_DIR")
-        self.temp_dir = temp_dir or (Path(configured_temp_dir) if configured_temp_dir else None)
+        self.ocrmypdf_cmd = ocrmypdf_cmd or r"C:\Users\jvrincon\Documents\chatbot_sst\chatbot-sst\.venv_windows_trabajo\Scripts\ocrmypdf.exe"
+        self.tesseract_cmd = tesseract_cmd or r"C:\Users\jvrincon\AppData\Local\Programs\Tesseract-OCR\tesseract.exe"
+        self.language = language or "spa"
+        self.temp_dir = temp_dir or Path(r"C:\Users\jvrincon\Documents\chatbot_sst\chatbot-sst\.tmp\ocr")
         self.keep_temporary = keep_temporary
-        self.timeout_seconds = timeout_seconds or int(os.getenv("OCR_TIMEOUT_SECONDS", "180"))
+        self.timeout_seconds = timeout_seconds or 180
         self.runner = runner
         self.text_extractor = text_extractor
         self.engine_version = "unknown"

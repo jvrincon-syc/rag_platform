@@ -18,6 +18,11 @@ export function ProjectWorkspace() {
           <p>Administración de proyectos y su configuración versionada.</p>
         </div>
         <div className="topbar-actions">
+          {workspace.selectedProject && (
+            <span className="ui-pill" aria-label="Proyecto seleccionado">
+              {workspace.selectedProject.display_name}
+            </span>
+          )}
           <button
             className="ghost-button"
             type="button"

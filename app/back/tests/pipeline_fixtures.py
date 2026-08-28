@@ -142,6 +142,7 @@ def write_chunk_bundle(
     base_relpath: str = "unit/example",
     source_relpath: str = "unit/example.md",
     child_text_template: str = "Child chunk number {index} about safety rules.",
+    child_texts: list[str] | None = None,
     parent_text: str = "Parent text for the unit corpus.",
     page_start: int = 1,
     bundle_seed: str = "bundle",
@@ -178,7 +179,7 @@ def write_chunk_bundle(
             "profile_id": "local-structural-v1",
             "ordinal": index,
             "context_prefix": "Section 1",
-            "text": child_text_template.format(index=index),
+            "text": child_texts[index] if child_texts is not None else child_text_template.format(index=index),
             "source_span": {
                 "page_start": page_start,
                 "page_end": page_start,
@@ -304,12 +305,16 @@ class PipelineStack:
         return completed.run_id
 
 
-def build_pipeline_stack(root: Path, *, child_count: int = 3) -> PipelineStack:
+def build_pipeline_stack(
+    root: Path, *, child_count: int = 3, child_texts: list[str] | None = None
+) -> PipelineStack:
     """Wire the whole bundle-first pipeline on in-memory adapters."""
 
     profile = build_profile()
     target = build_target()
-    chunk_bundle = write_chunk_bundle(root / "chunks", child_count=child_count)
+    chunk_bundle = write_chunk_bundle(
+        root / "chunks", child_count=child_count, child_texts=child_texts
+    )
 
     profiles = InMemoryEmbeddingProfileRepository([profile])
     chunk_bundles = InMemoryChunkBundleRepository([chunk_bundle])

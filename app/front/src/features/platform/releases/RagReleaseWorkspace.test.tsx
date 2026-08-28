@@ -7,6 +7,8 @@ import { PlatformProjectProvider } from "../PlatformProjectContext.js";
 import { writePlatformPreferences } from "../platformPersistence.js";
 import { DEFAULT_PLATFORM_PREFERENCES } from "../platformState.js";
 import * as platformApi from "../platformApi.js";
+import * as retrievalApi from "../../retrieval/retrievalApi.js";
+import type { RetrievalValidationResult } from "../../retrieval/retrievalTypes.js";
 import type {
   CorpusSnapshot,
   ProjectConfiguration,
@@ -34,7 +36,17 @@ vi.mock("../platformApi.js", () => ({
   retireRelease: vi.fn(),
 }));
 
+// Panel de retrieval (global, ADR-006): endpoints legacy `/api/retrieval/*`
+// mockeados aparte de `platformApi`, nunca ligados a una release.
+vi.mock("../../retrieval/retrievalApi.js", () => ({
+  loadRetrievalProfiles: vi.fn(),
+  loadRetrievalProfileStatus: vi.fn(),
+  validateRetrievalProfile: vi.fn(),
+  searchRetrieval: vi.fn(),
+}));
+
 const api = vi.mocked(platformApi);
+const retrieval = vi.mocked(retrievalApi);
 
 function makeVariant(overrides: Partial<Variant> = {}): Variant {
   return {
@@ -148,6 +160,48 @@ beforeEach(() => {
   api.validateRelease.mockResolvedValue(makeRelease({ state: "validated" }));
   api.publishRelease.mockResolvedValue(makeRelease({ state: "published" }));
   api.retireRelease.mockResolvedValue(makeRelease({ state: "retired", reason: "obsoleta" }));
+  retrieval.loadRetrievalProfiles.mockResolvedValue({
+    items: [],
+    page: 1,
+    pageSize: 25,
+    totalItems: 0,
+    totalPages: 0,
+  });
+  retrieval.loadRetrievalProfileStatus.mockResolvedValue({
+    profile: {
+      retrievalProfileId: "retrieval-profile-abc",
+      consumerScopeType: "tenant",
+      consumerScopeId: "sst",
+      corpusVersion: "corpus-1",
+      embeddingProfileId: "local-bge-m3-v1",
+      indexingTargetId: "target-local",
+      lexicalFallbackPolicy: "allowed_when_vector_unavailable",
+      active: true,
+      validationStatus: "passed",
+      validatedAt: "2026-01-01T00:00:00Z",
+      lastRuntimeStatus: "healthy",
+      createdAt: "2026-01-01T00:00:00Z",
+      deprecatedAt: null,
+    },
+    runtime: {
+      retrievalProfileId: "retrieval-profile-abc",
+      embeddingProfileId: "local-bge-m3-v1",
+      indexingTargetId: "target-local",
+      queryEngineAvailable: true,
+      engineRevisionObserved: "5617a9f",
+      vectorRetrievalEnabled: true,
+      lexicalFallbackAllowed: false,
+      blockedReason: null,
+    },
+    readiness: {
+      retrievalProfileId: "retrieval-profile-abc",
+      ready: true,
+      activeVectorRows: 42,
+      activeDocumentCount: 7,
+      embeddingBundleId: "bundle-1",
+      blockingReasons: [],
+    },
+  });
 });
 
 describe("RagReleaseWorkspace", () => {
@@ -257,13 +311,30 @@ describe("RagReleaseWorkspace", () => {
     expect(screen.queryByText("Revisiones construidas")).toBeNull();
   });
 
+  it("(b4) seleccionar una release ya construida muestra su informe sin pedir un build nuevo", async () => {
+    // Bug reportado: el informe quedaba en "idle" para cualquier release que no
+    // se hubiera construido en la sesión actual del navegador, aunque el server
+    // ya tuviera un build succeeded real -- la release parecía no seleccionable.
+    selectInStorage("proj_alpha", "rel_1");
+    api.listAllReleases.mockResolvedValue([makeRelease()]);
+    // getReleaseBuildStatus ya resuelve "succeeded" por el beforeEach (histórico).
+    renderRagReleaseWorkspace();
+
+    expect(await screen.findByText("Revisiones construidas")).toBeTruthy();
+    expect(screen.getByText("Etapas construidas")).toBeTruthy();
+    // Ver el histórico no es "acabar de construir": no debe encolar ni disparar
+    // el aviso de éxito de una acción que el usuario nunca pidió.
+    expect(api.buildRelease).not.toHaveBeenCalled();
+    expect(screen.queryByText(/Build completado/)).toBeNull();
+  });
+
   it("(c) ofrece solo las acciones válidas por estado", async () => {
     // draft → Build + Validate; no Publicar/Retirar.
     selectInStorage("proj_alpha", "rel_1");
     api.listAllReleases.mockResolvedValue([makeRelease({ state: "draft" })]);
     const draft = renderRagReleaseWorkspace();
     expect(await screen.findByRole("button", { name: /Construir \(build\)/ })).toBeTruthy();
-    expect(screen.getByRole("button", { name: /Validar/ })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /^Validar$/ })).toBeTruthy();
     expect(screen.queryByRole("button", { name: /Publicar/ })).toBeNull();
     expect(screen.queryByRole("button", { name: /Retirar/ })).toBeNull();
     draft.unmount();
@@ -274,7 +345,7 @@ describe("RagReleaseWorkspace", () => {
     expect(await screen.findByRole("button", { name: /Publicar/ })).toBeTruthy();
     expect(screen.getByRole("button", { name: /Retirar/ })).toBeTruthy();
     expect(screen.queryByRole("button", { name: /Construir \(build\)/ })).toBeNull();
-    expect(screen.queryByRole("button", { name: /Validar/ })).toBeNull();
+    expect(screen.queryByRole("button", { name: /^Validar$/ })).toBeNull();
     validated.unmount();
 
     // published → solo Retirar.
@@ -296,8 +367,10 @@ describe("RagReleaseWorkspace", () => {
     expect(await screen.findByText(/Conflicto de clave de idempotencia/)).toBeTruthy();
     // No hay reintento automático: la acción se llamó exactamente una vez.
     expect(api.buildRelease).toHaveBeenCalledTimes(1);
-    // El encolado falló: no se arranca el polling (fail-closed, sin éxito aparente).
-    expect(api.getReleaseBuildStatus).not.toHaveBeenCalled();
+    // Al seleccionar la release se siembra su build-status una vez (para mostrar
+    // el informe si ya tenía un build previo); el encolado fallido no debe sumar
+    // otra consulta encima de esa siembra inicial (fail-closed, sin éxito aparente).
+    expect(api.getReleaseBuildStatus).toHaveBeenCalledTimes(1);
   });
 
   it("(e) 409 INVALID_RELEASE_TRANSITION: refetch de la release", async () => {
@@ -308,7 +381,7 @@ describe("RagReleaseWorkspace", () => {
     const user = userEvent.setup();
     renderRagReleaseWorkspace();
 
-    await user.click(await screen.findByRole("button", { name: /Validar/ }));
+    await user.click(await screen.findByRole("button", { name: /^Validar$/ }));
 
     await waitFor(() => expect(api.getRelease).toHaveBeenCalledWith("rel_1"));
   });
@@ -375,5 +448,184 @@ describe("RagReleaseWorkspace", () => {
     ).toBeTruthy();
     expect(api.listAllReleases).not.toHaveBeenCalled();
     expect(api.getConfiguration).not.toHaveBeenCalled();
+  });
+
+  it("(h) retrieval se muestra como diagnostico global, no ligado a la release", async () => {
+    selectInStorage("proj_alpha", "rel_1");
+    api.listAllReleases.mockResolvedValue([makeRelease()]);
+    retrieval.loadRetrievalProfiles.mockResolvedValue({
+      items: [
+        {
+          retrievalProfileId: "retrieval-profile-abc",
+          consumerScopeType: "tenant",
+          consumerScopeId: "sst",
+          corpusVersion: "corpus-1",
+          embeddingProfileId: "local-bge-m3-v1",
+          indexingTargetId: "target-local",
+          lexicalFallbackPolicy: "allowed_when_vector_unavailable",
+          active: true,
+          validationStatus: "passed",
+          validatedAt: "2026-01-01T00:00:00Z",
+          lastRuntimeStatus: "healthy",
+          createdAt: "2026-01-01T00:00:00Z",
+          deprecatedAt: null,
+        },
+      ],
+      page: 1,
+      pageSize: 25,
+      totalItems: 1,
+      totalPages: 1,
+    });
+    const user = userEvent.setup();
+    renderRagReleaseWorkspace();
+
+    expect(
+      await screen.findByText(/nunca lo activa ni lo cambia/),
+    ).toBeTruthy();
+    await user.click(await screen.findByRole("button", { name: /retrieval-profile-abc/ }));
+    await waitFor(() =>
+      expect(retrieval.loadRetrievalProfileStatus).toHaveBeenCalledWith("retrieval-profile-abc"),
+    );
+  });
+
+  it("agrupa las releases por variante y marca cuales ya son usables por la API chatbot", async () => {
+    selectInStorage("proj_alpha", "rel_2");
+    api.listAllVariants.mockResolvedValue([
+      makeVariant({ rag_variant_id: "var_alpha", state: "buildable" }),
+      makeVariant({ rag_variant_id: "var_beta", state: "buildable" }),
+    ]);
+    api.listAllReleases.mockResolvedValue([
+      makeRelease({
+        rag_release_id: "rel_1",
+        rag_variant_id: "var_alpha",
+        state: "draft",
+        release_number: 1,
+      }),
+      makeRelease({
+        rag_release_id: "rel_2",
+        rag_variant_id: "var_alpha",
+        state: "published",
+        release_number: 2,
+        release_manifest_hash: "sha256:rel-2",
+      }),
+      makeRelease({
+        rag_release_id: "rel_3",
+        rag_variant_id: "var_beta",
+        state: "published",
+        release_number: 1,
+        release_manifest_hash: "sha256:rel-3",
+      }),
+    ]);
+
+    renderRagReleaseWorkspace();
+
+    expect(await screen.findByText("Mapa RAG del proyecto")).toBeTruthy();
+    expect(screen.getAllByText("var_alpha").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("var_beta").length).toBeGreaterThanOrEqual(1);
+    expect(
+      screen.getByText(/La API chatbot no elige una release activa global/i),
+    ).toBeTruthy();
+    expect(screen.getAllByText(/Usable por API chatbot/i).length).toBeGreaterThanOrEqual(2);
+    expect(
+      screen.getByText(/La API chatbot puede responder con esta release/i),
+    ).toBeTruthy();
+  });
+
+  it("(i) retrieval no aplica una validacion tardia al perfil equivocado tras cambiar de seleccion", async () => {
+    selectInStorage("proj_alpha", "rel_1");
+    api.listAllReleases.mockResolvedValue([makeRelease()]);
+    const profileA = {
+      retrievalProfileId: "retrieval-profile-a",
+      consumerScopeType: "tenant",
+      consumerScopeId: "sst",
+      corpusVersion: "corpus-1",
+      embeddingProfileId: "local-bge-m3-v1",
+      indexingTargetId: "target-local",
+      lexicalFallbackPolicy: "allowed_when_vector_unavailable",
+      active: true,
+      validationStatus: "passed",
+      validatedAt: "2026-01-01T00:00:00Z",
+      lastRuntimeStatus: "healthy",
+      createdAt: "2026-01-01T00:00:00Z",
+      deprecatedAt: null,
+    };
+    const profileB = { ...profileA, retrievalProfileId: "retrieval-profile-b", active: false };
+    retrieval.loadRetrievalProfiles.mockResolvedValue({
+      items: [profileA, profileB],
+      page: 1,
+      pageSize: 25,
+      totalItems: 2,
+      totalPages: 1,
+    });
+    // La validacion de A queda pendiente hasta que el test la resuelva a mano,
+    // simulando que sigue en vuelo cuando el operador ya cambio de perfil.
+    let resolveValidateA: (value: RetrievalValidationResult) => void = () => {};
+    retrieval.validateRetrievalProfile.mockImplementation((profileId: string) => {
+      if (profileId === "retrieval-profile-a") {
+        return new Promise<RetrievalValidationResult>((resolve) => {
+          resolveValidateA = resolve;
+        });
+      }
+      return Promise.resolve({
+        retrievalProfileId: profileId,
+        status: "passed",
+        validatorVersion: "retrieval-validator-v1",
+        queryDimension: 1024,
+        candidatesFound: 3,
+        blockingReasons: [],
+      });
+    });
+
+    const user = userEvent.setup();
+    renderRagReleaseWorkspace();
+
+    await user.click(await screen.findByRole("button", { name: /retrieval-profile-a/ }));
+    await user.click(await screen.findByRole("button", { name: /^Validar perfil$/ }));
+    expect(retrieval.validateRetrievalProfile).toHaveBeenCalledWith("retrieval-profile-a");
+
+    // Cambia de perfil ANTES de que la validacion de A resuelva.
+    await user.click(await screen.findByRole("button", { name: /retrieval-profile-b/ }));
+
+    // La validacion tardia de A resuelve ahora, con B ya seleccionado.
+    resolveValidateA({
+      retrievalProfileId: "retrieval-profile-a",
+      status: "failed",
+      validatorVersion: "retrieval-validator-v1",
+      queryDimension: null,
+      candidatesFound: 0,
+      blockingReasons: ["NO_ACTIVE_VECTOR_ROWS"],
+    });
+
+    // El resultado de A nunca debe pintarse como si fuera de B.
+    await waitFor(() => expect(retrieval.loadRetrievalProfileStatus).toHaveBeenCalledWith("retrieval-profile-b"));
+    expect(screen.queryByText("NO_ACTIVE_VECTOR_ROWS")).toBeNull();
+  });
+
+  it("(j) un fallo al cargar releases no oculta el diagnostico de retrieval (independiente)", async () => {
+    selectInStorage("proj_alpha");
+    api.listAllReleases.mockRejectedValue({ status: 500, code: "INTERNAL" });
+
+    renderRagReleaseWorkspace();
+
+    expect(await screen.findByText(/HTTP 500|Reintentar/)).toBeTruthy();
+    expect(
+      await screen.findByText(/nunca lo activa ni lo cambia/),
+    ).toBeTruthy();
+    expect(retrieval.loadRetrievalProfiles).toHaveBeenCalled();
+  });
+
+  it("(k) reintentar tras un fallo retira el aviso HTTP 500 al cargar bien", async () => {
+    selectInStorage("proj_alpha");
+    api.listAllReleases.mockRejectedValueOnce({ status: 500, code: "INTERNAL" });
+    api.listAllReleases.mockResolvedValueOnce([]);
+    const user = userEvent.setup();
+    renderRagReleaseWorkspace();
+
+    const errorText = /Ocurrio un error inesperado en el pipeline/;
+    expect((await screen.findAllByText(errorText)).length).toBeGreaterThan(0);
+    await user.click(await screen.findByRole("button", { name: /Reintentar/ }));
+
+    await waitFor(() => expect(screen.queryAllByText(errorText).length).toBe(0));
+    expect(await screen.findByRole("button", { name: /Crear draft/i })).toBeTruthy();
   });
 });

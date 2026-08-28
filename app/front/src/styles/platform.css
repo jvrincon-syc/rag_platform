@@ -30,10 +30,12 @@
 }
 
 .platform-fieldset legend {
-  color: var(--accent-ink);
-  font-size: 12px;
+  color: var(--muted);
+  font-size: 11px;
   font-weight: 760;
+  letter-spacing: 0.02em;
   padding: 0 4px;
+  text-transform: uppercase;
 }
 
 .platform-row {
@@ -460,6 +462,79 @@ button.ui-list-item {
   }
 }
 
+/* --- Retrieval diagnostics (hospedado en RAG/Releases) ------------------ */
+/* Zona propia y "apagada" (fondo neutral, no --panel blanco) para que se lea
+   como contexto secundario, nunca como parte del ciclo de vida de la release
+   que esta arriba (ADR-006: build/publish nunca toca retrieval). La rejilla
+   da protagonismo a Estado (la pregunta real: "¿esta sano?") y a Busqueda
+   (resultados largos); Perfiles y Validacion quedan compactos al lado. */
+.retrieval-diagnostics {
+  background: var(--neutral-soft);
+  border: 1px solid var(--neutral-border);
+  border-radius: 14px;
+  display: grid;
+  gap: 18px;
+  padding: 20px;
+}
+
+.retrieval-diagnostics-heading {
+  display: grid;
+  gap: 8px;
+  max-width: 640px;
+}
+
+.retrieval-diagnostics-heading h2 {
+  font-size: 18px;
+  line-height: 1.25;
+}
+
+.retrieval-diagnostics-heading p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.retrieval-diagnostics-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-areas:
+    "profiles status"
+    "validation search";
+  grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+}
+
+.retrieval-diagnostics-profiles {
+  grid-area: profiles;
+  min-width: 0;
+}
+
+.retrieval-diagnostics-status {
+  grid-area: status;
+  min-width: 0;
+}
+
+.retrieval-diagnostics-validation {
+  grid-area: validation;
+  min-width: 0;
+}
+
+.retrieval-diagnostics-search {
+  grid-area: search;
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .retrieval-diagnostics-grid {
+    grid-template-areas:
+      "profiles"
+      "status"
+      "validation"
+      "search";
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 /* Resumen de intake: tiles de procedencia (reusa MetricCard). Grid responsive. */
 .document-summary {
   display: grid;
@@ -480,4 +555,385 @@ button.ui-list-item {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+}
+
+/* --- Projects view: dynamic corporate redesign -------------------------- */
+/* Bold color-coded sections, enterprise hierarchy. All tokens from theme. */
+
+.project-list {
+  display: grid;
+  gap: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+button.project-card {
+  align-items: start;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--accent);
+  border-radius: 10px;
+  color: var(--text);
+  cursor: pointer;
+  display: grid;
+  gap: 10px;
+  padding: 16px 16px 14px;
+  text-align: left;
+  font: inherit;
+  width: 100%;
+  box-shadow: 0 1px 4px rgba(22, 32, 42, 0.07);
+  transition:
+    border-color 0.18s ease,
+    border-left-color 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease,
+    transform 0.12s ease;
+}
+
+button.project-card:hover {
+  border-color: var(--accent-border);
+  border-left-color: var(--accent);
+  box-shadow: 0 6px 20px rgba(79, 91, 213, 0.12);
+  transform: translateY(-2px);
+}
+
+button.project-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+button.project-card.active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  border-left: 4px solid var(--accent);
+  box-shadow: 0 4px 16px rgba(79, 91, 213, 0.16), inset 0 0 0 1px var(--accent-border);
+}
+
+.project-card-header {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.project-card-name {
+  color: var(--accent-ink);
+  font-size: 15px;
+  font-weight: 720;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.project-card-slug {
+  color: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.01em;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.project-card-meta {
+  align-items: center;
+  color: var(--muted);
+  display: flex;
+  font-size: 11px;
+  gap: 6px;
+  line-height: 1.35;
+  padding-top: 2px;
+  border-top: 1px solid var(--line);
+}
+
+.project-card-meta .dot {
+  color: var(--line-strong);
+}
+
+/* State badges: vivid colored pills — enterprise scannable. */
+.project-state {
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 760;
+  letter-spacing: 0.02em;
+  padding: 3px 10px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.project-state.active {
+  background: var(--success-soft);
+  border: 1px solid var(--success-border);
+  color: var(--success-ink);
+}
+
+.project-state.error {
+  background: var(--danger-soft);
+  border: 1px solid var(--danger-border);
+  color: var(--danger-ink);
+}
+
+.project-state.pending {
+  background: var(--warning-soft);
+  border: 1px solid var(--warning-border);
+  color: var(--warning-ink);
+}
+
+/* Create form: accent-bordered section. */
+.platform-create-form {
+  background: var(--accent-warm);
+  border: 1px solid var(--accent-line);
+  border-left: 4px solid var(--accent);
+  border-radius: 10px;
+  display: grid;
+  gap: 14px;
+  padding: 16px 16px 14px;
+}
+
+/* --- Configuration detail: color-coded enterprise sections --------------- */
+/* Each config section gets its own color identity for instant recognition. */
+
+.platform-config .platform-fieldset {
+  background: var(--panel-soft);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.platform-config .platform-fieldset legend {
+  color: var(--accent-ink);
+  font-size: 11px;
+  font-weight: 760;
+  letter-spacing: 0.03em;
+  padding: 0 6px;
+  text-transform: uppercase;
+}
+
+.platform-config .ui-list.compact {
+  gap: 8px;
+}
+
+.platform-config .platform-row {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  gap: 10px;
+}
+
+/* Document types fieldset: teal accent. */
+.platform-fieldset:has(legend) {
+  position: relative;
+}
+
+.platform-fieldset:has(legend)::before {
+  content: "";
+  border-radius: 10px 10px 0 0;
+  height: 3px;
+  margin: -14px -14px 0;
+  position: absolute;
+  width: calc(100% + 28px);
+}
+
+/* Embedding profiles fieldset: purple accent. */
+.platform-fieldset:has(+ .platform-fieldset) {
+  border-color: var(--accent-border);
+}
+
+.platform-bindings {
+  background: var(--accent-warm);
+  border: 1px solid var(--accent-line);
+  border-radius: 10px;
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+}
+
+.platform-bindings > .ui-field {
+  color: var(--accent-ink);
+  font-size: 12px;
+}
+
+/* Platform topbar: bold corporate header. */
+.platform-workspace .topbar {
+  gap: 16px;
+}
+
+.platform-workspace .topbar h1 {
+  font-size: 20px;
+  font-weight: 760;
+}
+
+.platform-workspace .topbar p {
+  margin-top: 4px;
+}
+
+/* --- Release workspace clarity refresh --------------------------------- */
+
+.release-overview-metrics {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.release-overview-metrics dt {
+  align-items: center;
+  display: inline-flex;
+  gap: 6px;
+}
+
+.release-overview-note {
+  line-height: 1.45;
+  margin: 0;
+}
+
+.release-overview-note code {
+  font-size: 12px;
+}
+
+.release-history-groups {
+  display: grid;
+  gap: 14px;
+}
+
+.release-variant-card {
+  background:
+    linear-gradient(180deg, rgba(79, 91, 213, 0.06) 0%, rgba(255, 255, 255, 0) 72%),
+    #ffffff;
+  border: 1px solid var(--accent-line);
+  border-radius: 12px;
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+}
+
+.release-variant-card-header {
+  display: grid;
+  gap: 10px;
+}
+
+.release-variant-card-header p {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+  margin: 4px 0 0;
+}
+
+.release-variant-title {
+  align-items: center;
+  color: var(--accent-ink);
+  display: inline-flex;
+  gap: 8px;
+}
+
+.release-variant-title strong {
+  font-size: 13px;
+}
+
+.release-variant-card-stats {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.release-variant-release-list {
+  gap: 10px;
+}
+
+.release-entry-header {
+  align-items: start;
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.release-entry-header .ui-status-row {
+  justify-content: flex-end;
+}
+
+.release-entry-meta {
+  color: var(--muted);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 11px;
+  gap: 10px;
+}
+
+.release-entry-meta code {
+  font-size: 11px;
+}
+
+.release-focus-card {
+  background:
+    linear-gradient(180deg, rgba(79, 91, 213, 0.08) 0%, rgba(255, 255, 255, 0) 72%),
+    var(--panel-soft);
+  border: 1px solid var(--accent-line);
+  border-radius: 12px;
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+}
+
+.release-focus-header {
+  align-items: start;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.release-focus-title {
+  display: grid;
+  gap: 4px;
+}
+
+.release-focus-title strong {
+  color: var(--accent-ink);
+  font-size: 14px;
+}
+
+.release-focus-title span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.release-focus-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.release-chatbot-note {
+  align-items: center;
+  background: var(--neutral-soft);
+  border: 1px solid var(--neutral-border);
+  border-radius: 10px;
+  color: var(--neutral-ink);
+  display: flex;
+  gap: 8px;
+  line-height: 1.45;
+  margin: 0;
+  padding: 10px 11px;
+}
+
+.release-chatbot-note.live {
+  background: var(--success-soft);
+  border-color: var(--success-border);
+  color: var(--success-ink);
+}
+
+@media (max-width: 900px) {
+  .release-overview-metrics,
+  .release-focus-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .release-focus-header,
+  .release-entry-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .release-entry-header .ui-status-row {
+    justify-content: flex-start;
+  }
 }

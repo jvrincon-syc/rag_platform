@@ -45,10 +45,20 @@ def _auth_headers(token: str = AUTH_TOKEN) -> dict[str, str]:
     return {"Authorization": f"Bearer {token}"}
 
 
+#: Distintos entre si (bajo solapamiento de palabras) para que el gate de
+#: contenido complementario del dedup por parent (retrieval/domain/dedup.py)
+#: no colapse los 3 hijos del mismo parent a 1 solo sobreviviente.
+_DISTINCT_CHILD_TEXTS = [
+    "Fire evacuation procedures for the warehouse floor.",
+    "Overtime pay policy for weekend shift workers.",
+    "Vacation request approval workflow for managers.",
+]
+
+
 @pytest.fixture
 def client(tmp_path: Path) -> Iterator[TestClient]:
     profile = build_profile()
-    chunk_bundle = write_chunk_bundle(tmp_path / "chunks")
+    chunk_bundle = write_chunk_bundle(tmp_path / "chunks", child_texts=_DISTINCT_CHILD_TEXTS)
     services = build_pipeline_services(
         chunks_root=tmp_path / "chunks",
         embeddings_root=tmp_path / "embeddings",

@@ -52,8 +52,9 @@ def vector_primary_hybrid_fusion(
     lexical_candidates: list[RetrievedCandidate],
     *,
     k: int = 60,
-    lexical_boost: float = 0.15,
-    rescue_boost: float = 0.10,
+    lexical_boost: float = 0.02,
+    rescue_boost: float = 0.01,
+    vector_rank_ceiling: int = 20,
 ) -> list[RetrievedCandidate]:
     """Vector-primary fusion: dense remains the authority, lexical refines.
 
@@ -63,10 +64,35 @@ def vector_primary_hybrid_fusion(
     3. Lexical-only: rescue candidates with ``rescue_boost``, ranked below
        all vector-backed results.
     4. Lexical-only cannot jump above any vector-backed candidate.
+
+    ``vector_rank_ceiling`` bounds what counts as "vector-backed" for rule 2.
+    The caller typically overfetches a large vector pool (top_k*12) so RRF has
+    enough overlap to work with; a candidate that only shows up near the
+    bottom of that pool is background noise to the embedding, not a real
+    match. Without this cap, that noise ranked #90-of-96 could combine with a
+    single incidental lexical hit and outscore a genuine vector rank-1 match,
+    because summing two RRF terms roughly doubles a score regardless of how
+    deep either rank was (bug: a lone weak lexical hit on an unrelated
+    document reached rank #1 over the document containing the literal
+    answer). Past the ceiling a candidate is treated as absent from the
+    vector lane and falls to the lexical-rescue tier (rule 3/4) instead.
+
+    ponytail: this does not fully separate near-tie cases where BOTH
+    candidates are within the ceiling (e.g. vector rank 4 vs rank 7) --  RRF's
+    rank gap there is often too small to reliably tell "genuinely better
+    vector match" from "weaker match with an incidental keyword overlap"
+    (proved: the two live cases that still misrank this way, q04 and q32 in
+    retrieval_hybrid_live_report.md, have a rank gap numerically identical to
+    a case where the "wrong" pick is actually correct -- q54 -- so no fusion
+    constant can tell them apart). ``RetrievalSearchService`` fixes this
+    downstream with a real reranker pass (``RerankerPort``,
+    ``retrieval/infrastructure/bge_reranker.py``) over the deduped pool
+    before the final top_k cut, not by tuning this function further.
     """
     if not vector_candidates and not lexical_candidates:
         return []
 
+    vector_candidates = vector_candidates[:vector_rank_ceiling]
     lexical_ids = {c.node_id for c in lexical_candidates}
     vector_ids = {c.node_id for c in vector_candidates}
     all_ids = vector_ids | lexical_ids

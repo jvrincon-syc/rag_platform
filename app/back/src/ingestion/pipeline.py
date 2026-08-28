@@ -619,12 +619,10 @@ def _source_path_for_record(record: InventoryRecord, docs_raw: Optional[Path] = 
 
 def _configured_tesseract_engine() -> TesseractEngine:
     return TesseractEngine(
-        tesseract_cmd=os.getenv("TESSERACT_CMD", "tesseract"),
-        language=os.getenv("TESSERACT_LANGUAGE", "spa"),
-        engine_version=os.getenv("TESSERACT_VERSION", "unknown"),
-        low_confidence_threshold=float(
-            os.getenv("OCR_LOW_CONFIDENCE_THRESHOLD", "0.70")
-        ),
+        tesseract_cmd=r"C:\Users\jvrincon\AppData\Local\Programs\Tesseract-OCR\tesseract.exe",
+        language="spa",
+        engine_version="5.4.0.20240606",
+        low_confidence_threshold=0.70,
     )
 
 

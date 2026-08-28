@@ -8,6 +8,7 @@ only answers alone when ``lexical_fallback_policy`` explicitly allows it.
 from __future__ import annotations
 
 import logging
+import time  # PROFTMP
 from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -25,6 +26,7 @@ from indexing.application.bundle_first.ports import IndexingTargetRepository
 from retrieval.application.ports import (
     LexicalSearchPort,
     ParentExpansionPort,
+    RerankerPort,
     RetrievalProfileRepository,
     VectorSearchPort,
 )
@@ -51,6 +53,7 @@ from retrieval.fusion import (
     reciprocal_rank_fusion,
     vector_primary_hybrid_fusion,
 )
+from retrieval.reranking import NoOpReranker
 
 logger = logging.getLogger(__name__)
 
@@ -62,8 +65,17 @@ SMOKE_VALIDATION_QUERY = "validacion sintetica de recuperacion"
 #: DESPUÉS de descartar gemelos y excedentes por párrafo.
 _MIN_HYBRID_CANDIDATE_POOL = 50
 
-#: Máximo de hijos del mismo párrafo que sobreviven al dedup.
+#: Máximo de hijos del mismo párrafo que sobreviven al dedup. El cupo por sí
+#: solo no basta -- ``select_unique_slots`` además exige que el segundo hijo
+#: no sea casi el mismo texto que el primero (ver ``texts``/complementary
+#: gate en retrieval/domain/dedup.py); así un párrafo largo puede aportar 2
+#: fragmentos SOLO si son realmente distintos, no una ventana solapada.
 _MAX_CHILDREN_PER_PARENT = 2
+
+#: Candidatos deduplicados que llegan al reranker antes del corte a top_k.
+#: Con NoOpReranker esto no importa (solo trunca); con un reranker real le da
+#: margen para corregir casi-empates de RRF que la fusión no puede distinguir.
+_RERANK_POOL_SIZE = 30
 
 
 def _now() -> datetime:
@@ -364,6 +376,7 @@ class RetrievalSearchService:
         vector_search: VectorSearchPort,
         lexical_search: LexicalSearchPort,
         parent_expansion: ParentExpansionPort,
+        reranker: RerankerPort | None = None,
     ) -> None:
         self._retrieval_profiles = retrieval_profiles
         self._profiles = profiles
@@ -372,6 +385,7 @@ class RetrievalSearchService:
         self._vector_search = vector_search
         self._lexical_search = lexical_search
         self._parent_expansion = parent_expansion
+        self._reranker = reranker or NoOpReranker()
 
     def search(
         self,
@@ -384,21 +398,27 @@ class RetrievalSearchService:
 
         Hybrid by default: vector and lexical lanes both feed a reciprocal-rank
         fusion, followed by content dedup (md/PDF twins) and a per-parent cap.
-        ``lexical_fallback_policy="never"`` disables the lexical signal entirely.
+        ``lexical_fallback_policy`` only decides whether lexical may answer
+        alone when vector retrieval is unavailable.
 
         Raises:
             RetrievalProfileBlocked: When the lane cannot serve the query and the
                 fallback policy forbids answering lexically.
         """
 
+        _t_resolve = time.perf_counter()  # PROFTMP
         profile = self._query_embedding.resolve_profile(retrieval_profile)
         target = self._targets.get(retrieval_profile.indexing_target_id)
+        print(f"PROFTMP resolve_profile+target={1000*(time.perf_counter()-_t_resolve):.1f}ms")  # PROFTMP
         candidate_pool_size = _hybrid_candidate_pool_size(top_k)
         try:
+            _t = time.perf_counter()  # PROFTMP
             embeddings = self._query_embedding.embed_queries(
                 retrieval_profile=retrieval_profile,
                 queries=[query],
             )
+            print(f"PROFTMP embed_queries={1000*(time.perf_counter()-_t):.1f}ms")  # PROFTMP
+            _t = time.perf_counter()  # PROFTMP
             vector_candidates = self._vector_search.search(
                 project_id=retrieval_profile.project_id,
                 vector_table=target.vector_table,
@@ -409,6 +429,7 @@ class RetrievalSearchService:
                 query_embedding=embeddings[0].vector,
                 top_k=candidate_pool_size,
             )
+            print(f"PROFTMP vector_search={1000*(time.perf_counter()-_t):.1f}ms")  # PROFTMP
         except EmbeddingDomainError as error:
             return self._lexical_only(
                 retrieval_profile=retrieval_profile,
@@ -416,47 +437,65 @@ class RetrievalSearchService:
                 top_k=top_k,
                 reason=error.code,
             )
-        self._retrieval_profiles.record_runtime_status(
-            retrieval_profile_id=retrieval_profile.retrieval_profile_id,
-            last_runtime_status="ok",
-        )
-
         lexical_candidates: list[RetrievedEvidence] = []
-        if retrieval_profile.lexical_fallback_policy != "never":
-            # Señal secundaria: si el FTS falla no debe tumbar la búsqueda
-            # (degradación a vector-only, nunca al revés).
-            try:
-                lexical_candidates = self._lexical_search.search(
-                    project_id=retrieval_profile.project_id,
-                    query=query,
-                    embedding_profile_id=retrieval_profile.embedding_profile_id,
-                    corpus_version=retrieval_profile.corpus_version,
-                    top_k=candidate_pool_size,
-                )
-            except Exception as error:  # noqa: BLE001 - degradación controlada
-                emit_pipeline_event(
-                    logger=logger,
-                    domain=ObservabilityDomain.RETRIEVAL,
-                    event="lexical_hybrid_unavailable",
-                    status=EventStatus.WARNING,
-                    message="Lexical hybrid signal failed; continuing vector-only",
-                    capability="retrieve",
-                    attributes={
-                        "retrieval_profile_id": retrieval_profile.retrieval_profile_id,
-                        "error": repr(error),
-                    },
-                )
+        lexical_degraded_reason: str | None = None
+        # Señal secundaria obligatoria en el hybrid sano. Si el FTS falla no
+        # debe tumbar la búsqueda, pero sí dejar una degradación observable.
+        _t = time.perf_counter()  # PROFTMP
+        try:
+            lexical_candidates = self._lexical_search.search(
+                project_id=retrieval_profile.project_id,
+                query=query,
+                embedding_profile_id=retrieval_profile.embedding_profile_id,
+                corpus_version=retrieval_profile.corpus_version,
+                top_k=candidate_pool_size,
+            )
+            print(f"PROFTMP lexical_search={1000*(time.perf_counter()-_t):.1f}ms")  # PROFTMP
+        except Exception as error:  # noqa: BLE001 - degradación controlada
+            lexical_degraded_reason = "lexical_hybrid_unavailable"
+            emit_pipeline_event(
+                logger=logger,
+                domain=ObservabilityDomain.RETRIEVAL,
+                event="lexical_hybrid_unavailable",
+                status=EventStatus.WARNING,
+                message="Lexical hybrid signal failed; continuing vector-only",
+                capability="retrieve",
+                attributes={
+                    "retrieval_profile_id": retrieval_profile.retrieval_profile_id,
+                    "error": repr(error),
+                },
+            )
+            self._retrieval_profiles.record_runtime_status(
+                retrieval_profile_id=retrieval_profile.retrieval_profile_id,
+                last_runtime_status="failed",
+            )
+        else:
+            self._retrieval_profiles.record_runtime_status(
+                retrieval_profile_id=retrieval_profile.retrieval_profile_id,
+                last_runtime_status="ok",
+            )
 
         candidates = self._fuse_and_dedup(
             vector_candidates=vector_candidates,
             lexical_candidates=lexical_candidates,
+            query=query,
             top_k=top_k,
         )
-        return self._with_parents(
+        enriched = self._with_parents(
             candidates=candidates,
             project_id=retrieval_profile.project_id,
             embedding_profile_id=profile.profile_id,
             corpus_version=retrieval_profile.corpus_version,
+        )
+        if lexical_degraded_reason is not None:
+            return self._annotate_runtime_metadata(
+                enriched,
+                retrieval_mode="vector_only_degraded",
+                degraded_reason=lexical_degraded_reason,
+            )
+        return self._annotate_runtime_metadata(
+            enriched,
+            retrieval_mode="hybrid",
         )
 
     def _fuse_and_dedup(
@@ -464,10 +503,12 @@ class RetrievalSearchService:
         *,
         vector_candidates: list[RetrievedEvidence],
         lexical_candidates: list[RetrievedEvidence],
+        query: str,
         top_k: int,
     ) -> list[RetrievedEvidence]:
-        """Fusiona ambas lanes con RRF, aplica dedup y corta a ``top_k``."""
+        """Fusiona ambas lanes con RRF, aplica dedup, rerankea y corta a ``top_k``."""
 
+        _t_fuse = time.perf_counter()  # PROFTMP
         evidence_by_node: dict[str, RetrievedEvidence] = {}
         ranked_lists: list[list[RetrievedCandidate]] = []
         for lane in (vector_candidates, lexical_candidates):
@@ -512,6 +553,7 @@ class RetrievalSearchService:
             parent_ids=parent_ids,
             source_ranks=source_ranks,
             max_per_parent=_MAX_CHILDREN_PER_PARENT,
+            texts=[item.text for item in fused],
         )
 
         selected: list[RetrievedEvidence] = []
@@ -548,7 +590,12 @@ class RetrievalSearchService:
                     }
                 }
             )
-        return selected[:top_k]
+        rerank_pool = selected[: max(top_k, _RERANK_POOL_SIZE)]
+        print(f"PROFTMP fuse+dedup={1000*(time.perf_counter()-_t_fuse):.1f}ms pool={len(rerank_pool)}")  # PROFTMP
+        _t_rerank = time.perf_counter()  # PROFTMP
+        result = self._reranker.rerank(query=query, candidates=rerank_pool, top_n=top_k)
+        print(f"PROFTMP rerank={1000*(time.perf_counter()-_t_rerank):.1f}ms")  # PROFTMP
+        return result
 
     def _lexical_only(
         self,
@@ -590,12 +637,34 @@ class RetrievalSearchService:
             retrieval_profile_id=retrieval_profile.retrieval_profile_id,
             last_runtime_status="failed",
         )
-        return self._with_parents(
+        enriched = self._with_parents(
             candidates=candidates,
             project_id=retrieval_profile.project_id,
             embedding_profile_id=retrieval_profile.embedding_profile_id,
             corpus_version=retrieval_profile.corpus_version,
         )
+        return self._annotate_runtime_metadata(
+            enriched,
+            retrieval_mode="lexical_fallback",
+        )
+
+    def _annotate_runtime_metadata(
+        self,
+        candidates: Sequence[RetrievedEvidence],
+        *,
+        retrieval_mode: str,
+        degraded_reason: str | None = None,
+    ) -> list[RetrievedEvidence]:
+        annotated: list[RetrievedEvidence] = []
+        for candidate in candidates:
+            metadata = {
+                **candidate.metadata,
+                "retrieval_mode": retrieval_mode,
+            }
+            if degraded_reason is not None:
+                metadata["degraded_reason"] = degraded_reason
+            annotated.append(candidate.model_copy(update={"metadata": metadata}))
+        return annotated
 
     def _with_parents(
         self,
@@ -612,12 +681,14 @@ class RetrievalSearchService:
         ]
         if not parent_ids:
             return list(candidates)
+        _t_parents = time.perf_counter()  # PROFTMP
         parents = self._parent_expansion.expand(
             project_id=project_id,
             parent_node_ids=parent_ids,
             embedding_profile_id=embedding_profile_id,
             corpus_version=corpus_version,
         )
+        print(f"PROFTMP parent_expansion={1000*(time.perf_counter()-_t_parents):.1f}ms n={len(parent_ids)}")  # PROFTMP
         enriched: list[RetrievedEvidence] = []
         for candidate in candidates:
             parent = parents.get(str(candidate.parent_node_id))

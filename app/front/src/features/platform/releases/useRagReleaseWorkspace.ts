@@ -92,6 +92,10 @@ export function useRagReleaseWorkspace() {
   // Release cuyo build se está observando por polling. `nonce` se incrementa en
   // cada build para reiniciar el polling aun sobre la MISMA release (reintento).
   const [buildTarget, setBuildTarget] = useState<{ releaseId: string; nonce: number } | null>(null);
+  // Último build-status CONOCIDO (terminal o null) de la release seleccionada,
+  // fuera de la máquina de polling activo: solo alimenta el informe de lectura,
+  // ver el efecto de siembra más abajo.
+  const [seededStatus, setSeededStatus] = useState<ReleaseBuildStatus | null>(null);
   const [notice, setNotice] = useState<ReleaseWorkspaceNotice>(null);
   const [creating, setCreating] = useState(false);
   // Intención de mutación en vuelo sobre la release seleccionada (deshabilita las
@@ -126,25 +130,43 @@ export function useRagReleaseWorkspace() {
   });
 
   const buildProgress = useMemo<BuildProgress>(() => {
-    if (!buildTarget) {
-      return { status: "idle" };
+    // Build activo en esta sesión (recién lanzado o retomado por estar
+    // queued/running): fuente de verdad = el polling en curso.
+    if (buildTarget) {
+      const status = buildPoll.value;
+      if (status?.state === "succeeded") {
+        return { status: "succeeded", report: status };
+      }
+      if (status?.state === "failed") {
+        return {
+          status: "failed",
+          errorCode: status.error_code ?? null,
+          errorMessage: status.error_message ?? null,
+        };
+      }
+      return status?.state === "running" ? { status: "running" } : { status: "queued" };
     }
-    const status = buildPoll.value;
-    if (status?.state === "succeeded") {
-      return { status: "succeeded", report: status };
+    // Sin build activo: usa el último estado conocido (histórico) sembrado al
+    // seleccionar la release, si lo hay.
+    if (seededStatus?.state === "succeeded") {
+      return { status: "succeeded", report: seededStatus };
     }
-    if (status?.state === "failed") {
+    if (seededStatus?.state === "failed") {
       return {
         status: "failed",
-        errorCode: status.error_code ?? null,
-        errorMessage: status.error_message ?? null,
+        errorCode: seededStatus.error_code ?? null,
+        errorMessage: seededStatus.error_message ?? null,
       };
     }
-    return status?.state === "running" ? { status: "running" } : { status: "queued" };
-  }, [buildTarget, buildPoll.value]);
+    return { status: "idle" };
+  }, [buildTarget, buildPoll.value, seededStatus]);
 
   const fetchAll = useCallback(async (pid: string, signal: AbortSignal) => {
     setLoad({ status: "loading" });
+    // Un reintento exitoso (Actualizar/Reintentar) debe retirar el aviso de
+    // fallo anterior; si no, "HTTP 500" queda pegado en pantalla aunque los
+    // datos ya hayan cargado bien.
+    setNotice(null);
     try {
       // Los tres listados recorren TODAS las páginas: releases, variantes y
       // snapshots son la evidencia del ciclo RAG y ninguna puede quedar truncada
@@ -402,6 +424,48 @@ export function useRagReleaseWorkspace() {
       cancelled = true;
     };
   }, [buildTarget, buildPoll.value, applyRelease]);
+
+  // Al seleccionar una release (o al hidratar una selección persistida en la
+  // carga inicial) se consulta UNA VEZ su build-status. Sin esto, el Informe
+  // de build siempre mostraba "idle" para cualquier release que no se
+  // hubiera construido en la sesión actual del navegador, aunque ya tuviera
+  // un build succeeded/failed real en el servidor -- la release parecía "no
+  // seleccionable" porque nada visible cambiaba al elegirla.
+  // Terminado (succeeded/failed) o null (nunca se intentó) → solo informativo
+  // (`seededStatus`): NO se promueve a `buildTarget`, para no disparar el
+  // efecto de "build recién completado" (notice + resync de la release) por
+  // el solo hecho de mirar una release ya construida.
+  // En curso (queued/running) → sí se promueve a `buildTarget`: hay un build
+  // real avanzando (p. ej. de otra pestaña, o tras un reload) y corresponde
+  // retomar el polling activo con sus efectos normales.
+  useEffect(() => {
+    setSeededStatus(null);
+    if (!selectedReleaseId || buildTarget) {
+      return;
+    }
+    let cancelled = false;
+    const controller = new AbortController();
+    void (async () => {
+      try {
+        const status = await getReleaseBuildStatus(selectedReleaseId, { signal: controller.signal });
+        if (cancelled) {
+          return;
+        }
+        if (status && (status.state === "queued" || status.state === "running")) {
+          setBuildTarget({ releaseId: selectedReleaseId, nonce: 0 });
+        } else {
+          setSeededStatus(status);
+        }
+      } catch {
+        // Fail-closed silencioso: esta consulta puntual no bloquea la
+        // selección; "Actualizar" o Construir siguen disponibles.
+      }
+    })();
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, [selectedReleaseId, buildTarget]);
 
   const validate = useCallback(async () => {
     if (!selectedRelease || busyAction) {

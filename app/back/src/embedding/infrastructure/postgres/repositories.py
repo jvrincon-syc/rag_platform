@@ -605,10 +605,13 @@ class PostgresEmbeddingRunRepository:
         return [_run_from_row(row) for row in rows]
 
     def claim(self, embedding_run_id: str) -> bool:
-        """Transition ``pending`` to ``running`` exactly once.
+        """Transition ``pending`` or ``failed`` to ``running`` exactly once.
 
         The conditional ``UPDATE`` is the claim: a second worker sees zero
         affected rows and gives up instead of running the same bundle twice.
+        ``failed`` is reclaimable so a retried release build (same
+        idempotency key, same run row) can recover from a transient failure
+        instead of being stuck returning the stale failed run forever.
         """
 
         with self._connection.cursor() as cursor:
@@ -616,7 +619,7 @@ class PostgresEmbeddingRunRepository:
                 """
                 UPDATE embedding_runs
                    SET status = 'running', started_at = now()
-                 WHERE embedding_run_id = %s AND status = 'pending'
+                 WHERE embedding_run_id = %s AND status IN ('pending', 'failed')
                 """,
                 (embedding_run_id,),
             )

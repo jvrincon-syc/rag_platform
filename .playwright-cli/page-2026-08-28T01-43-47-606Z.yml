@@ -1,0 +1,832 @@
+- generic [ref=f3e3]:
+  - complementary [ref=f3e19]:
+    - generic [ref=f3e20]: RAG Platform
+    - navigation "Superficies de operador" [ref=f3e26]:
+      - button "Platform" [ref=f3e27] [cursor=pointer]
+      - button "Legacy pipeline" [ref=f3e34] [cursor=pointer]
+    - generic [ref=f3e40]:
+      - generic [ref=f3e41]:
+        - generic [ref=f3e42]: Sesión
+        - strong [ref=f3e43]: prueba3
+        - generic [ref=f3e44]: Todos los proyectos
+      - button "Cerrar sesión" [ref=f3e45] [cursor=pointer]
+  - generic [ref=f3e50]:
+    - generic [ref=f3e51]:
+      - navigation "Vista de plataforma" [ref=f3e52]:
+        - button "Projects" [ref=f3e53] [cursor=pointer]
+        - button "Operacion" [ref=f3e54] [cursor=pointer]
+        - button "Revision" [ref=f3e55] [cursor=pointer]
+        - button "Inventario" [ref=f3e56] [cursor=pointer]
+        - button "Chunking" [ref=f3e57] [cursor=pointer]
+        - button "Embedding/Indexing" [ref=f3e58] [cursor=pointer]
+        - button "RAG / Releases" [ref=f3e59] [cursor=pointer]
+      - generic "Proyecto activo" [ref=f3e60]:
+        - strong [ref=f3e62]: SST General
+    - main [ref=f3e253]:
+      - generic [ref=f3e254]:
+        - generic [ref=f3e255]:
+          - heading "Ciclo de vida de releases" [level=1] [ref=f3e256]
+          - paragraph [ref=f3e257]: De un draft (variante + snapshot + binding lógico) a build, validación, publicación y retiro. El backend resuelve la receta; React nunca orquesta chunking/embedding/indexing legacy.
+        - button "Actualizar" [ref=f3e259] [cursor=pointer]
+      - generic [ref=f3e265]:
+        - generic [ref=f3e266]:
+          - region "Snapshot de corpus" [ref=f3e2378]:
+            - generic [ref=f3e2380]:
+              - heading "Snapshot de corpus" [level=2] [ref=f3e2381]
+              - generic [ref=f3e2382]: Congela revisiones aprobadas antes de crear una release.
+            - generic [ref=f3e2384]:
+              - region "Constructor de snapshot" [ref=f3e2385]:
+                - generic [ref=f3e2386]:
+                  - generic [ref=f3e2387]:
+                    - heading "Constructor" [level=2] [ref=f3e2388]
+                    - generic [ref=f3e2389]: "Elige revisiones normalizadas; una `needs_review` exige una decisión de elegibilidad explícita antes de entrar."
+                  - button "Actualizar" [ref=f3e2391] [cursor=pointer]
+                - generic [ref=f3e2397]:
+                  - generic [ref=f3e2398]:
+                    - generic:
+                      - search [ref=f3e2399]:
+                        - searchbox "Buscar por ruta o ID" [ref=f3e2404]
+                        - combobox "Filtrar por estado" [ref=f3e2407]:
+                          - option "Todos los estados" [selected]
+                          - option "Requieren revisión"
+                          - option "Normalizados"
+                          - option "Sin normalizar"
+                        - generic [ref=f3e2408]: 0 de 55 seleccionadas
+                        - button "Seleccionar todas las elegibles" [ref=f3e2409] [cursor=pointer]
+                        - button "Limpiar" [disabled] [ref=f3e2410]
+                      - table "Revisiones elegibles para el snapshot" [ref=f3e2412]:
+                        - rowgroup [ref=f3e2413]:
+                          - row [ref=f3e2414]:
+                            - columnheader "Incluir" [ref=f3e2415]
+                            - columnheader "Documento" [ref=f3e2416]
+                            - columnheader "Normalización" [ref=f3e2417]
+                            - columnheader "Revisión" [ref=f3e2418]
+                            - columnheader "Registrado" [ref=f3e2419]
+                            - columnheader "Decisión de elegibilidad" [ref=f3e2420]
+                        - rowgroup [ref=f3e2421]:
+                          - row [ref=f3e2422]:
+                            - cell [ref=f3e2423]:
+                              - checkbox "Incluir revisión srev_328f18fcb23b0d1c8f1de1ab347df808 en el snapshot" [ref=f3e2424]
+                            - cell "convivencia_laboral/manual/1761580555950_syc_RE.RH-04SST23102025.pdf srev_328f18fcb23b0d1c8f1de1ab347df808 Ver detalle de convivencia_laboral/manual/1761580555950_syc_RE.RH-04SST23102025.pdf" [ref=f3e2425]:
+                              - generic [ref=f3e2426]:
+                                - generic [ref=f3e2430]: convivencia_laboral/manual/1761580555950_syc_RE.RH-04SST23102025.pdf
+                                - generic [ref=f3e2431]: srev_328f18fcb23b0d1c8f1de1ab347df808
+                                - button "Ver detalle de convivencia_laboral/manual/1761580555950_syc_RE.RH-04SST23102025.pdf" [ref=f3e2432] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e2433]
+                            - cell "processed" [ref=f3e2435]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e2437]
+                            - cell "No requerida" [ref=f3e2438]
+                          - row [ref=f3e2439]:
+                            - cell [ref=f3e2440]:
+                              - checkbox "Incluir revisión srev_4bf93f9a746729590c854aa3dbd259d6 en el snapshot" [ref=f3e2441]
+                            - cell "convivencia_laboral/manual/1772036012249_syc_mrh03sstmanualdeconv.pdf srev_4bf93f9a746729590c854aa3dbd259d6 Ver detalle de convivencia_laboral/manual/1772036012249_syc_mrh03sstmanualdeconv.pdf" [ref=f3e2442]:
+                              - generic [ref=f3e2443]:
+                                - generic [ref=f3e2447]: convivencia_laboral/manual/1772036012249_syc_mrh03sstmanualdeconv.pdf
+                                - generic [ref=f3e2448]: srev_4bf93f9a746729590c854aa3dbd259d6
+                                - button "Ver detalle de convivencia_laboral/manual/1772036012249_syc_mrh03sstmanualdeconv.pdf" [ref=f3e2449] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e2450]
+                            - cell "processed" [ref=f3e2452]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e2454]
+                            - cell "No requerida" [ref=f3e2455]
+                          - row [ref=f3e2456]:
+                            - cell [ref=f3e2457]:
+                              - checkbox "Incluir revisión srev_bf01600d5ef4e7ad1855fc808b7c7240 en el snapshot" [ref=f3e2458]
+                            - cell "convivencia_laboral/manual/1781045303349_syc_politicadedesconexin.pdf srev_bf01600d5ef4e7ad1855fc808b7c7240 Ver detalle de convivencia_laboral/manual/1781045303349_syc_politicadedesconexin.pdf" [ref=f3e2459]:
+                              - generic [ref=f3e2460]:
+                                - generic [ref=f3e2464]: convivencia_laboral/manual/1781045303349_syc_politicadedesconexin.pdf
+                                - generic [ref=f3e2465]: srev_bf01600d5ef4e7ad1855fc808b7c7240
+                                - button "Ver detalle de convivencia_laboral/manual/1781045303349_syc_politicadedesconexin.pdf" [ref=f3e2466] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e2467]
+                            - cell "processed" [ref=f3e2469]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e2471]
+                            - cell "No requerida" [ref=f3e2472]
+                          - row [ref=f3e2473]:
+                            - cell [ref=f3e2474]:
+                              - checkbox "Incluir revisión srev_79ed4987a022a908b95169a3f3fd238e en el snapshot" [ref=f3e2475]
+                            - cell "convivencia_laboral/manual/1781045390931_syc_politicadeprevencind.pdf srev_79ed4987a022a908b95169a3f3fd238e Ver detalle de convivencia_laboral/manual/1781045390931_syc_politicadeprevencind.pdf" [ref=f3e2476]:
+                              - generic [ref=f3e2477]:
+                                - generic [ref=f3e2481]: convivencia_laboral/manual/1781045390931_syc_politicadeprevencind.pdf
+                                - generic [ref=f3e2482]: srev_79ed4987a022a908b95169a3f3fd238e
+                                - button "Ver detalle de convivencia_laboral/manual/1781045390931_syc_politicadeprevencind.pdf" [ref=f3e2483] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e2484]
+                            - cell "processed" [ref=f3e2486]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e2488]
+                            - cell "No requerida" [ref=f3e2489]
+                          - row [ref=f3e2490]:
+                            - cell [ref=f3e2491]:
+                              - checkbox "Incluir revisión srev_6cc1a0ba4aee64ff3844663b0e86283d en el snapshot" [ref=f3e2492]
+                            - cell "convivencia_laboral/manual/deberes_convivencia.md srev_6cc1a0ba4aee64ff3844663b0e86283d Ver detalle de convivencia_laboral/manual/deberes_convivencia.md" [ref=f3e2493]:
+                              - generic [ref=f3e2494]:
+                                - generic [ref=f3e2498]: convivencia_laboral/manual/deberes_convivencia.md
+                                - generic [ref=f3e2499]: srev_6cc1a0ba4aee64ff3844663b0e86283d
+                                - button "Ver detalle de convivencia_laboral/manual/deberes_convivencia.md" [ref=f3e2500] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e2501]
+                            - cell "processed" [ref=f3e2503]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e2505]
+                            - cell "No requerida" [ref=f3e2506]
+                          - row [ref=f3e2507]:
+                            - cell [ref=f3e2508]:
+                              - checkbox "Incluir revisión srev_20d9ecf3cd7167a300c52f7529d1b522 en el snapshot" [ref=f3e2509]
+                            - cell "convivencia_laboral/manual/derechos_convivencia.md srev_20d9ecf3cd7167a300c52f7529d1b522 Ver detalle de convivencia_laboral/manual/derechos_convivencia.md" [ref=f3e2510]:
+                              - generic [ref=f3e2511]:
+                                - generic [ref=f3e2515]: convivencia_laboral/manual/derechos_convivencia.md
+                                - generic [ref=f3e2516]: srev_20d9ecf3cd7167a300c52f7529d1b522
+                                - button "Ver detalle de convivencia_laboral/manual/derechos_convivencia.md" [ref=f3e2517] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e2518]
+                            - cell "processed" [ref=f3e2520]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e2522]
+                            - cell "No requerida" [ref=f3e2523]
+                          - row [ref=f3e2524]:
+                            - cell [ref=f3e2525]:
+                              - checkbox "Incluir revisión srev_d364b292b72f730862af03e58745b003 en el snapshot" [ref=f3e2526]
+                            - cell "convivencia_laboral/manual/funciones_comite-.md srev_d364b292b72f730862af03e58745b003 Ver detalle de convivencia_laboral/manual/funciones_comite-.md" [ref=f3e2527]:
+                              - generic [ref=f3e2528]:
+                                - generic [ref=f3e2532]: convivencia_laboral/manual/funciones_comite-.md
+                                - generic [ref=f3e2533]: srev_d364b292b72f730862af03e58745b003
+                                - button "Ver detalle de convivencia_laboral/manual/funciones_comite-.md" [ref=f3e2534] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e2535]
+                            - cell "processed" [ref=f3e2537]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e2539]
+                            - cell "No requerida" [ref=f3e2540]
+                          - row [ref=f3e2541]:
+                            - cell [ref=f3e2542]:
+                              - checkbox "Incluir revisión srev_37ef4268ec50b760717cd4a820cec56b en el snapshot" [ref=f3e2543]
+                            - cell "convivencia_laboral/manual/introduccion.md srev_37ef4268ec50b760717cd4a820cec56b Ver detalle de convivencia_laboral/manual/introduccion.md" [ref=f3e2544]:
+                              - generic [ref=f3e2545]:
+                                - generic [ref=f3e2549]: convivencia_laboral/manual/introduccion.md
+                                - generic [ref=f3e2550]: srev_37ef4268ec50b760717cd4a820cec56b
+                                - button "Ver detalle de convivencia_laboral/manual/introduccion.md" [ref=f3e2551] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e2552]
+                            - cell "processed" [ref=f3e2554]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e2556]
+                            - cell "No requerida" [ref=f3e2557]
+                          - row [ref=f3e2558]:
+                            - cell [ref=f3e2559]:
+                              - checkbox "Incluir revisión srev_8042e4e7eeedbbb6f2ae440f4ecfdffd en el snapshot" [ref=f3e2560]
+                            - cell "convivencia_laboral/manual/marco_legal.md srev_8042e4e7eeedbbb6f2ae440f4ecfdffd Ver detalle de convivencia_laboral/manual/marco_legal.md" [ref=f3e2561]:
+                              - generic [ref=f3e2562]:
+                                - generic [ref=f3e2566]: convivencia_laboral/manual/marco_legal.md
+                                - generic [ref=f3e2567]: srev_8042e4e7eeedbbb6f2ae440f4ecfdffd
+                                - button "Ver detalle de convivencia_laboral/manual/marco_legal.md" [ref=f3e2568] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e2569]
+                            - cell "processed" [ref=f3e2571]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e2573]
+                            - cell "No requerida" [ref=f3e2574]
+                          - row [ref=f3e2575]:
+                            - cell [ref=f3e2576]:
+                              - checkbox "Incluir revisión srev_3588b6d71fcdcb4deff60494162938d2 en el snapshot" [ref=f3e2577]
+                            - cell "convivencia_laboral/manual/normas_convivencia.md srev_3588b6d71fcdcb4deff60494162938d2 Ver detalle de convivencia_laboral/manual/normas_convivencia.md" [ref=f3e2578]:
+                              - generic [ref=f3e2579]:
+                                - generic [ref=f3e2583]: convivencia_laboral/manual/normas_convivencia.md
+                                - generic [ref=f3e2584]: srev_3588b6d71fcdcb4deff60494162938d2
+                                - button "Ver detalle de convivencia_laboral/manual/normas_convivencia.md" [ref=f3e2585] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e2586]
+                            - cell "processed" [ref=f3e2588]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e2590]
+                            - cell "No requerida" [ref=f3e2591]
+                          - row [ref=f3e2592]:
+                            - cell [ref=f3e2593]:
+                              - checkbox "Incluir revisión srev_709316e006864b9f9d3156a154c4262e en el snapshot" [ref=f3e2594]
+                            - cell "convivencia_laboral/manual/objetivo_general_comite.md srev_709316e006864b9f9d3156a154c4262e Ver detalle de convivencia_laboral/manual/objetivo_general_comite.md" [ref=f3e2595]:
+                              - generic [ref=f3e2596]:
+                                - generic [ref=f3e2600]: convivencia_laboral/manual/objetivo_general_comite.md
+                                - generic [ref=f3e2601]: srev_709316e006864b9f9d3156a154c4262e
+                                - button "Ver detalle de convivencia_laboral/manual/objetivo_general_comite.md" [ref=f3e2602] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e2603]
+                            - cell "processed" [ref=f3e2605]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e2607]
+                            - cell "No requerida" [ref=f3e2608]
+                          - row [ref=f3e2609]:
+                            - cell [ref=f3e2610]:
+                              - checkbox "Incluir revisión srev_783b3ffa41cbc8b99b59f0b4f1be1b48 en el snapshot" [ref=f3e2611]
+                            - cell "convivencia_laboral/manual/objetivos_especificos_comite.md srev_783b3ffa41cbc8b99b59f0b4f1be1b48 Ver detalle de convivencia_laboral/manual/objetivos_especificos_comite.md" [ref=f3e2612]:
+                              - generic [ref=f3e2613]:
+                                - generic [ref=f3e2617]: convivencia_laboral/manual/objetivos_especificos_comite.md
+                                - generic [ref=f3e2618]: srev_783b3ffa41cbc8b99b59f0b4f1be1b48
+                                - button "Ver detalle de convivencia_laboral/manual/objetivos_especificos_comite.md" [ref=f3e2619] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e2620]
+                            - cell "processed" [ref=f3e2622]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e2624]
+                            - cell "No requerida" [ref=f3e2625]
+                          - row [ref=f3e2626]:
+                            - cell [ref=f3e2627]:
+                              - checkbox "Incluir revisión srev_5d7ec891d5abc81e414d8c04a6e4deeb en el snapshot" [ref=f3e2628]
+                            - cell "convivencia_laboral/manual/politica_convivencia.md srev_5d7ec891d5abc81e414d8c04a6e4deeb Ver detalle de convivencia_laboral/manual/politica_convivencia.md" [ref=f3e2629]:
+                              - generic [ref=f3e2630]:
+                                - generic [ref=f3e2634]: convivencia_laboral/manual/politica_convivencia.md
+                                - generic [ref=f3e2635]: srev_5d7ec891d5abc81e414d8c04a6e4deeb
+                                - button "Ver detalle de convivencia_laboral/manual/politica_convivencia.md" [ref=f3e2636] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e2637]
+                            - cell "processed" [ref=f3e2639]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e2641]
+                            - cell "No requerida" [ref=f3e2642]
+                          - row [ref=f3e2643]:
+                            - cell [ref=f3e2644]:
+                              - checkbox "Incluir revisión srev_eea3f5911e2c8c30cebbf1276d3a830d en el snapshot" [ref=f3e2645]
+                            - cell "convivencia_laboral/manual/politica_desconexion.md srev_eea3f5911e2c8c30cebbf1276d3a830d Ver detalle de convivencia_laboral/manual/politica_desconexion.md" [ref=f3e2646]:
+                              - generic [ref=f3e2647]:
+                                - generic [ref=f3e2651]: convivencia_laboral/manual/politica_desconexion.md
+                                - generic [ref=f3e2652]: srev_eea3f5911e2c8c30cebbf1276d3a830d
+                                - button "Ver detalle de convivencia_laboral/manual/politica_desconexion.md" [ref=f3e2653] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e2654]
+                            - cell "processed" [ref=f3e2656]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e2658]
+                            - cell "No requerida" [ref=f3e2659]
+                          - row [ref=f3e2660]:
+                            - cell [ref=f3e2661]:
+                              - checkbox "Incluir revisión srev_07baccedbf19014752af8b9fb25a451d en el snapshot" [ref=f3e2662]
+                            - cell "convivencia_laboral/manual/principios_convivencia.md srev_07baccedbf19014752af8b9fb25a451d Ver detalle de convivencia_laboral/manual/principios_convivencia.md" [ref=f3e2663]:
+                              - generic [ref=f3e2664]:
+                                - generic [ref=f3e2668]: convivencia_laboral/manual/principios_convivencia.md
+                                - generic [ref=f3e2669]: srev_07baccedbf19014752af8b9fb25a451d
+                                - button "Ver detalle de convivencia_laboral/manual/principios_convivencia.md" [ref=f3e2670] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e2671]
+                            - cell "processed" [ref=f3e2673]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e2675]
+                            - cell "No requerida" [ref=f3e2676]
+                          - row [ref=f3e2677]:
+                            - cell [ref=f3e2678]:
+                              - checkbox "Incluir revisión srev_6fda15412c120211d547897dfaecc1bb en el snapshot" [ref=f3e2679]
+                            - cell "convivencia_laboral/manual/quejas_denuncias.md srev_6fda15412c120211d547897dfaecc1bb Ver detalle de convivencia_laboral/manual/quejas_denuncias.md" [ref=f3e2680]:
+                              - generic [ref=f3e2681]:
+                                - generic [ref=f3e2685]: convivencia_laboral/manual/quejas_denuncias.md
+                                - generic [ref=f3e2686]: srev_6fda15412c120211d547897dfaecc1bb
+                                - button "Ver detalle de convivencia_laboral/manual/quejas_denuncias.md" [ref=f3e2687] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e2688]
+                            - cell "processed" [ref=f3e2690]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e2692]
+                            - cell "No requerida" [ref=f3e2693]
+                          - row [ref=f3e2694]:
+                            - cell [ref=f3e2695]:
+                              - checkbox "Incluir revisión srev_01ab22c1d3c9abb28a642aba4c95e1ee en el snapshot" [ref=f3e2696]
+                            - cell "convivencia_laboral/manual/valores.md srev_01ab22c1d3c9abb28a642aba4c95e1ee Ver detalle de convivencia_laboral/manual/valores.md" [ref=f3e2697]:
+                              - generic [ref=f3e2698]:
+                                - generic [ref=f3e2702]: convivencia_laboral/manual/valores.md
+                                - generic [ref=f3e2703]: srev_01ab22c1d3c9abb28a642aba4c95e1ee
+                                - button "Ver detalle de convivencia_laboral/manual/valores.md" [ref=f3e2704] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e2705]
+                            - cell "processed" [ref=f3e2707]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e2709]
+                            - cell "No requerida" [ref=f3e2710]
+                          - row [ref=f3e2711]:
+                            - cell [ref=f3e2712]:
+                              - checkbox "Incluir revisión srev_360d6938c14a24489e1c14446b7b6276 en el snapshot" [ref=f3e2713]
+                            - cell "convivencia_laboral/reglamento_comite/1761609513260_syc_RG.RH-01-SST23102025.pdf srev_360d6938c14a24489e1c14446b7b6276 Ver detalle de convivencia_laboral/reglamento_comite/1761609513260_syc_RG.RH-01-SST23102025.pdf" [ref=f3e2714]:
+                              - generic [ref=f3e2715]:
+                                - generic [ref=f3e2719]: convivencia_laboral/reglamento_comite/1761609513260_syc_RG.RH-01-SST23102025.pdf
+                                - generic [ref=f3e2720]: srev_360d6938c14a24489e1c14446b7b6276
+                                - button "Ver detalle de convivencia_laboral/reglamento_comite/1761609513260_syc_RG.RH-01-SST23102025.pdf" [ref=f3e2721] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e2722]
+                            - cell "processed" [ref=f3e2724]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e2726]
+                            - cell "No requerida" [ref=f3e2727]
+                          - row [ref=f3e2728]:
+                            - cell [ref=f3e2729]:
+                              - checkbox "Incluir revisión srev_824a581c827f064e4401898130c41cad en el snapshot" [ref=f3e2730]
+                            - cell "convivencia_laboral/reglamento_comite/conformacion_comite.md srev_824a581c827f064e4401898130c41cad Ver detalle de convivencia_laboral/reglamento_comite/conformacion_comite.md" [ref=f3e2731]:
+                              - generic [ref=f3e2732]:
+                                - generic [ref=f3e2736]: convivencia_laboral/reglamento_comite/conformacion_comite.md
+                                - generic [ref=f3e2737]: srev_824a581c827f064e4401898130c41cad
+                                - button "Ver detalle de convivencia_laboral/reglamento_comite/conformacion_comite.md" [ref=f3e2738] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e2739]
+                            - cell "processed" [ref=f3e2741]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e2743]
+                            - cell "No requerida" [ref=f3e2744]
+                          - row [ref=f3e2745]:
+                            - cell [ref=f3e2746]:
+                              - checkbox "Incluir revisión srev_a67a6c65d3cc5cdba7f6776b793c71a1 en el snapshot" [ref=f3e2747]
+                            - cell "convivencia_laboral/reglamento_comite/funcionamiento_comite.md srev_a67a6c65d3cc5cdba7f6776b793c71a1 Ver detalle de convivencia_laboral/reglamento_comite/funcionamiento_comite.md" [ref=f3e2748]:
+                              - generic [ref=f3e2749]:
+                                - generic [ref=f3e2753]: convivencia_laboral/reglamento_comite/funcionamiento_comite.md
+                                - generic [ref=f3e2754]: srev_a67a6c65d3cc5cdba7f6776b793c71a1
+                                - button "Ver detalle de convivencia_laboral/reglamento_comite/funcionamiento_comite.md" [ref=f3e2755] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e2756]
+                            - cell "processed" [ref=f3e2758]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e2760]
+                            - cell "No requerida" [ref=f3e2761]
+                          - row [ref=f3e2762]:
+                            - cell [ref=f3e2763]:
+                              - checkbox "Incluir revisión srev_a13a8161c31057fd3e8a9d8ea9dcdaf4 en el snapshot" [ref=f3e2764]
+                            - cell "convivencia_laboral/reglamento_comite/funciones_comite.md srev_a13a8161c31057fd3e8a9d8ea9dcdaf4 Ver detalle de convivencia_laboral/reglamento_comite/funciones_comite.md" [ref=f3e2765]:
+                              - generic [ref=f3e2766]:
+                                - generic [ref=f3e2770]: convivencia_laboral/reglamento_comite/funciones_comite.md
+                                - generic [ref=f3e2771]: srev_a13a8161c31057fd3e8a9d8ea9dcdaf4
+                                - button "Ver detalle de convivencia_laboral/reglamento_comite/funciones_comite.md" [ref=f3e2772] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e2773]
+                            - cell "processed" [ref=f3e2775]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e2777]
+                            - cell "No requerida" [ref=f3e2778]
+                          - row [ref=f3e2779]:
+                            - cell [ref=f3e2780]:
+                              - checkbox "Incluir revisión srev_fd1806ce05f8bcb61409b97366e5bc9e en el snapshot" [ref=f3e2781]
+                            - cell "convivencia_laboral/reglamento_comite/metodologia_sesiones_comite.md srev_fd1806ce05f8bcb61409b97366e5bc9e Ver detalle de convivencia_laboral/reglamento_comite/metodologia_sesiones_comite.md" [ref=f3e2782]:
+                              - generic [ref=f3e2783]:
+                                - generic [ref=f3e2787]: convivencia_laboral/reglamento_comite/metodologia_sesiones_comite.md
+                                - generic [ref=f3e2788]: srev_fd1806ce05f8bcb61409b97366e5bc9e
+                                - button "Ver detalle de convivencia_laboral/reglamento_comite/metodologia_sesiones_comite.md" [ref=f3e2789] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e2790]
+                            - cell "processed" [ref=f3e2792]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e2794]
+                            - cell "No requerida" [ref=f3e2795]
+                          - row [ref=f3e2796]:
+                            - cell [ref=f3e2797]:
+                              - checkbox "Incluir revisión srev_68b7e03c63795112330805c255f02c24 en el snapshot" [ref=f3e2798]
+                            - cell "convivencia_laboral/reglamento_comite/objetivo_comite.md srev_68b7e03c63795112330805c255f02c24 Ver detalle de convivencia_laboral/reglamento_comite/objetivo_comite.md" [ref=f3e2799]:
+                              - generic [ref=f3e2800]:
+                                - generic [ref=f3e2804]: convivencia_laboral/reglamento_comite/objetivo_comite.md
+                                - generic [ref=f3e2805]: srev_68b7e03c63795112330805c255f02c24
+                                - button "Ver detalle de convivencia_laboral/reglamento_comite/objetivo_comite.md" [ref=f3e2806] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e2807]
+                            - cell "processed" [ref=f3e2809]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e2811]
+                            - cell "No requerida" [ref=f3e2812]
+                          - row [ref=f3e2813]:
+                            - cell [ref=f3e2814]:
+                              - checkbox "Incluir revisión srev_7902c45c490b74d45a3a54215898fc09 en el snapshot" [ref=f3e2815]
+                            - cell "convivencia_laboral/reglamento_comite/vigencias_modificaciones_comite.md srev_7902c45c490b74d45a3a54215898fc09 Ver detalle de convivencia_laboral/reglamento_comite/vigencias_modificaciones_comite.md" [ref=f3e2816]:
+                              - generic [ref=f3e2817]:
+                                - generic [ref=f3e2821]: convivencia_laboral/reglamento_comite/vigencias_modificaciones_comite.md
+                                - generic [ref=f3e2822]: srev_7902c45c490b74d45a3a54215898fc09
+                                - button "Ver detalle de convivencia_laboral/reglamento_comite/vigencias_modificaciones_comite.md" [ref=f3e2823] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e2824]
+                            - cell "processed" [ref=f3e2826]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e2828]
+                            - cell "No requerida" [ref=f3e2829]
+                          - row [ref=f3e2830]:
+                            - cell [ref=f3e2831]:
+                              - checkbox "Incluir revisión srev_debacdbd17284319008b0a3eeff650d3 en el snapshot" [ref=f3e2832]
+                            - cell "copasst/comunicacion.md srev_debacdbd17284319008b0a3eeff650d3 Ver detalle de copasst/comunicacion.md" [ref=f3e2833]:
+                              - generic [ref=f3e2834]:
+                                - generic [ref=f3e2838]: copasst/comunicacion.md
+                                - generic [ref=f3e2839]: srev_debacdbd17284319008b0a3eeff650d3
+                                - button "Ver detalle de copasst/comunicacion.md" [ref=f3e2840] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e2841]
+                            - cell "processed" [ref=f3e2843]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e2845]
+                            - cell "No requerida" [ref=f3e2846]
+                          - row [ref=f3e2847]:
+                            - cell [ref=f3e2848]:
+                              - checkbox "Incluir revisión srev_efa0c961ef8734a83b111c4cb3124f78 en el snapshot" [ref=f3e2849]
+                            - cell "copasst/funciones_copasst.md srev_efa0c961ef8734a83b111c4cb3124f78 Ver detalle de copasst/funciones_copasst.md" [ref=f3e2850]:
+                              - generic [ref=f3e2851]:
+                                - generic [ref=f3e2855]: copasst/funciones_copasst.md
+                                - generic [ref=f3e2856]: srev_efa0c961ef8734a83b111c4cb3124f78
+                                - button "Ver detalle de copasst/funciones_copasst.md" [ref=f3e2857] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e2858]
+                            - cell "processed" [ref=f3e2860]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e2862]
+                            - cell "No requerida" [ref=f3e2863]
+                          - row [ref=f3e2864]:
+                            - cell [ref=f3e2865]:
+                              - checkbox "Incluir revisión srev_94f0d1cbfe5a5bc4cc6260f0ea777d91 en el snapshot" [ref=f3e2866]
+                            - cell "copasst/funciones_presidente_copasst.md srev_94f0d1cbfe5a5bc4cc6260f0ea777d91 Ver detalle de copasst/funciones_presidente_copasst.md" [ref=f3e2867]:
+                              - generic [ref=f3e2868]:
+                                - generic [ref=f3e2872]: copasst/funciones_presidente_copasst.md
+                                - generic [ref=f3e2873]: srev_94f0d1cbfe5a5bc4cc6260f0ea777d91
+                                - button "Ver detalle de copasst/funciones_presidente_copasst.md" [ref=f3e2874] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e2875]
+                            - cell "processed" [ref=f3e2877]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e2879]
+                            - cell "No requerida" [ref=f3e2880]
+                          - row [ref=f3e2881]:
+                            - cell [ref=f3e2882]:
+                              - checkbox "Incluir revisión srev_3255eef62e57e1316cc537988d08711b en el snapshot" [ref=f3e2883]
+                            - cell "copasst/funciones_secretario_copasst.md srev_3255eef62e57e1316cc537988d08711b Ver detalle de copasst/funciones_secretario_copasst.md" [ref=f3e2884]:
+                              - generic [ref=f3e2885]:
+                                - generic [ref=f3e2889]: copasst/funciones_secretario_copasst.md
+                                - generic [ref=f3e2890]: srev_3255eef62e57e1316cc537988d08711b
+                                - button "Ver detalle de copasst/funciones_secretario_copasst.md" [ref=f3e2891] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e2892]
+                            - cell "processed" [ref=f3e2894]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e2896]
+                            - cell "No requerida" [ref=f3e2897]
+                          - row [ref=f3e2898]:
+                            - cell [ref=f3e2899]:
+                              - checkbox "Incluir revisión srev_cd1d0954bac97fb5be10d897c7ac9581 en el snapshot" [ref=f3e2900]
+                            - cell "copasst/miembros_copasst_2025_2027.md srev_cd1d0954bac97fb5be10d897c7ac9581 Ver detalle de copasst/miembros_copasst_2025_2027.md" [ref=f3e2901]:
+                              - generic [ref=f3e2902]:
+                                - generic [ref=f3e2906]: copasst/miembros_copasst_2025_2027.md
+                                - generic [ref=f3e2907]: srev_cd1d0954bac97fb5be10d897c7ac9581
+                                - button "Ver detalle de copasst/miembros_copasst_2025_2027.md" [ref=f3e2908] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e2909]
+                            - cell "processed" [ref=f3e2911]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e2913]
+                            - cell "No requerida" [ref=f3e2914]
+                          - row [ref=f3e2915]:
+                            - cell [ref=f3e2916]:
+                              - checkbox "Incluir revisión srev_a0ca93092da436fac31b1bbc943666d8 en el snapshot" [ref=f3e2917]
+                            - cell "general_sst/capacitaciones/pausas_activas/1711493199040_syc_pg-rh-10-sst.program.pdf srev_a0ca93092da436fac31b1bbc943666d8 Ver detalle de general_sst/capacitaciones/pausas_activas/1711493199040_syc_pg-rh-10-sst.program.pdf" [ref=f3e2918]:
+                              - generic [ref=f3e2919]:
+                                - generic [ref=f3e2923]: general_sst/capacitaciones/pausas_activas/1711493199040_syc_pg-rh-10-sst.program.pdf
+                                - generic [ref=f3e2924]: srev_a0ca93092da436fac31b1bbc943666d8
+                                - button "Ver detalle de general_sst/capacitaciones/pausas_activas/1711493199040_syc_pg-rh-10-sst.program.pdf" [ref=f3e2925] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e2926]
+                            - cell "processed" [ref=f3e2928]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e2930]
+                            - cell "No requerida" [ref=f3e2931]
+                          - row [ref=f3e2932]:
+                            - cell [ref=f3e2933]:
+                              - checkbox "Incluir revisión srev_0d81263c1a85866621d7f1e6a795191c en el snapshot" [ref=f3e2934]
+                            - cell "general_sst/capacitaciones/pausas_activas/info.md srev_0d81263c1a85866621d7f1e6a795191c Ver detalle de general_sst/capacitaciones/pausas_activas/info.md" [ref=f3e2935]:
+                              - generic [ref=f3e2936]:
+                                - generic [ref=f3e2940]: general_sst/capacitaciones/pausas_activas/info.md
+                                - generic [ref=f3e2941]: srev_0d81263c1a85866621d7f1e6a795191c
+                                - button "Ver detalle de general_sst/capacitaciones/pausas_activas/info.md" [ref=f3e2942] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e2943]
+                            - cell "processed" [ref=f3e2945]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e2947]
+                            - cell "No requerida" [ref=f3e2948]
+                          - row [ref=f3e2949]:
+                            - cell [ref=f3e2950]:
+                              - checkbox "Incluir revisión srev_0af671971d4ddf76e0986a11afeadf59 en el snapshot" [ref=f3e2951]
+                            - cell "general_sst/capacitaciones/politica_seguridad_trabajo/desconexion_laboral_info.md srev_0af671971d4ddf76e0986a11afeadf59 Ver detalle de general_sst/capacitaciones/politica_seguridad_trabajo/desconexion_laboral_info.md" [ref=f3e2952]:
+                              - generic [ref=f3e2953]:
+                                - generic [ref=f3e2957]: general_sst/capacitaciones/politica_seguridad_trabajo/desconexion_laboral_info.md
+                                - generic [ref=f3e2958]: srev_0af671971d4ddf76e0986a11afeadf59
+                                - button "Ver detalle de general_sst/capacitaciones/politica_seguridad_trabajo/desconexion_laboral_info.md" [ref=f3e2959] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e2960]
+                            - cell "processed" [ref=f3e2962]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e2964]
+                            - cell "No requerida" [ref=f3e2965]
+                          - row [ref=f3e2966]:
+                            - cell [ref=f3e2967]:
+                              - checkbox "Incluir revisión srev_eea5618fc88f804d6fa116386db807b5 en el snapshot" [ref=f3e2968]
+                            - cell "general_sst/capacitaciones/politica_seguridad_trabajo/prevencion_acoso_laboral.md srev_eea5618fc88f804d6fa116386db807b5 Ver detalle de general_sst/capacitaciones/politica_seguridad_trabajo/prevencion_acoso_laboral.md" [ref=f3e2969]:
+                              - generic [ref=f3e2970]:
+                                - generic [ref=f3e2974]: general_sst/capacitaciones/politica_seguridad_trabajo/prevencion_acoso_laboral.md
+                                - generic [ref=f3e2975]: srev_eea5618fc88f804d6fa116386db807b5
+                                - button "Ver detalle de general_sst/capacitaciones/politica_seguridad_trabajo/prevencion_acoso_laboral.md" [ref=f3e2976] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e2977]
+                            - cell "processed" [ref=f3e2979]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e2981]
+                            - cell "No requerida" [ref=f3e2982]
+                          - row [ref=f3e2983]:
+                            - cell [ref=f3e2984]:
+                              - checkbox "Incluir revisión srev_293e1f4575bf98062e8b06e66c016f33 en el snapshot" [ref=f3e2985]
+                            - cell "general_sst/capacitaciones/politica_seguridad_trabajo/prevencion_alcohol_drogas/prevencion_alcohol_drogas.md srev_293e1f4575bf98062e8b06e66c016f33 Ver detalle de general_sst/capacitaciones/politica_seguridad_trabajo/prevencion_alcohol_drogas/prevencion_alcohol_drogas.md" [ref=f3e2986]:
+                              - generic [ref=f3e2987]:
+                                - generic [ref=f3e2991]: general_sst/capacitaciones/politica_seguridad_trabajo/prevencion_alcohol_drogas/prevencion_alcohol_drogas.md
+                                - generic [ref=f3e2992]: srev_293e1f4575bf98062e8b06e66c016f33
+                                - button "Ver detalle de general_sst/capacitaciones/politica_seguridad_trabajo/prevencion_alcohol_drogas/prevencion_alcohol_drogas.md" [ref=f3e2993] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e2994]
+                            - cell "processed" [ref=f3e2996]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e2998]
+                            - cell "No requerida" [ref=f3e2999]
+                          - row [ref=f3e3000]:
+                            - cell [ref=f3e3001]:
+                              - checkbox "Incluir revisión srev_375a9793d6bfab09e6f14a04311a4b5f en el snapshot" [ref=f3e3002]
+                            - cell "general_sst/capacitaciones/politica_seguridad_trabajo/sala_amigas/sala_amiga_info.md srev_375a9793d6bfab09e6f14a04311a4b5f Ver detalle de general_sst/capacitaciones/politica_seguridad_trabajo/sala_amigas/sala_amiga_info.md" [ref=f3e3003]:
+                              - generic [ref=f3e3004]:
+                                - generic [ref=f3e3008]: general_sst/capacitaciones/politica_seguridad_trabajo/sala_amigas/sala_amiga_info.md
+                                - generic [ref=f3e3009]: srev_375a9793d6bfab09e6f14a04311a4b5f
+                                - button "Ver detalle de general_sst/capacitaciones/politica_seguridad_trabajo/sala_amigas/sala_amiga_info.md" [ref=f3e3010] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e3011]
+                            - cell "processed" [ref=f3e3013]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e3015]
+                            - cell "No requerida" [ref=f3e3016]
+                          - row [ref=f3e3017]:
+                            - cell [ref=f3e3018]:
+                              - checkbox "Incluir revisión srev_24edb57004d99dfa67012b227339ce14 en el snapshot" [ref=f3e3019]
+                            - cell "general_sst/capacitaciones/politica_seguridad_trabajo/sala_amigas/ventajas_sala_amigas.md srev_24edb57004d99dfa67012b227339ce14 Ver detalle de general_sst/capacitaciones/politica_seguridad_trabajo/sala_amigas/ventajas_sala_amigas.md" [ref=f3e3020]:
+                              - generic [ref=f3e3021]:
+                                - generic [ref=f3e3025]: general_sst/capacitaciones/politica_seguridad_trabajo/sala_amigas/ventajas_sala_amigas.md
+                                - generic [ref=f3e3026]: srev_24edb57004d99dfa67012b227339ce14
+                                - button "Ver detalle de general_sst/capacitaciones/politica_seguridad_trabajo/sala_amigas/ventajas_sala_amigas.md" [ref=f3e3027] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e3028]
+                            - cell "processed" [ref=f3e3030]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e3032]
+                            - cell "No requerida" [ref=f3e3033]
+                          - row [ref=f3e3034]:
+                            - cell [ref=f3e3035]:
+                              - checkbox "Incluir revisión srev_c5ef0884cc264a4127122f378f885bfc en el snapshot" [ref=f3e3036]
+                            - cell "general_sst/capacitaciones/politica_seguridad_trabajo/seguridad_vial/1768504433896_syc_1723156961461_syc_vial.pdf srev_c5ef0884cc264a4127122f378f885bfc Ver detalle de general_sst/capacitaciones/politica_seguridad_trabajo/seguridad_vial/1768504433896_syc_1723156961461_syc_vial.pdf" [ref=f3e3037]:
+                              - generic [ref=f3e3038]:
+                                - generic [ref=f3e3042]: general_sst/capacitaciones/politica_seguridad_trabajo/seguridad_vial/1768504433896_syc_1723156961461_syc_vial.pdf
+                                - generic [ref=f3e3043]: srev_c5ef0884cc264a4127122f378f885bfc
+                                - button "Ver detalle de general_sst/capacitaciones/politica_seguridad_trabajo/seguridad_vial/1768504433896_syc_1723156961461_syc_vial.pdf" [ref=f3e3044] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e3045]
+                            - cell "processed" [ref=f3e3047]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e3049]
+                            - cell "No requerida" [ref=f3e3050]
+                          - row [ref=f3e3051]:
+                            - cell [ref=f3e3052]:
+                              - checkbox "Incluir revisión srev_3113f42301dbaa17a0cf230ab377ab7f en el snapshot" [ref=f3e3053]
+                            - cell "general_sst/capacitaciones/politica_seguridad_trabajo/seguridad_vial/prevencion_vial.md srev_3113f42301dbaa17a0cf230ab377ab7f Ver detalle de general_sst/capacitaciones/politica_seguridad_trabajo/seguridad_vial/prevencion_vial.md" [ref=f3e3054]:
+                              - generic [ref=f3e3055]:
+                                - generic [ref=f3e3059]: general_sst/capacitaciones/politica_seguridad_trabajo/seguridad_vial/prevencion_vial.md
+                                - generic [ref=f3e3060]: srev_3113f42301dbaa17a0cf230ab377ab7f
+                                - button "Ver detalle de general_sst/capacitaciones/politica_seguridad_trabajo/seguridad_vial/prevencion_vial.md" [ref=f3e3061] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e3062]
+                            - cell "processed" [ref=f3e3064]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e3066]
+                            - cell "No requerida" [ref=f3e3067]
+                          - row [ref=f3e3068]:
+                            - cell [ref=f3e3069]:
+                              - checkbox "Incluir revisión srev_9db4feee146e9121c114b684518c896a en el snapshot" [ref=f3e3070]
+                            - cell "general_sst/capacitaciones/politica_seguridad_trabajo/seguridad_vial/seguridad_vial_info.md srev_9db4feee146e9121c114b684518c896a Ver detalle de general_sst/capacitaciones/politica_seguridad_trabajo/seguridad_vial/seguridad_vial_info.md" [ref=f3e3071]:
+                              - generic [ref=f3e3072]:
+                                - generic [ref=f3e3076]: general_sst/capacitaciones/politica_seguridad_trabajo/seguridad_vial/seguridad_vial_info.md
+                                - generic [ref=f3e3077]: srev_9db4feee146e9121c114b684518c896a
+                                - button "Ver detalle de general_sst/capacitaciones/politica_seguridad_trabajo/seguridad_vial/seguridad_vial_info.md" [ref=f3e3078] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e3079]
+                            - cell "processed" [ref=f3e3081]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e3083]
+                            - cell "No requerida" [ref=f3e3084]
+                          - row [ref=f3e3085]:
+                            - cell [ref=f3e3086]:
+                              - checkbox "Incluir revisión srev_e37c2d0ccb5cfd8d92c1e2abfbb2814b en el snapshot" [ref=f3e3087]
+                            - cell "general_sst/capacitaciones/politica_seguridad_trabajo/sgsst_info.md srev_e37c2d0ccb5cfd8d92c1e2abfbb2814b Ver detalle de general_sst/capacitaciones/politica_seguridad_trabajo/sgsst_info.md" [ref=f3e3088]:
+                              - generic [ref=f3e3089]:
+                                - generic [ref=f3e3093]: general_sst/capacitaciones/politica_seguridad_trabajo/sgsst_info.md
+                                - generic [ref=f3e3094]: srev_e37c2d0ccb5cfd8d92c1e2abfbb2814b
+                                - button "Ver detalle de general_sst/capacitaciones/politica_seguridad_trabajo/sgsst_info.md" [ref=f3e3095] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e3096]
+                            - cell "processed" [ref=f3e3098]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e3100]
+                            - cell "No requerida" [ref=f3e3101]
+                          - row [ref=f3e3102]:
+                            - cell [ref=f3e3103]:
+                              - checkbox "Incluir revisión srev_697a53a60eb40dba6f90124018b8aafd en el snapshot" [ref=f3e3104]
+                            - cell "general_sst/manuales/aplicacion/aplicacion_info.md srev_697a53a60eb40dba6f90124018b8aafd Ver detalle de general_sst/manuales/aplicacion/aplicacion_info.md" [ref=f3e3105]:
+                              - generic [ref=f3e3106]:
+                                - generic [ref=f3e3110]: general_sst/manuales/aplicacion/aplicacion_info.md
+                                - generic [ref=f3e3111]: srev_697a53a60eb40dba6f90124018b8aafd
+                                - button "Ver detalle de general_sst/manuales/aplicacion/aplicacion_info.md" [ref=f3e3112] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e3113]
+                            - cell "processed" [ref=f3e3115]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e3117]
+                            - cell "No requerida" [ref=f3e3118]
+                          - row [ref=f3e3119]:
+                            - cell [ref=f3e3120]:
+                              - checkbox "Incluir revisión srev_56c27e14bb8119927c68bb86a8796e73 en el snapshot" [ref=f3e3121]
+                            - cell "general_sst/manuales/auditoria/auditoria_info.md srev_56c27e14bb8119927c68bb86a8796e73 Ver detalle de general_sst/manuales/auditoria/auditoria_info.md" [ref=f3e3122]:
+                              - generic [ref=f3e3123]:
+                                - generic [ref=f3e3127]: general_sst/manuales/auditoria/auditoria_info.md
+                                - generic [ref=f3e3128]: srev_56c27e14bb8119927c68bb86a8796e73
+                                - button "Ver detalle de general_sst/manuales/auditoria/auditoria_info.md" [ref=f3e3129] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e3130]
+                            - cell "processed" [ref=f3e3132]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e3134]
+                            - cell "No requerida" [ref=f3e3135]
+                          - row [ref=f3e3136]:
+                            - cell [ref=f3e3137]:
+                              - checkbox "Incluir revisión srev_55d9d1d7c6fc85f2768395297ca753fb en el snapshot" [ref=f3e3138]
+                            - cell "general_sst/manuales/introduccion.md srev_55d9d1d7c6fc85f2768395297ca753fb Ver detalle de general_sst/manuales/introduccion.md" [ref=f3e3139]:
+                              - generic [ref=f3e3140]:
+                                - generic [ref=f3e3144]: general_sst/manuales/introduccion.md
+                                - generic [ref=f3e3145]: srev_55d9d1d7c6fc85f2768395297ca753fb
+                                - button "Ver detalle de general_sst/manuales/introduccion.md" [ref=f3e3146] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e3147]
+                            - cell "processed" [ref=f3e3149]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e3151]
+                            - cell "No requerida" [ref=f3e3152]
+                          - row [ref=f3e3153]:
+                            - cell [ref=f3e3154]:
+                              - checkbox "Incluir revisión srev_89f4293ad43756b266e9a31d3f8fb2ae en el snapshot" [ref=f3e3155]
+                            - cell "general_sst/manuales/mejora/mejora_info.md srev_89f4293ad43756b266e9a31d3f8fb2ae Ver detalle de general_sst/manuales/mejora/mejora_info.md" [ref=f3e3156]:
+                              - generic [ref=f3e3157]:
+                                - generic [ref=f3e3161]: general_sst/manuales/mejora/mejora_info.md
+                                - generic [ref=f3e3162]: srev_89f4293ad43756b266e9a31d3f8fb2ae
+                                - button "Ver detalle de general_sst/manuales/mejora/mejora_info.md" [ref=f3e3163] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e3164]
+                            - cell "processed" [ref=f3e3166]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e3168]
+                            - cell "No requerida" [ref=f3e3169]
+                          - row [ref=f3e3170]:
+                            - cell [ref=f3e3171]:
+                              - checkbox "Incluir revisión srev_ab2f7f0bb22ab04ccd5cd1cb80eb3f17 en el snapshot" [ref=f3e3172]
+                            - cell "general_sst/manuales/organizacion/arl/funciones_responsabilidades.md srev_ab2f7f0bb22ab04ccd5cd1cb80eb3f17 Ver detalle de general_sst/manuales/organizacion/arl/funciones_responsabilidades.md" [ref=f3e3173]:
+                              - generic [ref=f3e3174]:
+                                - generic [ref=f3e3178]: general_sst/manuales/organizacion/arl/funciones_responsabilidades.md
+                                - generic [ref=f3e3179]: srev_ab2f7f0bb22ab04ccd5cd1cb80eb3f17
+                                - button "Ver detalle de general_sst/manuales/organizacion/arl/funciones_responsabilidades.md" [ref=f3e3180] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e3181]
+                            - cell "processed" [ref=f3e3183]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e3185]
+                            - cell "No requerida" [ref=f3e3186]
+                          - row [ref=f3e3187]:
+                            - cell [ref=f3e3188]:
+                              - checkbox "Incluir revisión srev_db2d8cb28dcd5d206488f8b8a213f35a en el snapshot" [ref=f3e3189]
+                            - cell "general_sst/manuales/organizacion/comite_convivencia_laboral/aspectos_juridicos_laborales.md srev_db2d8cb28dcd5d206488f8b8a213f35a Ver detalle de general_sst/manuales/organizacion/comite_convivencia_laboral/aspectos_juridicos_laborales.md" [ref=f3e3190]:
+                              - generic [ref=f3e3191]:
+                                - generic [ref=f3e3195]: general_sst/manuales/organizacion/comite_convivencia_laboral/aspectos_juridicos_laborales.md
+                                - generic [ref=f3e3196]: srev_db2d8cb28dcd5d206488f8b8a213f35a
+                                - button "Ver detalle de general_sst/manuales/organizacion/comite_convivencia_laboral/aspectos_juridicos_laborales.md" [ref=f3e3197] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e3198]
+                            - cell "processed" [ref=f3e3200]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e3202]
+                            - cell "No requerida" [ref=f3e3203]
+                          - row [ref=f3e3204]:
+                            - cell [ref=f3e3205]:
+                              - checkbox "Incluir revisión srev_86bfa32092b8b4c50016d5577e40404f en el snapshot" [ref=f3e3206]
+                            - cell "general_sst/manuales/organizacion/comite_convivencia_laboral/funciones_responsabilidades.md srev_86bfa32092b8b4c50016d5577e40404f Ver detalle de general_sst/manuales/organizacion/comite_convivencia_laboral/funciones_responsabilidades.md" [ref=f3e3207]:
+                              - generic [ref=f3e3208]:
+                                - generic [ref=f3e3212]: general_sst/manuales/organizacion/comite_convivencia_laboral/funciones_responsabilidades.md
+                                - generic [ref=f3e3213]: srev_86bfa32092b8b4c50016d5577e40404f
+                                - button "Ver detalle de general_sst/manuales/organizacion/comite_convivencia_laboral/funciones_responsabilidades.md" [ref=f3e3214] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e3215]
+                            - cell "processed" [ref=f3e3217]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e3219]
+                            - cell "No requerida" [ref=f3e3220]
+                          - row [ref=f3e3221]:
+                            - cell [ref=f3e3222]:
+                              - checkbox "Incluir revisión srev_809cf399cf94ba0f1cbeaccdb7345688 en el snapshot" [ref=f3e3223]
+                            - cell "general_sst/manuales/organizacion/copasst/Aspectos_juridicos_laborales.md srev_809cf399cf94ba0f1cbeaccdb7345688 Ver detalle de general_sst/manuales/organizacion/copasst/Aspectos_juridicos_laborales.md" [ref=f3e3224]:
+                              - generic [ref=f3e3225]:
+                                - generic [ref=f3e3229]: general_sst/manuales/organizacion/copasst/Aspectos_juridicos_laborales.md
+                                - generic [ref=f3e3230]: srev_809cf399cf94ba0f1cbeaccdb7345688
+                                - button "Ver detalle de general_sst/manuales/organizacion/copasst/Aspectos_juridicos_laborales.md" [ref=f3e3231] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e3232]
+                            - cell "processed" [ref=f3e3234]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e3236]
+                            - cell "No requerida" [ref=f3e3237]
+                          - row [ref=f3e3238]:
+                            - cell [ref=f3e3239]:
+                              - checkbox "Incluir revisión srev_f205a9dabb09770a0b234bb907342a75 en el snapshot" [ref=f3e3240]
+                            - cell "general_sst/manuales/organizacion/copasst/Funciones_Responsabilidades.md srev_f205a9dabb09770a0b234bb907342a75 Ver detalle de general_sst/manuales/organizacion/copasst/Funciones_Responsabilidades.md" [ref=f3e3241]:
+                              - generic [ref=f3e3242]:
+                                - generic [ref=f3e3246]: general_sst/manuales/organizacion/copasst/Funciones_Responsabilidades.md
+                                - generic [ref=f3e3247]: srev_f205a9dabb09770a0b234bb907342a75
+                                - button "Ver detalle de general_sst/manuales/organizacion/copasst/Funciones_Responsabilidades.md" [ref=f3e3248] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e3249]
+                            - cell "processed" [ref=f3e3251]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e3253]
+                            - cell "No requerida" [ref=f3e3254]
+                          - row [ref=f3e3255]:
+                            - cell [ref=f3e3256]:
+                              - checkbox "Incluir revisión srev_294bd0fcdf1ae6e765481b4d4b3b77a5 en el snapshot" [ref=f3e3257]
+                            - cell "general_sst/manuales/organizacion/organizacion.md srev_294bd0fcdf1ae6e765481b4d4b3b77a5 Ver detalle de general_sst/manuales/organizacion/organizacion.md" [ref=f3e3258]:
+                              - generic [ref=f3e3259]:
+                                - generic [ref=f3e3263]: general_sst/manuales/organizacion/organizacion.md
+                                - generic [ref=f3e3264]: srev_294bd0fcdf1ae6e765481b4d4b3b77a5
+                                - button "Ver detalle de general_sst/manuales/organizacion/organizacion.md" [ref=f3e3265] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e3266]
+                            - cell "processed" [ref=f3e3268]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e3270]
+                            - cell "No requerida" [ref=f3e3271]
+                          - row [ref=f3e3272]:
+                            - cell [ref=f3e3273]:
+                              - checkbox "Incluir revisión srev_23c0ef96ec3d10cf4afd1ad132f490a7 en el snapshot" [ref=f3e3274]
+                            - cell "general_sst/manuales/organizacion/reglamento_interno_trabajo/1780069704133_syc_REGLAMENTOACTUALIZADO29052026.pdf srev_23c0ef96ec3d10cf4afd1ad132f490a7 Ver detalle de general_sst/manuales/organizacion/reglamento_interno_trabajo/1780069704133_syc_REGLAMENTOACTUALIZADO29052026.pdf" [ref=f3e3275]:
+                              - generic [ref=f3e3276]:
+                                - generic [ref=f3e3280]: general_sst/manuales/organizacion/reglamento_interno_trabajo/1780069704133_syc_REGLAMENTOACTUALIZADO29052026.pdf
+                                - generic [ref=f3e3281]: srev_23c0ef96ec3d10cf4afd1ad132f490a7
+                                - button "Ver detalle de general_sst/manuales/organizacion/reglamento_interno_trabajo/1780069704133_syc_REGLAMENTOACTUALIZADO29052026.pdf" [ref=f3e3282] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e3283]
+                            - cell "processed" [ref=f3e3285]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e3287]
+                            - cell "No requerida" [ref=f3e3288]
+                          - row [ref=f3e3289]:
+                            - cell [ref=f3e3290]:
+                              - checkbox "Incluir revisión srev_57fd649eefac59c88ba9d883cb9ef9e4 en el snapshot" [ref=f3e3291]
+                            - cell "general_sst/manuales/planificacion/planificacion_info.md srev_57fd649eefac59c88ba9d883cb9ef9e4 Ver detalle de general_sst/manuales/planificacion/planificacion_info.md" [ref=f3e3292]:
+                              - generic [ref=f3e3293]:
+                                - generic [ref=f3e3297]: general_sst/manuales/planificacion/planificacion_info.md
+                                - generic [ref=f3e3298]: srev_57fd649eefac59c88ba9d883cb9ef9e4
+                                - button "Ver detalle de general_sst/manuales/planificacion/planificacion_info.md" [ref=f3e3299] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e3300]
+                            - cell "processed" [ref=f3e3302]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e3304]
+                            - cell "No requerida" [ref=f3e3305]
+                          - row [ref=f3e3306]:
+                            - cell [ref=f3e3307]:
+                              - checkbox "Incluir revisión srev_e1d606eb9095ce1bf6d36d1fedcfc2e8 en el snapshot" [ref=f3e3308]
+                            - cell "general_sst/manuales/politica/1778000305710_syc_politicadeseguridady.pdf srev_e1d606eb9095ce1bf6d36d1fedcfc2e8 Ver detalle de general_sst/manuales/politica/1778000305710_syc_politicadeseguridady.pdf" [ref=f3e3309]:
+                              - generic [ref=f3e3310]:
+                                - generic [ref=f3e3314]: general_sst/manuales/politica/1778000305710_syc_politicadeseguridady.pdf
+                                - generic [ref=f3e3315]: srev_e1d606eb9095ce1bf6d36d1fedcfc2e8
+                                - button "Ver detalle de general_sst/manuales/politica/1778000305710_syc_politicadeseguridady.pdf" [ref=f3e3316] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e3317]
+                            - cell "processed" [ref=f3e3319]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e3321]
+                            - cell "No requerida" [ref=f3e3322]
+                          - row [ref=f3e3323]:
+                            - cell [ref=f3e3324]:
+                              - checkbox "Incluir revisión srev_bfa015eb6891c4540631fe34015c9218 en el snapshot" [ref=f3e3325]
+                            - cell "general_sst/manuales/politica/politica.md srev_bfa015eb6891c4540631fe34015c9218 Ver detalle de general_sst/manuales/politica/politica.md" [ref=f3e3326]:
+                              - generic [ref=f3e3327]:
+                                - generic [ref=f3e3331]: general_sst/manuales/politica/politica.md
+                                - generic [ref=f3e3332]: srev_bfa015eb6891c4540631fe34015c9218
+                                - button "Ver detalle de general_sst/manuales/politica/politica.md" [ref=f3e3333] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e3334]
+                            - cell "processed" [ref=f3e3336]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e3338]
+                            - cell "No requerida" [ref=f3e3339]
+                          - row [ref=f3e3340]:
+                            - cell [ref=f3e3341]:
+                              - checkbox "Incluir revisión srev_c9d79af2f55af38240a8f331e8c2232c en el snapshot" [ref=f3e3342]
+                            - cell "general_sst/manuales/verificacion/verificacion_info.md srev_c9d79af2f55af38240a8f331e8c2232c Ver detalle de general_sst/manuales/verificacion/verificacion_info.md" [ref=f3e3343]:
+                              - generic [ref=f3e3344]:
+                                - generic [ref=f3e3348]: general_sst/manuales/verificacion/verificacion_info.md
+                                - generic [ref=f3e3349]: srev_c9d79af2f55af38240a8f331e8c2232c
+                                - button "Ver detalle de general_sst/manuales/verificacion/verificacion_info.md" [ref=f3e3350] [cursor=pointer]: Ver detalle
+                            - cell "Normalizado" [ref=f3e3351]
+                            - cell "processed" [ref=f3e3353]
+                            - cell "27/08/2026, 07:13 p. m." [ref=f3e3355]
+                            - cell "No requerida" [ref=f3e3356]
+                    - complementary "Detalle de revisión" [ref=f3e3357]:
+                      - heading "Detalle de revisión" [level=3] [ref=f3e3360]
+                      - generic [ref=f3e3361]: Selecciona un documento para ver sus datos auditables.
+                  - generic [ref=f3e3366]:
+                    - button "Crear snapshot" [disabled] [ref=f3e3367]
+                    - note [ref=f3e3368]: Selecciona al menos una revisión.
+              - region "Historial de snapshots" [ref=f3e3369]:
+                - generic [ref=f3e3371]:
+                  - heading "Historial" [level=2] [ref=f3e3372]
+                  - generic [ref=f3e3373]: Snapshots inmutables; el seleccionado se rehidrata tras un refresh.
+                - list "Historial de snapshots de corpus" [ref=f3e3375]:
+                  - listitem [ref=f3e3376]:
+                    - generic [ref=f3e3377]:
+                      - strong [ref=f3e3378]:
+                        - code [ref=f3e3379]: corpus_7fd419768296dfb023f072d4
+                      - generic [ref=f3e3380]:
+                        - text: 3 doc(s) · manifest
+                        - code [ref=f3e3381]: 7fd419768296dfb023f072d4976f71acbd55fdfb1e4b5bef4b0f5993948795a8
+                      - generic [ref=f3e3382]: 2026-08-27T19:13:50.980764-05:00
+                  - listitem [ref=f3e3383]:
+                    - generic [ref=f3e3384]:
+                      - strong [ref=f3e3385]:
+                        - code [ref=f3e3386]: corpus_ae76723d8c6a51e010b1a4d3
+                      - generic [ref=f3e3387]:
+                        - text: 54 doc(s) · manifest
+                        - code [ref=f3e3388]: ae76723d8c6a51e010b1a4d3631f7b3c6741f7629a3ac274b0db5b85b0a0a0e8
+                      - generic [ref=f3e3389]: 2026-08-27T19:22:27.937760-05:00
+                  - listitem [ref=f3e3390]:
+                    - generic [ref=f3e3391]:
+                      - strong [ref=f3e3392]:
+                        - code [ref=f3e3393]: corpus_afef3371f85da8b5bf194f7c
+                      - generic [ref=f3e3394]:
+                        - text: 55 doc(s) · manifest
+                        - code [ref=f3e3395]: afef3371f85da8b5bf194f7c0fedef03bdb1c330c182854eb25182a4f6309df4
+                      - generic [ref=f3e3396]: 2026-08-27T20:42:18.980871-05:00
+          - region "Nuevo draft de release" [ref=f3e3397]:
+            - generic [ref=f3e3399]:
+              - heading "Nuevo draft" [level=2] [ref=f3e3400]
+              - generic [ref=f3e3401]: Congela variante, snapshot y binding lógico en una release reproducible.
+            - generic [ref=f3e3403]:
+              - generic [ref=f3e3404]:
+                - generic [ref=f3e3405]: Variante RAG
+                - combobox "Variante RAG" [ref=f3e3406]:
+                  - option "ragv_local-bge · active" [selected]
+              - generic [ref=f3e3407]:
+                - generic [ref=f3e3408]: Snapshot de corpus
+                - combobox "Snapshot de corpus" [ref=f3e3409]:
+                  - option "corpus_7fd419768296dfb023f072d4 · 3 doc(s)"
+                  - option "corpus_ae76723d8c6a51e010b1a4d3 · 54 doc(s)"
+                  - option "corpus_afef3371f85da8b5bf194f7c · 55 doc(s)" [selected]
+              - generic [ref=f3e3410]:
+                - generic [ref=f3e3411]: Target binding key (lógico)
+                - combobox "Target binding key (lógico)" [ref=f3e3412]:
+                  - option "primary" [selected]
+              - button "Crear draft" [ref=f3e3414] [cursor=pointer]
+          - region "Historial de releases" [ref=f3e3419]:
+            - generic [ref=f3e3421]:
+              - heading "Historial" [level=2] [ref=f3e3422]
+              - generic [ref=f3e3423]: Releases del proyecto; la seleccionada se rehidrata tras un refresh.
+            - list "Historial de releases" [ref=f3e3425]:
+              - listitem [ref=f3e3426]:
+                - 'button "ragr_535326bb2e284bed release #2 · draft manifest — 2026-08-27T19:23:57.788631-05:00" [ref=f3e3427] [cursor=pointer]':
+                  - strong [ref=f3e3428]:
+                    - code [ref=f3e3429]: ragr_535326bb2e284bed
+                  - generic [ref=f3e3430]:
+                    - text: "release #2 ·"
+                    - generic [ref=f3e3431]: draft
+                  - generic [ref=f3e3432]:
+                    - text: manifest
+                    - code [ref=f3e3433]: —
+                  - generic [ref=f3e3434]: 2026-08-27T19:23:57.788631-05:00
+              - listitem [ref=f3e3435]:
+                - 'button "ragr_8e53fd6c68034fb2 release #1 · draft manifest — 2026-08-27T19:13:51.019395-05:00" [ref=f3e3436] [cursor=pointer]':
+                  - strong [ref=f3e3437]:
+                    - code [ref=f3e3438]: ragr_8e53fd6c68034fb2
+                  - generic [ref=f3e3439]:
+                    - text: "release #1 ·"
+                    - generic [ref=f3e3440]: draft
+                  - generic [ref=f3e3441]:
+                    - text: manifest
+                    - code [ref=f3e3442]: —
+                  - generic [ref=f3e3443]: 2026-08-27T19:13:51.019395-05:00
+        - generic [ref=f3e3444]:
+          - region "Ciclo de vida de la release" [ref=f3e3445]:
+            - generic [ref=f3e3447]:
+              - heading "Lifecycle" [level=2] [ref=f3e3448]
+              - generic [ref=f3e3449]: Solo se ofrecen las transiciones válidas para el estado actual.
+            - generic [ref=f3e3451]:
+              - 'list "Estado de la release: draft" [ref=f3e3452]':
+                - listitem [ref=f3e3453]:
+                  - generic [ref=f3e3455]: draft
+                  - generic [ref=f3e3456]: actual
+                - listitem [ref=f3e3457]:
+                  - generic [ref=f3e3459]: validated
+                - listitem [ref=f3e3460]:
+                  - generic [ref=f3e3462]: published
+                - listitem [ref=f3e3463]:
+                  - generic [ref=f3e3465]: retired
+              - generic [ref=f3e3466]:
+                - button "Construir (build)" [ref=f3e3467] [cursor=pointer]
+                - button "Validar" [ref=f3e3472] [cursor=pointer]
+          - region "Informe de build" [ref=f3e3476]:
+            - generic [ref=f3e3478]:
+              - heading "Informe de build" [level=2] [ref=f3e3479]
+              - generic [ref=f3e3480]: Resultado del último build de la release seleccionada.
+            - generic [ref=f3e3481]: Ejecuta un build sobre una release en draft para ver el informe.

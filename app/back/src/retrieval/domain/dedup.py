@@ -22,6 +22,16 @@ def content_fingerprint(text: str) -> str:
     return sha256(normalized.encode("utf-8")).hexdigest()
 
 
+def _word_set(text: str) -> set[str]:
+    return set(_WHITESPACE.sub(" ", text.strip().lower()).split())
+
+
+def _jaccard(a: set[str], b: set[str]) -> float:
+    if not a or not b:
+        return 0.0
+    return len(a & b) / len(a | b)
+
+
 def format_source_rank(source_relpath: str | None) -> int:
     """Rango de calidad de fuente: menor es mejor.
 
@@ -44,6 +54,8 @@ def select_unique_slots(
     parent_ids: Sequence[str | None],
     source_ranks: Sequence[int],
     max_per_parent: int = 2,
+    texts: Sequence[str] | None = None,
+    complementary_threshold: float = 0.6,
 ) -> tuple[list[tuple[int, int]], int, dict[int, list[int]]]:
     """Selecciona qué posiciones (en orden de ranking) sobreviven al dedup.
 
@@ -53,6 +65,12 @@ def select_unique_slots(
     - Máximo ``max_per_parent`` slots por ``parent_node_id``: evita que un
       párrafo largo ocupe medio top-k.
     - Los slots sin padre se agrupan por posición propia (nunca comparten cupo).
+    - Si se pasa ``texts``: un segundo (o posterior) hijo del mismo parent solo
+      sobrevive si su solapamiento de palabras (Jaccard) con CADA hijo ya
+      admitido de ese parent queda por debajo de ``complementary_threshold``.
+      Sin esto, dos ventanas de chunk casi idénticas del mismo párrafo largo
+      ocupaban dos posiciones del top-k sin aportar nada nuevo. Sin ``texts``
+      (``None``) el comportamiento es igual al de antes: solo cuenta el cupo.
 
     Devuelve ``(slots, dropped_count, slot_to_merged_indices)`` donde
     ``slots`` mapea posición del ranking -> índice del elemento elegido para
@@ -62,11 +80,14 @@ def select_unique_slots(
 
     if not (len(fingerprints) == len(parent_ids) == len(source_ranks)):
         raise ValueError("fingerprints, parent_ids y source_ranks deben tener igual largo")
+    if texts is not None and len(texts) != len(fingerprints):
+        raise ValueError("texts debe tener el mismo largo que fingerprints")
 
     fingerprint_to_slot: dict[str, int] = {}
     slot_to_chosen: dict[int, int] = {}
     slot_to_merged: dict[int, list[int]] = {}
     per_parent: dict[str, int] = {}
+    per_parent_word_sets: dict[str, list[set[str]]] = {}
     dropped = 0
 
     for index in range(len(fingerprints)):
@@ -83,6 +104,16 @@ def select_unique_slots(
             dropped += 1
             continue
 
+        if texts is not None and parent_key in per_parent_word_sets:
+            candidate_words = _word_set(texts[index])
+            too_similar = any(
+                _jaccard(candidate_words, admitted) >= complementary_threshold
+                for admitted in per_parent_word_sets[parent_key]
+            )
+            if too_similar:
+                dropped += 1
+                continue
+
         used = per_parent.get(parent_key, 0)
         if used >= max_per_parent:
             dropped += 1
@@ -92,5 +123,7 @@ def select_unique_slots(
         slot_to_chosen[index] = index
         slot_to_merged[index] = [index]
         per_parent[parent_key] = used + 1
+        if texts is not None:
+            per_parent_word_sets.setdefault(parent_key, []).append(_word_set(texts[index]))
 
     return sorted(slot_to_chosen.items()), dropped, slot_to_merged

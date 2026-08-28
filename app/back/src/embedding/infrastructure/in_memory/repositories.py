@@ -163,11 +163,15 @@ class InMemoryEmbeddingRunRepository:
         return sorted(runs, key=lambda run: (run.created_at or _now()), reverse=True)
 
     def claim(self, embedding_run_id: str) -> bool:
-        """Transition ``pending`` to ``running`` exactly once."""
+        """Transition ``pending`` or ``failed`` to ``running`` exactly once.
+
+        ``failed`` is reclaimable so a retried release build (same
+        idempotency key, same run row) can recover from a transient failure.
+        """
 
         with self._lock:
             run = self._runs.get(embedding_run_id)
-            if run is None or run.status != "pending":
+            if run is None or run.status not in ("pending", "failed"):
                 return False
             self._runs[embedding_run_id] = run.model_copy(
                 update={"status": "running", "started_at": _now()}

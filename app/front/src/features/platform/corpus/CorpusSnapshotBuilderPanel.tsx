@@ -19,12 +19,12 @@ import { useCorpusSnapshotWorkspace } from "./useCorpusSnapshotWorkspace.js";
 // el inventario neutral + historial. Hospedado por `RAG / Releases`
 // (snapshot -> draft) y, durante la migración, por `CorpusSnapshotWorkspace`
 // para no perder cobertura de tests mientras se recompone la ruta.
-export function CorpusSnapshotBuilderPanel({ compact = false }: { compact?: boolean } = {}) {
+export function CorpusSnapshotBuilderPanel() {
   const workspace = useCorpusSnapshotWorkspace();
   const loading = workspace.candidates.status === "loading";
 
   return (
-    <div className={compact ? "corpus-grid corpus-grid-compact" : "corpus-grid"}>
+    <div className="corpus-grid">
       {workspace.notice ? (
         <DashboardNotice tone={workspace.notice.tone} message={workspace.notice.message} />
       ) : null}
@@ -66,6 +66,7 @@ export function CorpusSnapshotBuilderPanel({ compact = false }: { compact?: bool
           <SnapshotHistory
             state={workspace.history}
             selectedSnapshotId={workspace.selectedSnapshotId}
+            onSelect={workspace.selectSnapshot}
           />
         </div>
       </section>

@@ -10,6 +10,7 @@ from embedding.domain.errors import (
     EmbeddingEngineNotFound,
     EmbeddingEngineUnavailable,
 )
+from indexing.infrastructure.embeddings.bge import BgeModelCache
 
 from pipeline_fixtures import build_profile
 
@@ -146,6 +147,41 @@ def test_runtime_status_deja_libre_el_bge_m3_legacy() -> None:
     assert status.supports_documents is True
     assert status.supports_queries is True
     assert status.blocked_reason is None
+
+
+def test_comparte_el_bge_model_cache_entre_perfiles_distintos_del_mismo_modelo() -> None:
+    """Two distinct bge profile_ids each get their own registry cache entry, but
+    both providers hold the SAME injected ``BgeModelCache`` -- the collaborator
+    that actually dedupes the ~2GB model load when both name ``BAAI/bge-m3``.
+    """
+
+    shared_cache = BgeModelCache()
+    registry = DefaultEmbeddingEngineRegistry(
+        environ={}, allow_mock=True, bge_model_cache=shared_cache
+    )
+    first_profile = build_profile(
+        profile_id="bge-a",
+        provider="bge",
+        model="BAAI/bge-m3",
+        dimension=1024,
+        normalization="l2",
+        vector_table="idx_vec_local_bge_m3_v1",
+    )
+    second_profile = build_profile(
+        profile_id="bge-b",
+        provider="bge",
+        model="BAAI/bge-m3",
+        dimension=1024,
+        normalization="l2",
+        vector_table="idx_vec_local_bge_m3_v1",
+    )
+
+    first_engine = registry.resolve_document_engine(first_profile)
+    second_engine = registry.resolve_document_engine(second_profile)
+
+    assert first_engine is not second_engine
+    assert first_engine.provider.model_cache is shared_cache
+    assert second_engine.provider.model_cache is shared_cache
 
 
 def test_trata_la_normalizacion_unknown_del_bge_m3_legacy_como_compatible() -> None:

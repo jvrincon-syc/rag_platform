@@ -242,6 +242,31 @@ def test_executor_limpia_la_transaccion_y_marca_failed_si_explota(harness, tmp_p
     assert connection.rollbacks == 1
 
 
+def test_run_fallido_se_puede_reintentar_tras_falla_transitoria(harness, tmp_path) -> None:
+    """Un release build reintentado reusa el mismo embedding_run_id (misma
+    idempotency key); si ese run quedo 'failed' por un error transitorio
+    (p. ej. timeout de red), el reintento debe poder reclamarlo de nuevo en
+    vez de devolver para siempre el resultado failed cacheado."""
+
+    run = harness.create_run.execute(request=_request(harness), idempotency_key="key-retry")
+    failing_executor = EmbeddingRunExecutor(
+        runs=harness.runs,
+        profiles=harness.profiles,
+        chunk_bundles=harness.chunk_bundles,
+        bundles=harness.bundles,
+        registry=harness.registry,
+        builder=_ExplodingBuilder(),
+        content_reader=FilesystemChunkBundleContentReader(chunks_root=tmp_path / "chunks"),
+        error_id_factory=lambda: "internal-retry",
+    )
+    first = failing_executor.execute(run.embedding_run_id)
+    assert first.status == "failed"
+
+    retried = harness.executor.execute(run.embedding_run_id)
+
+    assert retried.status == "completed"
+
+
 def test_executor_registra_timeout_y_rollback_con_fase(caplog, harness, tmp_path) -> None:
     run = harness.create_run.execute(request=_request(harness), idempotency_key="key-timeout")
     connection = _ConnectionSpy()

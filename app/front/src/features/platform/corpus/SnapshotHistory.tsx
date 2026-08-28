@@ -10,9 +10,11 @@ import type { HistoryState } from "./useCorpusSnapshotWorkspace.js";
 export function SnapshotHistory({
   state,
   selectedSnapshotId,
+  onSelect,
 }: {
   state: HistoryState;
   selectedSnapshotId: string | null;
+  onSelect: (snapshotId: string) => void;
 }) {
   if (state.status === "idle" || state.status === "loading") {
     return <StatePanel kind="loading" message="Cargando historial..." />;
@@ -38,9 +40,11 @@ export function SnapshotHistory({
         const active = snapshot.corpus_snapshot_id === selectedSnapshotId;
         return (
           <li key={snapshot.corpus_snapshot_id}>
-            <div
+            <button
+              type="button"
               className={active ? "ui-list-item active" : "ui-list-item"}
               aria-current={active ? "true" : undefined}
+              onClick={() => onSelect(snapshot.corpus_snapshot_id)}
             >
               <strong>
                 <code>{snapshot.corpus_snapshot_id}</code>
@@ -50,7 +54,7 @@ export function SnapshotHistory({
                 <code title="Firma inmutable de procedencia">{snapshot.manifest_hash}</code>
               </span>
               <small>{snapshot.created_at}</small>
-            </div>
+            </button>
           </li>
         );
       })}

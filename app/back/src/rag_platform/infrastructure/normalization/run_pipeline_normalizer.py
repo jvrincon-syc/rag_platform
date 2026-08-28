@@ -26,11 +26,16 @@ from ingestion.application.platform_metadata import (
 )
 from ingestion.inventory.scanner import scan_docs_raw
 from ingestion.paths import canonical_relpath
+from rag_platform.application.context import NormalizedArtifactRepository
 from rag_platform.application.project_normalization_service import (
     ProjectNormalizeOutcome,
 )
 from rag_platform.domain.errors import ProjectNormalizationIncomplete
-from rag_platform.domain.models import RagProject, SourceDocumentRevision
+from rag_platform.domain.models import (
+    NormalizedDocumentArtifact,
+    RagProject,
+    SourceDocumentRevision,
+)
 from rag_platform.infrastructure.storage.project_storage import ProjectStorageResolver
 
 #: Etiquetas del escaneo raw (identidad la lleva la revisión lógica, no el scan).
@@ -102,10 +107,12 @@ class RunPipelineProjectNormalizer:
         self,
         storage: ProjectStorageResolver,
         *,
+        normalized_artifacts: NormalizedArtifactRepository | None = None,
         env_file: str | Path | None = None,
         allow_cloud: bool = False,
     ) -> None:
         self._storage = storage
+        self._normalized_artifacts = normalized_artifacts
         self._env_file = env_file
         self._allow_cloud = allow_cloud
 
@@ -168,6 +175,13 @@ class RunPipelineProjectNormalizer:
             allow_cloud=self._allow_cloud,
             env_file=self._env_file,
         )
+        if self._normalized_artifacts is not None:
+            self.register_normalized(
+                project=project,
+                revisions=revisions,
+                normalized_root=normalized_root,
+                processing_profile_fingerprint=processing_profile_fingerprint,
+            )
         return ProjectNormalizeOutcome(
             rag_variant_id=rag_variant_id or "",
             processed=int(summary.get("processed", 0)),
@@ -176,3 +190,41 @@ class RunPipelineProjectNormalizer:
             failed=int(summary.get("failed", 0)),
             revision_ids=tuple(r.source_document_revision_id.value for r in revisions),
         )
+
+    def register_normalized(
+        self,
+        *,
+        project: RagProject,
+        revisions: tuple[SourceDocumentRevision, ...],
+        normalized_root: Path,
+        processing_profile_fingerprint: str,
+    ) -> None:
+        """Registra en el read-model cada revisión cuyo markdown quedó en disco.
+
+        ``run_pipeline`` solo devuelve conteos agregados (no detalle por
+        documento), así que la señal de éxito por revisión es la existencia del
+        archivo promovido: las que fallaron nunca llegan a escribirse. El
+        ``artifact_relpath`` replica la convención de
+        ``Schema2FilesystemNormalizedArtifactBuilder`` (release_build_resolver.py)
+        para que el reuso de build encuentre el mismo artefacto. Público: lo
+        llaman tanto ``normalize()`` (endpoint HTTP) como el CLI
+        ``run_project_ingestion.py``, que ejecuta ``execute_normalize_pipeline``
+        fuera de la conexión y reabre una después solo para este registro.
+        """
+        if self._normalized_artifacts is None:
+            return
+        for revision in revisions:
+            artifact_relpath = (
+                f"normalized/{Path(revision.source_relpath).with_suffix('.md').as_posix()}"
+            )
+            if not (normalized_root / Path(revision.source_relpath).with_suffix(".md")).exists():
+                continue
+            self._normalized_artifacts.add(
+                NormalizedDocumentArtifact(
+                    project_id=project.project_id,
+                    source_document_revision_id=revision.source_document_revision_id,
+                    processing_profile_fingerprint=processing_profile_fingerprint,
+                    schema_version="2.0",
+                    artifact_relpath=artifact_relpath,
+                )
+            )

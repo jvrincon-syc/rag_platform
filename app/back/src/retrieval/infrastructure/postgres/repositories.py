@@ -8,6 +8,7 @@ interpolated into an identifier position; every value stays parameterized.
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from datetime import datetime
 import re
 
@@ -44,39 +45,174 @@ _PROFILE_COLUMNS = (
 # basename tokens (weight A) carry the core document identity.
 _FTS_TITLE_A = "setweight(to_tsvector('spanish', COALESCE({t}.section_title, '')), 'A')"
 _FTS_PATH_B = "setweight(to_tsvector('spanish', COALESCE({t}.section_path, '')), 'B')"
-_FTS_DIR_C = (
-    "setweight(to_tsvector('spanish', "
-    "array_to_string(regexp_to_array("
-    "regexp_replace("
-    "regexp_replace("
-    "regexp_replace("
-    "regexp_replace(COALESCE({t}.{c}, ''), E'.*[/\\\\\\\\]', '', 'g'),"
-    " E'\\\\.[^.]*$', '', 'g'),"
-    " E'(?i)\\\\bgeneral_sst\\\\b', '', 'g'),"
-    " E'(?i)\\\\bmanuales\\\\b', '', 'g'),"
-    " E'(?i)\\\\borganizacion\\\\b', '', 'g'),"
-    " E'(?i)\\\\bcapacitaciones\\\\b', '', 'g'),"
-    " E'(?i)\\\\bprotocolos\\\\b', '', 'g'),"
-    " E'(?i)\\\\bnormas_seguridad\\\\b', '', 'g'),"
-    " E'(?i)\\\\briesgos\\\\b', '', 'g'),"
-    " E'(?i)\\\\bcanales_comunicacion\\\\b', '', 'g'),"
-    " E'(?i)\\\\bcomunicaciones\\\\b', '', 'g'),"
-    " E'(?i)\\\\briesgo_fisico\\\\b', '', 'g'),"
-    " E'(?i)\\\\baspectos_ambientales\\\\b', '', 'g'),"
-    " E'(?i)\\\\bpreferidos\\\\b', '', 'g'),"
-    " E'(?i)\\\\brespaldo\\\\b', '', 'g'),"
-    " E'[/\\\\\\\\]+', ' ')), ' ')), 'C')"
-)
-_FTS_BASENAME_A = (
-    "setweight(to_tsvector('spanish', "
-    "array_to_string(regexp_to_array("
-    "regexp_replace("
-    "regexp_replace(COALESCE({t}.{c}, ''), E'.*[/\\\\\\\\]', '', 'g'),"
-    " E'\\\\.[^.]*$', '', 'g'),"
-    " E'[^a-zA-Z\\\\u00C0-\\\\u024F]+', ' ', 'g'),"
-    " ' '), ' ')), 'A')"
-)
 _FTS_BODY_C = "setweight(to_tsvector('spanish', {t}.text), 'C')"
+
+_FTS_GENERIC_DIRECTORY_TOKENS = (
+    "general_sst",
+    "manuales",
+    "organizacion",
+    "capacitaciones",
+    "protocolos",
+    "normas_seguridad",
+    "riesgos",
+    "canales_comunicacion",
+    "comunicaciones",
+    "riesgo_fisico",
+    "aspectos_ambientales",
+    "preferidos",
+    "respaldo",
+)
+
+_FTS_PUNCTUATION_RE = re.compile(r"[^\w\s-]+", re.UNICODE)
+_FTS_WHITESPACE_RE = re.compile(r"\s+")
+_DOMAIN_ACRONYM_EXPANSIONS: dict[str, tuple[str, ...]] = {
+    "arl": ("administradora riesgos laborales",),
+    "copasst": ("comite paritario seguridad salud trabajo",),
+    "pesv": ("plan estrategico seguridad vial",),
+    "sg-sst": ("sistema gestion seguridad salud trabajo",),
+}
+
+
+def _chain_regexp_replace(
+    base_sql: str,
+    replacements: Sequence[tuple[str, str, str]],
+) -> str:
+    expr = base_sql
+    for pattern_sql, replacement_sql, flags_sql in replacements:
+        expr = (
+            f"regexp_replace({expr}, {pattern_sql}, {replacement_sql}, "
+            f"'{flags_sql}')"
+        )
+    return expr
+
+
+def _build_fts_dir_sql() -> str:
+    replacements: list[tuple[str, str, str]] = [
+        (r"E'[/\\\\]+[^/\\\\]+$'", "''", "g"),
+    ]
+    replacements.extend(
+        (fr"E'(?i)\\b{token}\\b'", "''", "g")
+        for token in _FTS_GENERIC_DIRECTORY_TOKENS
+    )
+    expr = _chain_regexp_replace("COALESCE({t}.{c}, '')", replacements)
+    return (
+        "setweight(to_tsvector('spanish', "
+        "array_to_string(regexp_split_to_array("
+        f"{expr}, E'[/\\\\\\\\]+'), ' ')), 'C')"
+    )
+
+
+def _build_fts_basename_sql() -> str:
+    expr = _chain_regexp_replace(
+        "COALESCE({t}.{c}, '')",
+        [
+            (r"E'.*[/\\\\]+'", "''", "g"),
+            (r"E'\\.[^.]*$'", "''", "g"),
+            (r"E'[^a-zA-Z\\u00C0-\\u024F]+'", "' '", "g"),
+        ],
+    )
+    return (
+        "setweight(to_tsvector('spanish', "
+        "array_to_string(regexp_split_to_array("
+        f"{expr}, ' '), ' ')), 'A')"
+    )
+
+
+_FTS_DIR_C = _build_fts_dir_sql()
+_FTS_BASENAME_A = _build_fts_basename_sql()
+
+
+@dataclass(frozen=True)
+class _FtsQueryMode:
+    mode_name: str
+    tsquery_function: str
+    config: str
+    query_text: str
+
+
+def _normalize_fts_query(query: str) -> str:
+    normalized = _FTS_PUNCTUATION_RE.sub(" ", query.casefold())
+    normalized = _FTS_WHITESPACE_RE.sub(" ", normalized).strip()
+    return normalized
+
+
+def _expand_domain_terms(normalized_query: str) -> str:
+    if not normalized_query:
+        return normalized_query
+    terms = normalized_query.split()
+    expansions: list[str] = []
+    for term in terms:
+        for phrase in _DOMAIN_ACRONYM_EXPANSIONS.get(term, ()):
+            if phrase not in normalized_query and phrase not in expansions:
+                expansions.append(phrase)
+    if not expansions:
+        return normalized_query
+    return f"{normalized_query} {' '.join(expansions)}"
+
+
+def _fts_query_modes(query: str) -> tuple[_FtsQueryMode, ...]:
+    normalized = _normalize_fts_query(query)
+    expanded = _expand_domain_terms(normalized)
+    modes: list[_FtsQueryMode] = [
+        _FtsQueryMode(
+            mode_name="spanish_strict",
+            tsquery_function="plainto_tsquery",
+            config="spanish",
+            query_text=normalized,
+        ),
+        _FtsQueryMode(
+            mode_name="spanish_relaxed",
+            tsquery_function="websearch_to_tsquery",
+            config="spanish",
+            query_text=normalized,
+        ),
+        _FtsQueryMode(
+            mode_name="simple_relaxed",
+            tsquery_function="websearch_to_tsquery",
+            config="simple",
+            query_text=normalized,
+        ),
+    ]
+    if expanded != normalized:
+        modes.extend(
+            [
+                _FtsQueryMode(
+                    mode_name="spanish_relaxed_expanded",
+                    tsquery_function="websearch_to_tsquery",
+                    config="spanish",
+                    query_text=expanded,
+                ),
+                _FtsQueryMode(
+                    mode_name="simple_relaxed_expanded",
+                    tsquery_function="websearch_to_tsquery",
+                    config="simple",
+                    query_text=expanded,
+                ),
+            ]
+        )
+    return tuple(modes)
+
+
+def _tsquery_sql(mode: _FtsQueryMode) -> str:
+    return f"{mode.tsquery_function}('{mode.config}', %s)"
+
+
+def _tsvector_sql(table_alias: str, *, config: str) -> str:
+    return " || ".join(
+        [
+            _FTS_TITLE_A.replace("'spanish'", f"'{config}'").format(t=table_alias),
+            _FTS_PATH_B.replace("'spanish'", f"'{config}'").format(t=table_alias),
+            _FTS_DIR_C.replace("'spanish'", f"'{config}'").format(
+                t=table_alias,
+                c="source_relpath",
+            ),
+            _FTS_BASENAME_A.replace("'spanish'", f"'{config}'").format(
+                t=table_alias,
+                c="source_relpath",
+            ),
+            _FTS_BODY_C.replace("'spanish'", f"'{config}'").format(t=table_alias),
+        ]
+    )
 
 
 def _validated_table(vector_table: str) -> str:
@@ -446,55 +582,70 @@ class PostgresLexicalSearch:
     ) -> list[RetrievedEvidence]:
         """Return the closest child nodes by full-text rank."""
 
-        tsvector = " || ".join([
-            _FTS_TITLE_A.format(t="node"),
-            _FTS_PATH_B.format(t="node"),
-            _FTS_DIR_C.format(t="node", c="source_relpath"),
-            _FTS_BASENAME_A.format(t="node", c="source_relpath"),
-            _FTS_BODY_C.format(t="node"),
-        ])
-
         with self._connection.cursor() as cursor:
-            cursor.execute(
-                f"""
-                SELECT node.node_id,
-                       node.document_id,
-                       NULL AS embedding_bundle_id,
-                       node.parent_node_id,
-                       node.text,
-                       node.page_start,
-                       node.page_end,
-                       node.section_title,
-                       node.section_path,
-                       node.metadata,
-                       ts_rank_cd(
-                           {tsvector},
-                           plainto_tsquery('spanish', %s)
-                       ) AS score
-                  FROM indexing_nodes AS node
-                 JOIN indexing_normalized_documents AS document
-                    ON document.document_id = node.document_id
-                 WHERE node.node_role = 'child'
-                   AND node.project_id = %s
-                   AND node.corpus_version = %s
-                   AND document.processing_status = 'processed'
-                   AND document.review_status = 'approved'
-                   AND ({tsvector}) @@ plainto_tsquery('spanish', %s)
-                 ORDER BY score DESC
-                 LIMIT %s
-                """,
-                (query, project_id, corpus_version, query, top_k),
-            )
-            rows = cursor.fetchall()
-        return [
-            _evidence_from_row(
-                row=row,
-                source="lexical",
-                embedding_profile_id=embedding_profile_id,
-                corpus_version=corpus_version,
-            )
-            for row in rows
-        ]
+            for mode in _fts_query_modes(query):
+                tsvector = _tsvector_sql("node", config=mode.config)
+                tsquery = _tsquery_sql(mode)
+                cursor.execute(
+                    f"""
+                    SELECT node.node_id,
+                           node.document_id,
+                           NULL AS embedding_bundle_id,
+                           node.parent_node_id,
+                           node.text,
+                           node.page_start,
+                           node.page_end,
+                           node.section_title,
+                           node.section_path,
+                           node.metadata,
+                           ts_rank_cd(
+                               {tsvector},
+                               {tsquery}
+                           ) AS score
+                      FROM indexing_nodes AS node
+                     JOIN indexing_normalized_documents AS document
+                        ON document.document_id = node.document_id
+                     WHERE node.node_role = 'child'
+                       AND node.project_id = %s
+                       AND node.corpus_version = %s
+                       AND document.processing_status = 'processed'
+                       AND document.review_status = 'approved'
+                       AND ({tsvector}) @@ {tsquery}
+                     ORDER BY score DESC
+                     LIMIT %s
+                    """,
+                    (
+                        mode.query_text,
+                        project_id,
+                        corpus_version,
+                        mode.query_text,
+                        top_k,
+                    ),
+                )
+                rows = cursor.fetchall()
+                if not rows:
+                    continue
+                evidence = [
+                    _evidence_from_row(
+                        row=row,
+                        source="lexical",
+                        embedding_profile_id=embedding_profile_id,
+                        corpus_version=corpus_version,
+                    )
+                    for row in rows
+                ]
+                return [
+                    item.model_copy(
+                        update={
+                            "metadata": {
+                                **item.metadata,
+                                "fts_query_mode": mode.mode_name,
+                            }
+                        }
+                    )
+                    for item in evidence
+                ]
+        return []
 
 
 class PostgresParentExpansion:

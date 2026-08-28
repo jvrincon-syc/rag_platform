@@ -126,3 +126,19 @@ class ParentExpansionPort(Protocol):
         corpus_version: str,
     ) -> dict[str, RetrievedEvidence]:
         """Return parent evidence keyed by ``parent_node_id``."""
+
+
+class RerankerPort(Protocol):
+    """Final relevance pass over the deduped hybrid pool, before the top_k cut.
+
+    RRF fusion only knows rank position per lane, never how relevant a
+    candidate's actual text is to the query -- it cannot tell a genuinely
+    better vector match from a worse one with an incidental keyword overlap
+    when their RRF gap is small (see ``retrieval/fusion.py`` docstring). A
+    real reranker judges the query against each candidate's text directly.
+    """
+
+    def rerank(
+        self, *, query: str, candidates: list[RetrievedEvidence], top_n: int
+    ) -> list[RetrievedEvidence]:
+        """Reorder ``candidates`` by true relevance to ``query``; return top_n."""

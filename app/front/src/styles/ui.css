@@ -504,6 +504,7 @@ th {
   font-size: 12px;
   font-weight: 760;
   margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .ui-links a {
@@ -581,6 +582,10 @@ th {
   gap: 6px;
   padding: 12px;
   text-align: left;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease;
 }
 
 .ui-list-item {
@@ -641,6 +646,13 @@ th {
 
 .ui-empty svg {
   color: var(--accent-line);
+  opacity: 0.6;
+}
+
+.ui-empty span {
+  font-size: 13px;
+  line-height: 1.45;
+  max-width: 280px;
 }
 
 @media (max-width: 1180px) {

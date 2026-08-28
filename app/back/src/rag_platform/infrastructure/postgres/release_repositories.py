@@ -17,6 +17,7 @@ from rag_platform.domain.lifecycle import (
     RagReleaseMembership,
     ReleaseState,
 )
+from rag_platform.infrastructure.release_build_resolver import _commit_if_possible
 
 _RELEASE_COLUMNS = (
     "rag_release_id",
@@ -258,6 +259,11 @@ class PostgresReleaseBuildJobRepository:
                     job.updated_at,
                 ),
             )
+        # El worker de build corre en un hilo con conexión PROPIA (fresh, no
+        # comparte la del request); sin commit aca esa conexión no ve el job
+        # que el request acaba de insertar y muere con ReleaseBuildJobNotFound
+        # (visto en vivo: el hilo arrancaba y fallaba en su primer jobs.get()).
+        _commit_if_possible(self._connection)
         return job
 
     def update(self, job: ReleaseBuildJob) -> ReleaseBuildJob:
@@ -279,6 +285,10 @@ class PostgresReleaseBuildJobRepository:
             )
             if cursor.rowcount == 0:
                 raise ReleaseBuildJobNotFound(job.build_job_id)
+        # Simétrico a create(): esta escritura corre en la conexión fresca del
+        # hilo de build; sin commit, el polling del request (conexión distinta)
+        # nunca ve las transiciones running/succeeded/failed.
+        _commit_if_possible(self._connection)
         return job
 
     def get(self, build_job_id: str) -> ReleaseBuildJob:

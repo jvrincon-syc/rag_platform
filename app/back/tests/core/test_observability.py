@@ -65,3 +65,22 @@ def test_jsonl_logger_persists_observability_envelope_cuando_event_is_structured
     assert payload["metrics"]["duration_ms"] == 17
     assert payload["attributes"]["api_key"] == "***redacted***"
     assert payload["source_path"] == "gui/server"
+
+
+def test_jsonl_logger_recreates_parent_directory_before_each_append(
+    tmp_path: Path,
+) -> None:
+    log_path = tmp_path / "_manifests" / "run_details.log"
+    logger = JsonlLogger(log_path, "run_123")
+
+    # Simula un actor externo que elimina el staging/_manifests entre eventos.
+    log_path.parent.rmdir()
+
+    logger.event(
+        stage="pipeline",
+        event="pipeline_run_started",
+        status="started",
+        message="Pipeline run started",
+    )
+
+    assert log_path.is_file()

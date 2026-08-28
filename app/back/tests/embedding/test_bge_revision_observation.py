@@ -6,7 +6,19 @@ verification instead of silently passing. These tests pin both branches.
 
 from __future__ import annotations
 
+import os
+
 import pytest
+
+# transformers/huggingface_hub cache HF_HUB_OFFLINE as a module-level constant
+# read at THEIR OWN import time. This file imports transformers (directly via
+# importorskip, and transitively via _hub_snapshot_revision) before any of
+# that library's own callers get a chance to force offline mode, so it must
+# be set here first -- otherwise a cold import locks in online mode for the
+# rest of the pytest session and every later real hub call hangs for minutes
+# on a box with no reliable route to huggingface.co.
+os.environ.setdefault("HF_HUB_OFFLINE", "1")
+os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
 
 from embedding.application.engine_registry import _bge_revision, _hub_snapshot_revision
 from embedding.domain.models import UNKNOWN_REVISION
@@ -53,6 +65,23 @@ def test_no_resuelve_revision_para_un_modelo_inexistente() -> None:
     pytest.importorskip("transformers")
 
     assert _hub_snapshot_revision("BAAI/modelo-que-no-existe-xyz") == UNKNOWN_REVISION
+
+
+def test_fuerza_modo_offline_antes_de_importar_transformers(monkeypatch) -> None:
+    """get_runtime_status() llama _hub_snapshot_revision ANTES que
+    _load_bge_model, asi que este es el primer punto del proceso que toca
+    transformers/huggingface_hub. Si no fuerza offline aqui, ese import
+    congela HF_HUB_OFFLINE en el valor de ese momento para el resto del
+    proceso (visto en vivo: ConnectTimeout de ~166s en cada build, incluso
+    despues de arreglar _load_bge_model, porque ese import ya habia pasado)."""
+
+    monkeypatch.delenv("HF_HUB_OFFLINE", raising=False)
+    monkeypatch.delenv("TRANSFORMERS_OFFLINE", raising=False)
+
+    _hub_snapshot_revision("BAAI/modelo-que-no-existe-xyz")
+
+    assert os.environ.get("HF_HUB_OFFLINE") == "1"
+    assert os.environ.get("TRANSFORMERS_OFFLINE") == "1"
 
 
 @pytest.mark.bge_runtime

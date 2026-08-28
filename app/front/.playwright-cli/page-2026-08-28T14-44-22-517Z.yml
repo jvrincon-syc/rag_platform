@@ -1,0 +1,45 @@
+- generic [ref=e3]:
+  - complementary [ref=e28]:
+    - generic [ref=e29]: RAG Platform
+    - navigation "Superficies de operador" [ref=e35]:
+      - button "Platform" [ref=e36] [cursor=pointer]
+      - button "Legacy pipeline" [ref=e43] [cursor=pointer]
+    - generic [ref=e49]:
+      - generic [ref=e50]:
+        - generic [ref=e51]: Sesión
+        - strong [ref=e52]: prueba3
+        - generic [ref=e53]: Todos los proyectos
+      - button "Cerrar sesión" [ref=e54] [cursor=pointer]
+  - generic [ref=e59]:
+    - generic [ref=e60]:
+      - navigation "Vista de plataforma" [ref=e61]:
+        - button "Projects" [ref=e62] [cursor=pointer]
+        - button "Operacion" [ref=e63] [cursor=pointer]
+        - button "Revision" [ref=e64] [cursor=pointer]
+        - button "Inventario" [ref=e65] [cursor=pointer]
+        - button "Chunking" [ref=e66] [cursor=pointer]
+        - button "Embedding/Indexing" [ref=e67] [cursor=pointer]
+        - button "RAG / Releases" [ref=e68] [cursor=pointer]
+      - generic "Proyecto activo" [ref=e69]:
+        - strong [ref=e71]: Sin proyecto seleccionado
+    - main [ref=e72]:
+      - generic [ref=e73]:
+        - generic [ref=e74]:
+          - heading "RAG Platform" [level=1] [ref=e75]
+          - paragraph [ref=e76]: Administración de proyectos y su configuración versionada.
+        - button "Actualizar" [disabled] [ref=e78]
+      - generic [ref=e81]:
+        - region "Proyectos" [ref=e82]:
+          - generic [ref=e83]:
+            - generic [ref=e84]:
+              - heading "Proyectos" [level=2] [ref=e85]
+              - generic [ref=e86]: Selecciona un proyecto para ver y versionar su configuración.
+            - generic [ref=e87]:
+              - button "Actualizar" [disabled] [ref=e88]
+              - button "Nuevo proyecto" [ref=e91] [cursor=pointer]
+          - generic [ref=e93]: Cargando proyectos...
+        - region "Detalle del proyecto" [ref=e99]:
+          - generic [ref=e101]:
+            - heading "Configuración" [level=2] [ref=e102]
+            - generic [ref=e103]: El detalle aparece al seleccionar un proyecto.
+          - generic [ref=e104]: Selecciona un proyecto de la lista para ver y versionar su configuración.

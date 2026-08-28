@@ -292,5 +292,6 @@ export function useCorpusSnapshotWorkspace() {
     setDecision,
     createSnapshot,
     refresh,
+    selectSnapshot: setSelectedCorpusSnapshot,
   };
 }

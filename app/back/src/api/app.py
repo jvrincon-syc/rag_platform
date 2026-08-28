@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from contextlib import asynccontextmanager
 
+from chatbot.api.router import router as chatbot_router
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -79,6 +80,7 @@ def create_app(*, services: PipelineServices) -> FastAPI:
     app.state.retrieval_profile_status = services.retrieval_profile_status
     app.state.retrieval_validate = services.retrieval_validate
     app.state.retrieval_search = services.retrieval_search
+    app.state.chatbot_dispatch_question = services.chatbot_dispatch_question
     app.state.http_authenticator = services.http_authenticator
     # Fase 7: superficie administrativa de plataforma. ``None`` cuando el flag
     # ``rag_platform_v1`` está apagado; el router hace 503 fail-closed vía su gate.
@@ -160,5 +162,6 @@ def create_app(*, services: PipelineServices) -> FastAPI:
     app.include_router(embedding_router)
     app.include_router(indexing_router)
     app.include_router(retrieval_router)
+    app.include_router(chatbot_router)
     app.include_router(platform_router)
     return app

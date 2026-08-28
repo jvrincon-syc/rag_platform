@@ -8,6 +8,12 @@ import type {
 } from "../platformTypes.js";
 import { POLICY_OPTIONS, TEMPLATE_OPTIONS } from "./projectOptions.js";
 
+function projectStateClass(state: string): string {
+  if (state === "active") return "project-state active";
+  if (state === "error") return "project-state error";
+  return "project-state pending";
+}
+
 // Presentación pura: lista de proyectos + alta mínima. El estado de formulario es
 // local (campos del alta); nada de fetch ni de negocio vive aquí.
 export function ProjectList({
@@ -48,7 +54,6 @@ export function ProjectList({
       corpus_organization_policy: policy,
       document_type_template: template,
     });
-    // Se conservan los datos ante error recuperable; solo se limpia al crear.
     if (ok) {
       setSlug("");
       setDisplayName("");
@@ -65,20 +70,17 @@ export function ProjectList({
           <h2>Proyectos</h2>
           <span>Selecciona un proyecto para ver y versionar su configuración.</span>
         </div>
-        <button
-          className="ghost-button"
-          type="button"
-          onClick={onRefresh}
-          disabled={loading}
-          title="Recargar la lista de proyectos"
-        >
-          {loading ? <Loader2 className="spin" size={16} /> : <RefreshCw size={16} />}
-          Actualizar
-        </button>
-      </div>
-
-      <div className="ui-panel-body">
-        <div className="ui-actions">
+        <div className="topbar-actions">
+          <button
+            className="ghost-button"
+            type="button"
+            onClick={onRefresh}
+            disabled={loading}
+            title="Recargar la lista de proyectos"
+          >
+            {loading ? <Loader2 className="spin" size={16} /> : <RefreshCw size={16} />}
+            Actualizar
+          </button>
           <button
             className="primary-button"
             type="button"
@@ -90,7 +92,9 @@ export function ProjectList({
             {formOpen ? "Cancelar" : "Nuevo proyecto"}
           </button>
         </div>
+      </div>
 
+      <div className="ui-panel-body">
         {formOpen ? (
           <form className="platform-create-form" id="new-project-form" onSubmit={handleSubmit}>
             <div className="ui-field">
@@ -114,33 +118,35 @@ export function ProjectList({
                 onChange={(event) => setDisplayName(event.target.value)}
               />
             </div>
-            <div className="ui-field">
-              <label htmlFor="new-project-policy">Política de organización</label>
-              <select
-                id="new-project-policy"
-                value={policy}
-                onChange={(event) => setPolicy(event.target.value as CorpusOrganizationPolicy)}
-              >
-                {POLICY_OPTIONS.map((option) => (
-                  <option value={option.value} key={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="ui-field">
-              <label htmlFor="new-project-template">Plantilla de tipos</label>
-              <select
-                id="new-project-template"
-                value={template}
-                onChange={(event) => setTemplate(event.target.value as DocumentTypeTemplate)}
-              >
-                {TEMPLATE_OPTIONS.map((option) => (
-                  <option value={option.value} key={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+            <div className="platform-row">
+              <div className="ui-field">
+                <label htmlFor="new-project-policy">Política de organización</label>
+                <select
+                  id="new-project-policy"
+                  value={policy}
+                  onChange={(event) => setPolicy(event.target.value as CorpusOrganizationPolicy)}
+                >
+                  {POLICY_OPTIONS.map((option) => (
+                    <option value={option.value} key={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="ui-field">
+                <label htmlFor="new-project-template">Plantilla de tipos</label>
+                <select
+                  id="new-project-template"
+                  value={template}
+                  onChange={(event) => setTemplate(event.target.value as DocumentTypeTemplate)}
+                >
+                  {TEMPLATE_OPTIONS.map((option) => (
+                    <option value={option.value} key={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
             <div className="ui-actions">
               <button className="primary-button" type="submit" disabled={!canSubmit}>
@@ -168,22 +174,25 @@ export function ProjectList({
             <span>Aún no hay proyectos. Crea el primero para empezar a configurarlo.</span>
           </div>
         ) : (
-          <ul className="ui-list" aria-label="Lista de proyectos">
+          <ul className="project-list" aria-label="Lista de proyectos">
             {projects.map((project) => {
               const active = project.project_id === selectedProjectId;
               return (
                 <li key={project.project_id}>
                   <button
                     type="button"
-                    className={active ? "ui-list-item active" : "ui-list-item"}
+                    className={active ? "project-card active" : "project-card"}
                     aria-current={active ? "true" : undefined}
                     onClick={() => onSelect(project.project_id)}
                   >
-                    <strong>{project.display_name}</strong>
-                    <span>{project.project_id}</span>
-                    <small>
-                      Estado: {project.state} · config v{project.configuration.version}
-                    </small>
+                    <div className="project-card-header">
+                      <span className="project-card-name">{project.display_name}</span>
+                      <span className={projectStateClass(project.state)}>{project.state}</span>
+                    </div>
+                    <span className="project-card-slug">{project.project_id}</span>
+                    <div className="project-card-meta">
+                      <span>config v{project.configuration.version}</span>
+                    </div>
                   </button>
                 </li>
               );

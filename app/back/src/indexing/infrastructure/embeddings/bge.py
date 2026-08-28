@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import logging
+import os
+import threading
 from typing import Callable, Protocol
 
 from indexing.application.embedding_provider import (
@@ -28,11 +30,40 @@ BgeModelLoader = Callable[[EmbeddingSettings], BgeRuntimeModel]
 logger = logging.getLogger(__name__)
 
 
+class BgeModelCache:
+    """Process-wide cache of loaded BGE runtimes, keyed by Hugging Face model name.
+
+    ``BGEM3FlagModel`` weighs ~2GB and takes ~10-15s to load cold; the embedding
+    provider (dense/sparse encode) and the reranker (colbert+sparse+dense score)
+    are separate adapters that both need the exact same weights when they name
+    the same model. Without this cache each adapter loads its own instance,
+    doubling both load latency and memory. This cache is injected explicitly by
+    the composition root into every adapter that needs a BGE runtime -- it is
+    not reached for globally, so it stays a constructor-injected collaborator,
+    not a service locator.
+    """
+
+    def __init__(self) -> None:
+        self._models: dict[str, object] = {}
+        self._lock = threading.Lock()
+
+    def get_or_load(self, model_name: str, loader: Callable[[], object]) -> object:
+        """Return the cached runtime for ``model_name``, loading it at most once."""
+
+        with self._lock:
+            model = self._models.get(model_name)
+            if model is None:
+                model = loader()
+                self._models[model_name] = model
+            return model
+
+
 @dataclass
 class BgeEmbeddingProvider:
     profile: IndexingProfile
     settings: EmbeddingSettings | None = None
     model_loader: BgeModelLoader | None = None
+    model_cache: BgeModelCache | None = None
 
     def __post_init__(self) -> None:
         self._settings = self.settings or EmbeddingSettings(provider="bge")
@@ -151,12 +182,18 @@ class BgeEmbeddingProvider:
                     "model": self.model_name,
                     "device": self._settings.device,
                     "batch_size": self._settings.batch_size,
+                    "shared_cache": self.model_cache is not None,
                 },
             )
-            self._model = (
+            loader: Callable[[], BgeRuntimeModel] = lambda: (
                 self.model_loader(self._settings)
                 if self.model_loader is not None
                 else _load_bge_model(self.profile, self._settings)
+            )
+            self._model = (
+                self.model_cache.get_or_load(self.model_name, loader)
+                if self.model_cache is not None
+                else loader()
             )
         return self._model
 
@@ -165,6 +202,16 @@ def _load_bge_model(
     profile: IndexingProfile,
     settings: EmbeddingSettings,
 ) -> BgeRuntimeModel:
+    # transformers/huggingface_hub cache HF_HUB_OFFLINE as a module-level
+    # constant read at THEIR OWN import time; setting it after importing
+    # FlagEmbedding (which imports them transitively) is too late. Must run
+    # before that import, every time -- on a box with no reliable route to
+    # huggingface.co this otherwise hangs for minutes on a chat-template
+    # listing call and fails the whole embedding run, even with the model
+    # already fully cached locally (live symptom: httpx.ConnectTimeout deep
+    # inside AutoTokenizer.from_pretrained during a real release build).
+    os.environ.setdefault("HF_HUB_OFFLINE", "1")
+    os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
     try:
         from FlagEmbedding import BGEM3FlagModel
     except ImportError as error:

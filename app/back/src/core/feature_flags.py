@@ -23,6 +23,7 @@ class FeatureFlags(StrictModel):
     embedding_v2: bool = True
     indexing_bundle_first: bool = True
     retrieval_v1: bool = True
+    chatbot_webhook_v1: bool = False
     # RAG platform admin lane (Fase 6). Off by default and independent of the
     # bundle-first flags: enabling it exposes the platform catalog/publication
     # services but never changes the lane used by retrieval.
@@ -48,6 +49,11 @@ class FeatureFlags(StrictModel):
                 env,
                 "SST_FEATURE_RETRIEVAL_V1",
                 default=cls.model_fields["retrieval_v1"].default,
+            ),
+            chatbot_webhook_v1=_flag(
+                env,
+                "SST_FEATURE_CHATBOT_WEBHOOK_V1",
+                default=cls.model_fields["chatbot_webhook_v1"].default,
             ),
             rag_platform_v1=_flag(
                 env,

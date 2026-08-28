@@ -121,7 +121,7 @@ class EmbeddingRunRepository(Protocol):
         """Return every run, newest first."""
 
     def claim(self, embedding_run_id: str) -> bool:
-        """Transition ``pending`` to ``running`` exactly once.
+        """Transition ``pending`` or ``failed`` to ``running`` exactly once.
 
         Returns:
             ``True`` when this caller won the claim.
