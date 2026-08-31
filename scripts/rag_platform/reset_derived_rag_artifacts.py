@@ -221,6 +221,20 @@ def apply_reset(
 ) -> dict[str, Any]:
     """Apply the derived-artifact reset after blocker checks pass."""
 
+    # SAFETY DISABLE (2026-08-31): this unconditional `DELETE FROM` of every derived table
+    # (normalized/chunks/embeddings/nodes/physical vectors) wiped the built corpus from the
+    # database with no backup. It is permanently disabled to prevent recurrence. To ever
+    # re-enable, a mandatory pre-delete pg_dump/backup + audit log MUST be added first, and a
+    # human must set RESET_DERIVED_BREAK_GLASS=1 deliberately.
+    if os.environ.get("RESET_DERIVED_BREAK_GLASS") != "1":
+        return {
+            "mode": "apply",
+            "status": "blocked",
+            "reason": "hard_reset_disabled_no_backup",
+            "detail": "Deshabilitado para evitar perdida de corpus. Requiere backup + RESET_DERIVED_BREAK_GLASS=1.",
+            "inventory_before": inventory_before,
+        }
+
     if blockers["has_blockers"]:
         return {
             "mode": "apply",

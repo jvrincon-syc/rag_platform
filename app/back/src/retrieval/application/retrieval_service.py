@@ -8,7 +8,7 @@ only answers alone when ``lexical_fallback_policy`` explicitly allows it.
 from __future__ import annotations
 
 import logging
-import time  # PROFTMP
+import os
 from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -75,7 +75,13 @@ _MAX_CHILDREN_PER_PARENT = 2
 #: Candidatos deduplicados que llegan al reranker antes del corte a top_k.
 #: Con NoOpReranker esto no importa (solo trunca); con un reranker real le da
 #: margen para corregir casi-empates de RRF que la fusión no puede distinguir.
-_RERANK_POOL_SIZE = 30
+#: El rerank BGE-M3 en CPU cuesta ~2s/candidato, así que este pool domina la
+#: latencia de recuperación. Es un knob de env (default 30 = comportamiento
+#: previo) para poder cambiar latencia-vs-recall sin recompilar; bajarlo a ~10
+#: casi no cambia el top_k final (un candidato ranked >10 por RRF rara vez sube
+#: a top-4 tras rerank) pero recorta el rerank ~3x.
+# ponytail: env knob, default preserva comportamiento; sube si el recall lo pide
+_RERANK_POOL_SIZE = int(os.environ.get("RETRIEVAL_RERANK_POOL_SIZE", "30"))
 
 
 def _now() -> datetime:
@@ -406,19 +412,14 @@ class RetrievalSearchService:
                 fallback policy forbids answering lexically.
         """
 
-        _t_resolve = time.perf_counter()  # PROFTMP
         profile = self._query_embedding.resolve_profile(retrieval_profile)
         target = self._targets.get(retrieval_profile.indexing_target_id)
-        print(f"PROFTMP resolve_profile+target={1000*(time.perf_counter()-_t_resolve):.1f}ms")  # PROFTMP
         candidate_pool_size = _hybrid_candidate_pool_size(top_k)
         try:
-            _t = time.perf_counter()  # PROFTMP
             embeddings = self._query_embedding.embed_queries(
                 retrieval_profile=retrieval_profile,
                 queries=[query],
             )
-            print(f"PROFTMP embed_queries={1000*(time.perf_counter()-_t):.1f}ms")  # PROFTMP
-            _t = time.perf_counter()  # PROFTMP
             vector_candidates = self._vector_search.search(
                 project_id=retrieval_profile.project_id,
                 vector_table=target.vector_table,
@@ -429,7 +430,6 @@ class RetrievalSearchService:
                 query_embedding=embeddings[0].vector,
                 top_k=candidate_pool_size,
             )
-            print(f"PROFTMP vector_search={1000*(time.perf_counter()-_t):.1f}ms")  # PROFTMP
         except EmbeddingDomainError as error:
             return self._lexical_only(
                 retrieval_profile=retrieval_profile,
@@ -441,7 +441,6 @@ class RetrievalSearchService:
         lexical_degraded_reason: str | None = None
         # Señal secundaria obligatoria en el hybrid sano. Si el FTS falla no
         # debe tumbar la búsqueda, pero sí dejar una degradación observable.
-        _t = time.perf_counter()  # PROFTMP
         try:
             lexical_candidates = self._lexical_search.search(
                 project_id=retrieval_profile.project_id,
@@ -450,7 +449,6 @@ class RetrievalSearchService:
                 corpus_version=retrieval_profile.corpus_version,
                 top_k=candidate_pool_size,
             )
-            print(f"PROFTMP lexical_search={1000*(time.perf_counter()-_t):.1f}ms")  # PROFTMP
         except Exception as error:  # noqa: BLE001 - degradación controlada
             lexical_degraded_reason = "lexical_hybrid_unavailable"
             emit_pipeline_event(
@@ -508,7 +506,6 @@ class RetrievalSearchService:
     ) -> list[RetrievedEvidence]:
         """Fusiona ambas lanes con RRF, aplica dedup, rerankea y corta a ``top_k``."""
 
-        _t_fuse = time.perf_counter()  # PROFTMP
         evidence_by_node: dict[str, RetrievedEvidence] = {}
         ranked_lists: list[list[RetrievedCandidate]] = []
         for lane in (vector_candidates, lexical_candidates):
@@ -591,10 +588,7 @@ class RetrievalSearchService:
                 }
             )
         rerank_pool = selected[: max(top_k, _RERANK_POOL_SIZE)]
-        print(f"PROFTMP fuse+dedup={1000*(time.perf_counter()-_t_fuse):.1f}ms pool={len(rerank_pool)}")  # PROFTMP
-        _t_rerank = time.perf_counter()  # PROFTMP
         result = self._reranker.rerank(query=query, candidates=rerank_pool, top_n=top_k)
-        print(f"PROFTMP rerank={1000*(time.perf_counter()-_t_rerank):.1f}ms")  # PROFTMP
         return result
 
     def _lexical_only(
@@ -681,14 +675,12 @@ class RetrievalSearchService:
         ]
         if not parent_ids:
             return list(candidates)
-        _t_parents = time.perf_counter()  # PROFTMP
         parents = self._parent_expansion.expand(
             project_id=project_id,
             parent_node_ids=parent_ids,
             embedding_profile_id=embedding_profile_id,
             corpus_version=corpus_version,
         )
-        print(f"PROFTMP parent_expansion={1000*(time.perf_counter()-_t_parents):.1f}ms n={len(parent_ids)}")  # PROFTMP
         enriched: list[RetrievedEvidence] = []
         for candidate in candidates:
             parent = parents.get(str(candidate.parent_node_id))
