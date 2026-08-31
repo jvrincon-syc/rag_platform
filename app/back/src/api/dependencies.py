@@ -185,6 +185,10 @@ class PipelineServices:
     chatbot_dispatch_question: DispatchChatbotQuestionUseCase
     http_authenticator: ConfiguredBearerAuth
     connection: object | None = None
+    # Shared BGE-M3 reranker (only the real Postgres path wires a ``BgeReranker``;
+    # the in-memory/mock path leaves a ``NoOpReranker``). Held here so ``warmup``
+    # can preload the ~2GB model at startup instead of on the first user request.
+    reranker: object | None = None
     # RAG platform admin services (Fase 6). Only wired when the
     # ``rag_platform_v1`` flag is on; ``None`` keeps the legacy surface untouched.
     rag_platform_build: object | None = None
@@ -200,6 +204,19 @@ class PipelineServices:
     # Conexión dedicada del store de idempotencia (Postgres). Independiente de la
     # conexión de negocio para que su commit nunca capture trabajo de negocio.
     idempotency_connection: object | None = None
+
+    def warmup(self) -> None:
+        """Preload BGE-M3 so the first real chat request pays no cold load.
+
+        No-op unless a real ``BgeReranker`` is wired (the mock/in-memory path
+        never loads the model). Best-effort by design: the caller swallows
+        failures so a warm hiccup degrades to today's lazy first-request load
+        rather than blocking startup.
+        """
+
+        warm = getattr(self.reranker, "warm", None)
+        if callable(warm):
+            warm()
 
     def close(self) -> None:
         """Drain both bounded executors and close the database connection."""
@@ -364,6 +381,7 @@ def build_pipeline_services(
         consumer_scope=scope,
         persistence_mode=persistence_mode,
         connection=connection,
+        reranker=reranker,
         embedding_read_service=EmbeddingReadService(
             profiles=profiles,
             chunk_bundles=chunk_bundles,

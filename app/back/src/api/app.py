@@ -5,6 +5,7 @@ Every domain shares one error envelope so the frontend needs a single handler.
 
 from __future__ import annotations
 
+import logging
 from contextlib import asynccontextmanager
 
 from chatbot.api.router import router as chatbot_router
@@ -49,6 +50,13 @@ def create_app(*, services: PipelineServices) -> FastAPI:
     async def lifespan(_app: FastAPI):
         services.indexing_reconciler.reconcile()
         services.embedding_executor.reconcile()
+        # Warm BGE-M3 before serving so the first chat request doesn't eat the
+        # ~13s cold load. Best-effort: a warm failure falls back to today's lazy
+        # first-request load instead of taking the server down.
+        try:
+            services.warmup()
+        except Exception:  # noqa: BLE001 - warmup is a latency optimization, never a startup gate
+            logging.getLogger(__name__).warning("BGE warmup failed; first request will cold-load", exc_info=True)
         try:
             yield
         finally:

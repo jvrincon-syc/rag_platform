@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os
+from collections.abc import Mapping
 from dataclasses import dataclass
 from threading import Lock
 from typing import Callable
@@ -72,3 +74,28 @@ class BgeWarmupService:
         """Return true only after both BGE capabilities warmed successfully."""
 
         return self.status().ready
+
+
+def run_runtime_warmup(*, environ: Mapping[str, str] | None = None) -> bool:
+    """Build the dedicated runtime, execute BGE warmup once, and close it."""
+
+    env = os.environ if environ is None else environ
+    runtime = build_runtime_from_env(environ=env)
+    try:
+        return runtime.warmup.warm().ready
+    finally:
+        runtime.services.close()
+
+
+def build_runtime_from_env(*, environ: Mapping[str, str]):
+    from chatbot_runtime.app import build_chatbot_runtime_from_env
+
+    return build_chatbot_runtime_from_env(environ=environ)
+
+
+def main() -> None:
+    raise SystemExit(0 if run_runtime_warmup() else 1)
+
+
+if __name__ == "__main__":
+    main()

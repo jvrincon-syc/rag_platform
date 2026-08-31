@@ -20,7 +20,7 @@ class RuntimeSettings:
     worker_mode: WorkerMode = "warm"
     bge_model_name: str = "BAAI/bge-m3"
     hf_hub_cache: Path | None = None
-    chunks_root: Path = Path("data/docs_normalized")
+    chunks_root: Path = Path("data/projects/sst-general/chunks")
     embeddings_root: Path = Path("data/embeddings")
 
     @classmethod
@@ -39,7 +39,10 @@ class RuntimeSettings:
             bge_model_name=environ.get("BGE_MODEL_NAME", "BAAI/bge-m3"),
             hf_hub_cache=Path(raw_cache) if raw_cache else None,
             chunks_root=Path(
-                environ.get("CHATBOT_RUNTIME_CHUNKS_ROOT", "data/docs_normalized")
+                environ.get(
+                    "CHATBOT_RUNTIME_CHUNKS_ROOT",
+                    "data/projects/sst-general/chunks",
+                )
             ),
             embeddings_root=Path(
                 environ.get("CHATBOT_RUNTIME_EMBEDDINGS_ROOT", "data/embeddings")

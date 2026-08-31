@@ -1,0 +1,9 @@
+.git
+.pytest_cache
+.superpowers
+.venv
+.venv_windows_trabajo
+__pycache__
+app/front/node_modules
+node_modules
+data

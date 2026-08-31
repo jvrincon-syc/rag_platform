@@ -72,6 +72,14 @@ class BgeReranker:
             for candidate, score in ranked[:top_n]
         ]
 
+    def warm(self) -> None:
+        """Force the (shared) BGE-M3 load now so the first real request pays no
+        ~13s cold load. Because the embedding provider shares this reranker's
+        BgeModelCache under the same model name, this single load also warms the
+        query-embedding path — the cost is the weight load, not the first encode.
+        """
+        self._get_model()
+
     def _get_model(self) -> BgeScoringModel:
         if self._model is None:
             loader = self.model_loader if self.model_loader is not None else self._load_model

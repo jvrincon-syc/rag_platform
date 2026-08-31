@@ -293,6 +293,36 @@ local o Llama Cloud en staging, controles de Classify/Extract y validacion.
 Para seguir una corrida o una request, consulta el runbook:
 `docs/runbooks/backend-observability.md`.
 
+## Runtime Docker del chatbot
+
+El backend ahora tambien incluye un runtime ASGI dedicado para trafico de
+chatbot, separado del servidor GUI legacy. El entrypoint es
+`python -m chatbot_runtime.main` y expone `GET /healthz` y `GET /readyz`.
+
+La base Docker vive en `app/back/Dockerfile` y `docker-compose.yml` levanta dos
+servicios:
+
+- `sst-rag-worker`: ejecuta `python -m chatbot_runtime.warmup` en bucle para
+  hidratar y verificar la cache compartida de Hugging Face.
+- `sst-rag-api`: hace warmup in-process antes de aceptar trafico y solo pasa a
+  ready cuando el BGE del proceso quedo cargado correctamente.
+
+La compose comparte `chatbot-hf-cache` entre ambos contenedores y monta
+`./data` en `/app/data`. Los roots por defecto para este runtime son:
+
+- `CHATBOT_RUNTIME_CHUNKS_ROOT=/app/data/projects/sst-general/chunks`
+- `CHATBOT_RUNTIME_EMBEDDINGS_ROOT=/app/data/embeddings`
+
+Uso:
+
+```powershell
+docker compose up --build sst-rag-worker sst-rag-api
+```
+
+El worker reduce el costo de descarga y valida la cache; el warmup que elimina
+el cold-start del primer request ocurre dentro del contenedor `sst-rag-api`
+antes de servir trafico.
+
 ## Estado del proyecto
 
 La Fase 1 local ya opera como Schema 2.0. Los conteos exactos, run IDs y

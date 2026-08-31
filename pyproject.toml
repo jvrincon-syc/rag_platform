@@ -17,6 +17,7 @@ dependencies = [
   "pypdfium2>=4.30,<5",
   "pytesseract>=0.3,<0.4",
   "tiktoken>=0.13,<0.14",
+  "uvicorn>=0.35,<0.36",
 ]
 
 [project.optional-dependencies]
