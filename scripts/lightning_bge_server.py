@@ -128,25 +128,41 @@ class RerankRequest(BaseModel):
 
 @app.get("/health")
 def health() -> dict:
+    print("[health] ok", flush=True)
     return {"status": "ok"}
 
 
 @app.post("/embed")
 def embed(request: EmbedRequest) -> dict:
-    dense = MODEL.encode(request.texts, max_length=512)["dense_vecs"]
-    return {"vectors": [list(map(float, v)) for v in dense]}
+    start = time.time()
+    print(f"[embed] IN  {len(request.texts)} text(s), first={request.texts[0][:60]!r} ...", flush=True)
+    try:
+        dense = MODEL.encode(request.texts, max_length=512)["dense_vecs"]
+        print(f"[embed] OUT {len(dense)} vec(s) dim={len(dense[0]) if len(dense) else 0} in {time.time() - start:.2f}s", flush=True)
+        return {"vectors": [list(map(float, v)) for v in dense]}
+    except Exception as error:  # noqa: BLE001 - log then re-raise so the client sees a 500, not a hang
+        print(f"[embed] ERROR after {time.time() - start:.2f}s: {error!r}", flush=True)
+        raise
 
 
 @app.post("/rerank")
 def rerank(request: RerankRequest) -> dict:
+    start = time.time()
+    print(f"[rerank] IN  query={request.query[:60]!r} x{len(request.passages)} passage(s) ...", flush=True)
     if not request.passages:
+        print("[rerank] OUT 0 (no passages)", flush=True)
         return {"scores": []}
-    pairs = [[request.query, passage] for passage in request.passages]
-    raw = MODEL.compute_score(pairs, weights_for_different_modes=RERANK_WEIGHTS)
-    scores = raw["colbert+sparse+dense"] if isinstance(raw, dict) else raw
-    if not isinstance(scores, list):
-        scores = [scores]
-    return {"scores": [float(s) for s in scores]}
+    try:
+        pairs = [[request.query, passage] for passage in request.passages]
+        raw = MODEL.compute_score(pairs, weights_for_different_modes=RERANK_WEIGHTS)
+        scores = raw["colbert+sparse+dense"] if isinstance(raw, dict) else raw
+        if not isinstance(scores, list):
+            scores = [scores]
+        print(f"[rerank] OUT x{len(scores)} in {time.time() - start:.2f}s", flush=True)
+        return {"scores": [float(s) for s in scores]}
+    except Exception as error:  # noqa: BLE001 - log then re-raise
+        print(f"[rerank] ERROR after {time.time() - start:.2f}s: {error!r}", flush=True)
+        raise
 
 
 if __name__ == "__main__":
