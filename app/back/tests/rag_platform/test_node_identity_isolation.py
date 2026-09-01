@@ -54,6 +54,7 @@ def _content() -> ChunkBundleContent:
         source_content_fingerprint="f" * 64,
         corpus_version="corpus-legacy",
         document_id="doc01",
+        document_name="doc01.pdf",
         source_relpath="a/doc01.pdf",
         source_hash="a" * 64,
         normalized_relpath="a/doc01.md",

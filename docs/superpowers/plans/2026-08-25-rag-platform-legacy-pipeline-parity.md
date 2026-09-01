@@ -19,7 +19,7 @@
 
 **Tech Stack:** React 18, TypeScript strict mode, Vite, Vitest/jsdom component tests, existing `platformApi`, FastAPI `/api/platform/*`, PostgreSQL migrations, pytest backend contract/regression tests.
 
-**Spec:** `docs/superpowers/plans/Plan_Ajustado_Plataforma_RAG_MultiProyecto(3).md` through Fase 7, `docs/superpowers/plans/2026-08-21-platform-gui-rework-reuse-legacy.md`, and the operator correction in this session: Platform must show the same Legacy pipeline screens and JS modules, not different Platform replacements that only reuse visual style, labels, cards, or copy.
+**Spec:** `docs/superpowers/plans/Plan_Ajustado_Plataforma_RAG_MultiProyecto(3).md` through Fase 7 and the operator correction in this session: Platform must show the same Legacy pipeline screens and JS modules, not different Platform replacements that only reuse visual style, labels, cards, or copy.
 
 ## Acceptance Definition: "Same Exact Legacy View" (Overrides Everything Below)
 
@@ -2672,7 +2672,7 @@ Replace them with the parity assertions from Task 1.
 Read-only inspection — the agent MAY run this directly (no tests involved):
 
 ```bash
-rg -n "read-only|solo lectura|Solo lectura" app/front/src/features/platform docs/superpowers/plans/2026-08-21-platform-gui-rework-reuse-legacy.md
+rg -n "read-only|solo lectura|Solo lectura" app/front/src/features/platform docs/superpowers/plans
 ```
 
 Allowed matches after cleanup:
@@ -2719,7 +2719,7 @@ Expected result: the old replacement screens are unreachable, and the build has 
 ### Task 8: Protect Backend Green Path And Runtime Parity
 
 **Files:**
-- Modify: `docs/superpowers/plans/2026-08-21-platform-gui-rework-reuse-legacy.md`
+- Modify: active platform planning docs when a correction must remain visible.
 - No release-build backend changes expected beyond Task 3's narrow review-decision contract.
 
 **Interfaces:**
@@ -2769,9 +2769,9 @@ Manual smoke:
 9. Click RAG / Releases. Confirm release lifecycle still works with rag_release_id.
 ```
 
-- [x] **Step 4: Update the older plan with the correction**
+- [x] **Step 4: Record the correction**
 
-Append a dated note to `2026-08-21-platform-gui-rework-reuse-legacy.md`:
+Leave a dated correction note in the active documentation set:
 
 ```markdown
 > **Correction 2026-08-25:** The previous Phase 8 direction reused neutral Platform replacements and relabeled them as Legacy views. It also treated missing review-decision wiring as a reason to make Platform inspectors read-only. The corrected implementation mounts the actual Legacy pipeline UI through `DashboardPipelineApp` and a project-scoped Platform datasource. Platform is operational: `Aprobar`/`Rechazar` persist through the Platform review-decision contract, snapshot creation moves to `RAG / Releases`, and read-only language applies only to server-owned physical target bindings or immutable release artifacts.

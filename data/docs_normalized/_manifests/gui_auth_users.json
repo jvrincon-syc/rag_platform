@@ -1,6 +1,12 @@
 {
   "users": [
     {
+      "password_hash": "6e63e06b8b9ab825cd4985b69f23cea6f5f8e7ec2bfb18a6ba805cda47d90741",
+      "password_salt": "W5l/za807vk8TWZ1+JsuIQ==",
+      "project_scope": null,
+      "username": "operator"
+    },
+    {
       "password_hash": "f00802ed9f81c5d89d495fe6bdbe398c64bcb70e85acc8cbc7f2cdbea8492067",
       "password_salt": "qSDdcD6v+GgidC7MFv67xQ==",
       "project_scope": null,

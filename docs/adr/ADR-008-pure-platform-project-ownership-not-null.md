@@ -82,5 +82,5 @@ modelo de datos hacia adelante.
 ## Orden de trabajo
 
 DDL de tightening (`20260810_08`) → retiro de ramas legacy por capa con sus pruebas
-→ CLI de rebuild de plataforma → end-to-end vivo. Detalle en
-`plans/2026-08-11-fase4-embedding-nodos-vectores.md`.
+→ CLI de rebuild de plataforma → end-to-end vivo. El detalle operativo quedó
+absorbido por el plan maestro y la documentacion vigente de `docs/rag-platform/`.

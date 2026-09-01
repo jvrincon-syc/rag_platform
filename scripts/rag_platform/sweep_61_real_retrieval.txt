@@ -1,0 +1,39 @@
+#01 [e2e= 68.6s ret=40.4s llm= 28.2s ttft=19.5s chunks=4] Que establece la politica de seguridad y salud en el trabajo?
+   cites: planificacion_info.md, sgsst_info.md, politica.md, 1778000305710_syc_politicadeseguridady.pdf
+   -> La política de seguridad y salud en el trabajo establece los objetivos, requisitos legales, identificación de peligros, valoración de riesgos y gestión adecuada para garantizar un ambiente de trabajo seguro y saludable. Esta política se fundamentó en la participación activa del personal, las normas de seguridad y salud laboral, y el compromiso con el desarrollo humano. Se busca fortalecer la cultura preventiva, promover el autocuidado de los trabajadores y mejorar continuamente el sistema de gestión de la seguridad y salud en el trabajo.
+#02 [e2e= 80.6s ret=49.9s llm= 30.7s ttft=15.8s chunks=4] Cuales son los objetivos del SG-SST?
+   cites: mejora_info.md, planificacion_info.md, funciones_responsabilidades.md, introduccion.md
+   -> Los objetivos principales del SG-SST (Sistema de Gestión de Seguridad y Salud en el Trabajo) son:
+
+1. **Mantener el índice de accidentalidad laboral**  
+2. **Mantener la tasa de morbilidad laboral**  
+3. **Fortalecer la competencia del personal en materia de seguridad y salud en el trabajo**  
+4. **Garantizar la eficacia de las acciones emprendidas en el SG-SST**  
+5. **Mejorar continuamente la organización en gestión de seguridad y salud en el trabajo**
+
+Los requisitos legales que se abordan son aquellos relacionados con la identificación, evaluación y control de los riesgos laborales, incluyendo la participación activa del personal, las partes interesadas y el Comité Paritario de Seguridad y Salud en el Trabajo (COPASST).
+
+Además, el SG-SST se
+#03 [e2e= 67.9s ret=37.1s llm= 30.8s ttft=16.3s chunks=4] Como identifica la empresa los peligros y valora los riesgos?
+   cites: planificacion_info.md, aplicacion_info.md, planificacion_info.md, aplicacion_info.md
+   -> La empresa identifica y valora los peligros y riesgos mediante una metodología documentada que incluye:
+
+1. **Eliminación del peligro/riesgo**: Se busca eliminar completamente el peligro o riesgo, si es posible.
+
+2. **Sustitución**: Reemplazar el peligro con un método más seguro o menos dañino.
+
+3. **Controles de Ingeniería**: Implementar medidas técnicas para reducir los riesgos.
+
+4. **Controles Administrativos**: Establecer políticas y procedimientos para controlar los riesgos.
+
+5. **Equipos de Protección Personal**: Usar equipos adecuados para proteger a los trabajadores.
+
+El programa de Medicina Preventiva y del Trabajo tiene como objetivo principal la promoción, prevención y control de la salud del trabajador, garantizando su seguridad en el lugar de trabajo.
+
+El Programa de Higiene Industrial aborda
+
+=== 3 questions, concurrency=1, REAL retrieval (release ragr_4ea80fc628ea4ab3) ===
+RETRIEVAL P50=40.4s P95=49.9s max=49.9s
+LLM       P50=30.7s P95=30.8s max=30.8s
+E2E       P50=68.6s P95=80.6s max=80.6s
+TARGET: E2E < 25s hard. Retrieval and LLM are the two real cost centers.

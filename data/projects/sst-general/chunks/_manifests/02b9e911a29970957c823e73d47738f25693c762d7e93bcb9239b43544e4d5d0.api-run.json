@@ -1,0 +1,28 @@
+{
+  "completed_documents": 1,
+  "documents": [
+    {
+      "bundle_fingerprint": "chunk-bundle-ddcdd1633e76a9087f237ca6618103fa319def05bf4a65108945ec1464692f00",
+      "document_id": "doc_99e74963bf956ead",
+      "normalized_relpath": "convivencia_laboral/manual/introduccion.md",
+      "reused": true,
+      "run_id": "216c6e4830dd46a4c945f05c94bdc4e53d71553fd2b968ed252204a9f6e1d5dc",
+      "status": "completed"
+    }
+  ],
+  "idempotency_key": "platform-chunk-proj_sst-general-documents-d2ec5461791d",
+  "payload_fingerprint": "9e8d4a14bd20302d8753385fbd17ffc7a13f1ec823acc969b8870792890eabd3",
+  "request": {
+    "document_ids": [
+      "doc_99e74963bf956ead"
+    ],
+    "force": false,
+    "profile_id": "local-structural-v1",
+    "request_id": null,
+    "scope": "documents"
+  },
+  "requested_documents": 1,
+  "run_id": "02b9e911a29970957c823e73d47738f25693c762d7e93bcb9239b43544e4d5d0",
+  "status": "completed",
+  "warnings": []
+}

@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from hashlib import sha256
 import json
+import os
 from pathlib import PurePosixPath
 
 from pydantic import Field
@@ -74,6 +75,10 @@ class ChatbotWebhookChunk(StrictModel):
         document_name = _resolve_document_name(evidence)
         raw_metadata = dict(data.get("metadata", {}))
         raw_metadata["document_name"] = document_name
+        raw_metadata["citation_label"] = document_name
+        source_url = _build_source_url(raw_metadata)
+        if source_url is not None:
+            raw_metadata["source_url"] = source_url
         data["document_name"] = document_name
         data["metadata"] = {
             key: value if value is None or isinstance(value, str) else json.dumps(value)
@@ -90,6 +95,17 @@ def _resolve_document_name(evidence: RetrievedEvidence) -> str:
     if isinstance(source_relpath, str) and source_relpath.strip():
         return PurePosixPath(source_relpath.strip()).name
     return evidence.document_id
+
+
+def _build_source_url(metadata: dict[str, object]) -> str | None:
+    """Construct a public URL for the raw document, if configured."""
+    base_url = os.environ.get("SST_DOCUMENTS_BASE_URL", "").strip().rstrip("/")
+    if not base_url:
+        return None
+    source_relpath = metadata.get("source_relpath")
+    if not isinstance(source_relpath, str) or not source_relpath.strip():
+        return None
+    return f"{base_url}/api/documents/raw/{source_relpath.strip()}"
 
 
 class ChatbotWebhookPayload(StrictModel):

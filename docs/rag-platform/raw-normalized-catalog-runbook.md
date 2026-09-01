@@ -58,8 +58,8 @@ profile/variant), `20260812_03` (provenance de variante en `chunk_bundles`).
    normalizado vía `platform_context`; `chunk_bundles` la persiste sin volverla identidad.
 
 4. **Embed → index → materializa** (Fase 4 Stage 3): requieren BGE vivo y el wiring de
-   materialización en el composition root; ver
-   `plans/2026-08-11-fase4-embedding-nodos-vectores.md`.
+   materialización en el composition root; ver `docs/rag-platform/README.md` y
+   `docs/adr/ADR-008-pure-platform-project-ownership-not-null.md`.
 
 ## Verificación
 

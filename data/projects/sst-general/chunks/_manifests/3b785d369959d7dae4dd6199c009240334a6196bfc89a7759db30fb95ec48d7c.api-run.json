@@ -1,0 +1,28 @@
+{
+  "completed_documents": 1,
+  "documents": [
+    {
+      "bundle_fingerprint": "chunk-bundle-951709a484cff1f84e39d1c66318e08335ae2103b909c9a72a0ef2bf7ad025cf",
+      "document_id": "doc_ff1fcf5ee88afc3b",
+      "normalized_relpath": "convivencia_laboral/manual/objetivos_especificos_comite.md",
+      "reused": true,
+      "run_id": "0ed647818f3cf62045b1b8b68bf0fc5fb83831fed6077056055612af894652e4",
+      "status": "completed"
+    }
+  ],
+  "idempotency_key": "platform-chunk-proj_sst-general-documents-f2937cbca002",
+  "payload_fingerprint": "62b8e36bb9b8a80c3223cac5eb44d86258c06901f253c7c85c6a412fd3b6e161",
+  "request": {
+    "document_ids": [
+      "doc_ff1fcf5ee88afc3b"
+    ],
+    "force": false,
+    "profile_id": "local-structural-v1",
+    "request_id": null,
+    "scope": "documents"
+  },
+  "requested_documents": 1,
+  "run_id": "3b785d369959d7dae4dd6199c009240334a6196bfc89a7759db30fb95ec48d7c",
+  "status": "completed",
+  "warnings": []
+}

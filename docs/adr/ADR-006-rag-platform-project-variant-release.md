@@ -5,7 +5,7 @@ Date: 2026-08-10
 ## Status
 
 Accepted. Alcance: Fases 0-2 del plan de plataforma RAG multi-proyecto
-(`docs/superpowers/plans/Plan_Ajustado_Plataforma_RAG_MultiProyecto(2).md`).
+(`docs/superpowers/plans/Plan_Ajustado_Plataforma_RAG_MultiProyecto(3).md`).
 Aditivo sobre la lane legacy bundle-first; no la modifica ni la retira.
 
 ## Context

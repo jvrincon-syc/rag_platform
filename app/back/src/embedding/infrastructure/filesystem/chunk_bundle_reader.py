@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from hashlib import sha256
 import json
 from pathlib import Path
+from pathlib import PurePosixPath
 
 from pydantic import Field
 
@@ -90,6 +91,7 @@ class ChunkBundleContent:
     source_content_fingerprint: str
     corpus_version: str
     document_id: str
+    document_name: str
     source_relpath: str
     source_hash: str
     normalized_relpath: str
@@ -125,6 +127,7 @@ class FilesystemChunkBundleContentReader:
             source_content_fingerprint=source_content_fingerprint(children),
             corpus_version=str(payload["corpus_version"]),
             document_id=str(payload["document_id"]),
+            document_name=_document_name(payload),
             source_relpath=str(payload["source_relpath"]),
             source_hash=str(payload["source_hash"]),
             normalized_relpath=str(payload["normalized_relpath"]),
@@ -164,6 +167,13 @@ def _child_payload(row: dict[str, object]) -> dict[str, object]:
         "section_path",
     }
     return {key: value for key, value in row.items() if key in allowed}
+
+
+def _document_name(payload: dict[str, object]) -> str:
+    value = str(payload.get("document_name") or "").strip()
+    if value:
+        return value
+    return PurePosixPath(str(payload["source_relpath"])).name
 
 
 def source_content_fingerprint(children: tuple[SourceChildChunk, ...]) -> str:

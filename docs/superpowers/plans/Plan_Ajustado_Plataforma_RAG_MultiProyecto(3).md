@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Evolucionar `chatbot-sst` desde un corpus SST único hacia una plataforma multi‑proyecto que pueda construir, comparar y conservar releases RAG reproducibles, sin duplicar el pipeline bundle-first ni mezclar proyectos, recetas técnicas, nodos o vectores.
+**Goal:** Evolucionar este repositorio desde un corpus SST único hacia una plataforma multi‑proyecto que pueda construir, comparar y conservar releases RAG reproducibles, sin duplicar el pipeline bundle-first ni mezclar proyectos, recetas técnicas, nodos o vectores.
 
 **Architecture:** El diseño separa tres responsabilidades: `project_id` posee documentos y artefactos físicos; `rag_variant_id` identifica una receta semántica inmutable (parseo/normalización, chunking y embedding); `rag_release_id` es un snapshot inmutable de una variante sobre un corpus concreto y una materialización de índice compatible. Las releases referencian artefactos físicos ya sellados mediante membresías; no los duplican ni se convierten en la clave propietaria de los vectores.
 
@@ -532,7 +532,7 @@ class IndexingMaterializationRepository(Protocol):
     def mark_failed(self, *, materialization_id: str, failure_code: str) -> IndexingMaterialization: ...
 ```
 
-> **Enfoque revisado (2026-08-11, [ADR-007](../adr/ADR-007-phase4-physical-ownership-and-hard-reset.md); plan de trabajo `plans/2026-08-11-fase4-embedding-nodos-vectores.md`):** entorno de dev → **hard reset + rebuild** de artefactos derivados en vez de backfill `legacy_unverified`. Aislamiento por **FKs compuestas** `(project_id, id)`, no solo `project_id`. **No** se retira ninguna unicidad global en Fase 4 (colisión de fingerprint global → error de dominio fail-closed). SST **dormido** durante Fase 4–8. Orden: Gate 0 → DDL aditivo → dual-mode → reset → rebuild → validación → enable.
+> **Enfoque revisado (2026-08-11, [ADR-007](../adr/ADR-007-phase4-physical-ownership-and-hard-reset.md)):** entorno de dev → **hard reset + rebuild** de artefactos derivados en vez de backfill `legacy_unverified`. Aislamiento por **FKs compuestas** `(project_id, id)`, no solo `project_id`. **No** se retira ninguna unicidad global en Fase 4 (colisión de fingerprint global → error de dominio fail-closed). SST **dormido** durante Fase 4–8. Orden: Gate 0 → DDL aditivo → dual-mode → reset → rebuild → validación → enable.
 
 - [x] `EmbeddingRun`/`IndexingRun` ganan `project_id`/`rag_variant_id`/`rag_release_id` como contexto operacional, **columnas nullable sin FK** (la tabla `rag_releases` es de Fase 5), derivadas por el servidor desde un build context validado, **nunca** del payload del cliente. No cambia la identidad de `EmbeddingBundle`. — **Evidencia:** `migrations/20260810_05_...sql:99-105` (`ALTER TABLE embedding_runs/indexing_runs ADD COLUMN IF NOT EXISTS project_id/rag_variant_id/rag_release_id`, sin FK). Derivación server-side: `rag_platform/application/rebuild_orchestrator.py::PlatformBuildContext` (validado por `kind`, nunca del payload). Test `tests/indexing/infrastructure/postgres/test_embedding_persistence_migrations.py`.
 - [x] Nueva identidad de `EmbeddingBundle` (proyecto + chunk bundle + profile/config fingerprint + contenido fuente) como **índice único parcial** `WHERE project_id IS NOT NULL`; `corpus_version` se mantiene NOT NULL (marcador legacy) fuera de la identidad. La unicidad legacy actual **no se retira** (ya incluye `source_chunk_bundle_id`). — **Evidencia:** `20260810_05_...sql:30-39` (`uq_embedding_bundles_physical_identity` parcial, sin `corpus_version`). `embedding/domain/models.py:442-448` (`project_id` nullable; legacy conserva id con `corpus_version`). Sin `DROP CONSTRAINT` en la migración.
@@ -675,7 +675,7 @@ que cada inciso pedía existe; se registran aquí los desvíos para no darlos po
 > de la lane de plataforma que encadene `chunk→embed→index→materializa` con
 > `project_id`; el end-to-end vivo de plataforma no se ha corrido (requiere ese CLI +
 > BGE runtime). El detalle de cierre de Fase 4 vive en
-> `plans/2026-08-11-fase4-embedding-nodos-vectores.md`.
+> `docs/rag-platform/README.md` y `docs/adr/ADR-008-pure-platform-project-ownership-not-null.md`.
 
 ### Gaps críticos (bloquean ejecución real; no son fallos de contrato)
 
@@ -809,8 +809,8 @@ que cada inciso pedía existe; se registran aquí los desvíos para no darlos po
 > **Ponytail/audit: el módulo no tiene over-engineering relevante; los gaps son de
 > cableado faltante, no de código sobrante.**
 
-> **Wiring raw/normalized (actualizado 2026-08-12):** implementado el plan
-> `docs/superpowers/plans/2026-08-12-project-raw-normalized-catalog-wiring.md`
+> **Wiring raw/normalized (actualizado 2026-08-12):** implementado y ya
+> absorbido en la documentacion vigente de `docs/rag-platform/`
 > (Tasks 1-7). Catálogos físicos `project_raw_document_artifacts` /
 > `project_normalized_document_artifacts` por `project_id` (migraciones `20260812_01/02`),
 > provenance de variante en `chunk_bundles` (`20260812_03`), contrato único

@@ -1,0 +1,12 @@
+{
+  "credentials": [
+    {
+      "principal_id": "dotnet-dispatch",
+      "project_scope": [
+        "proj_sst-general"
+      ],
+      "token_digest": "96d75135592cda0034ff2000ebaaed32d999ebefd0f174d06decc1c4927f23da",
+      "token_salt": "0e69ae94ddd7ed41edb5ca6ff11a42db"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "completed_documents": 1,
+  "documents": [
+    {
+      "bundle_fingerprint": "chunk-bundle-3cb0dda974f0c5390a724e4a7b8b6b061e6dc3986fb484920142e0ccf39dfab9",
+      "document_id": "doc_f2cf7868a801af0e",
+      "normalized_relpath": "general_sst/capacitaciones/pausas_activas/1711493199040_syc_pg-rh-10-sst.program.md",
+      "reused": true,
+      "run_id": "38ec11983ac19d98160912a0b2049c434eaa56355b2581cabda545298febb787",
+      "status": "completed"
+    }
+  ],
+  "idempotency_key": "platform-chunk-proj_sst-general-documents-81008ea45d1e",
+  "payload_fingerprint": "b170856b8d19fce37a579c123bd56887162a0acb0b7561d8a9dad27596d741a8",
+  "request": {
+    "document_ids": [
+      "doc_f2cf7868a801af0e"
+    ],
+    "force": false,
+    "profile_id": "local-structural-v1",
+    "request_id": null,
+    "scope": "documents"
+  },
+  "requested_documents": 1,
+  "run_id": "d587ce175bcc22fdc7013b392199e4b83b2c7e6762320e93dce2b79b3efa03af",
+  "status": "completed",
+  "warnings": []
+}

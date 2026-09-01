@@ -1,0 +1,28 @@
+{
+  "completed_documents": 1,
+  "documents": [
+    {
+      "bundle_fingerprint": "chunk-bundle-15fed05078d45be11ea9e8b192934e31397adb470c8cd83135e4b013959b7bcf",
+      "document_id": "doc_b87ef9d031af518e",
+      "normalized_relpath": "general_sst/manuales/organizacion/arl/funciones_responsabilidades.md",
+      "reused": true,
+      "run_id": "8f1818eca4e75bd0ca3ff37888f2737ee7eba98a01f617af62f9fb088a80d55f",
+      "status": "completed"
+    }
+  ],
+  "idempotency_key": "platform-chunk-proj_sst-general-documents-b119f3763e7b",
+  "payload_fingerprint": "75aa879c392bcbc93548bce18d4e21a1e630742d8bfe889fa231aa52352d4f7d",
+  "request": {
+    "document_ids": [
+      "doc_b87ef9d031af518e"
+    ],
+    "force": false,
+    "profile_id": "local-structural-v1",
+    "request_id": null,
+    "scope": "documents"
+  },
+  "requested_documents": 1,
+  "run_id": "82516d830af9362e82de633c32e4279cc3ba4ff47b345adec93ec51e0d464fd9",
+  "status": "completed",
+  "warnings": []
+}

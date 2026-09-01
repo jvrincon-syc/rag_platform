@@ -18,8 +18,8 @@ En `HEAD` conviven dos superficies backend:
   `retrieval`.
 
 La rama comprometida ya llega hasta evidencia recuperable, readiness y perfiles
-durables. No contiene todavia una capa final versionada de respuesta/chat SST
-por encima de `retrieval`.
+durables. No contiene todavia una capa final versionada de respuesta RAG por
+encima de `retrieval`.
 
 ## 3. Code map
 
@@ -158,7 +158,7 @@ El detalle esta en [gaps-and-debt.md](./gaps-and-debt.md).
 - Reducir concentracion de logica en entrypoints grandes si el equipo decide
   atacar deuda de codigo, no solo deuda documental.
 - Completar la historia versionada desde `retrieval` hasta una respuesta final
-  verificable de chatbot SST cuando esa capa exista en esta rama.
+  verificable de RAG Platform cuando esa capa exista en esta rama.
 - Terminar de separar documentacion canonica versionada de notas locales o
   historicas que hoy aun conviven en carpetas paralelas.
 

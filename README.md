@@ -1,7 +1,13 @@
-# chatbot-sst
+# RAG Platform
 
-Pipeline para normalizar documentos SST, revisar evidencia y preparar
-indexacion/RAG con trazabilidad verificable.
+Plataforma RAG para normalizar documentos, revisar evidencia y preparar
+indexacion con trazabilidad verificable.
+
+> Identidad editorial actual: **RAG Platform**.
+> Identificadores tecnicos temporales que siguen existiendo en el codigo:
+> `chatbot-sst` (slug del repositorio), `chatbot_runtime`,
+> `chatbot_sst_gui_session`, `chatbot-sst.*` en persistencia local y la ruta de
+> entorno `C:\venvs\chatbot-sst`.
 
 ## Lectura rapida
 
@@ -14,6 +20,8 @@ indexacion/RAG con trazabilidad verificable.
 - Retrieval y readiness: `docs/retrieval/README.md`.
 - Via Llama-first experimental: `docs/llama_first/README.md`.
 - Observabilidad del backend: `docs/observability/README.md`.
+- Identidad, baseline y operacion de plataforma: `docs/rag-platform/README.md`.
+- Bibliografia documental: `docs/bibliography.md`.
 - Decisiones vigentes: `docs/adr/`.
 - Runbooks operativos: `docs/runbooks/`.
 - Reglas transversales: `docs/rules/`.
@@ -293,11 +301,12 @@ local o Llama Cloud en staging, controles de Classify/Extract y validacion.
 Para seguir una corrida o una request, consulta el runbook:
 `docs/runbooks/backend-observability.md`.
 
-## Runtime Docker del chatbot
+## Runtime Docker del servicio RAG
 
-El backend ahora tambien incluye un runtime ASGI dedicado para trafico de
-chatbot, separado del servidor GUI legacy. El entrypoint es
-`python -m chatbot_runtime.main` y expone `GET /healthz` y `GET /readyz`.
+El backend ahora tambien incluye un runtime ASGI dedicado para trafico RAG,
+separado del servidor GUI legacy. El paquete implementado sigue llamandose
+`chatbot_runtime`; su entrypoint es `python -m chatbot_runtime.main` y expone
+`GET /healthz` y `GET /readyz`.
 
 La base Docker vive en `app/back/Dockerfile` y `docker-compose.yml` levanta dos
 servicios:
@@ -338,3 +347,8 @@ vigente, deuda visible y faltantes al modelo objetivo.
 Chunking, embedding, indexacion y retrieval deben consumir solo documentos o
 bundles elegibles, o manejar `needs_review` explicitamente. Llama-first sigue
 detras de configuracion y autorizacion de datos.
+
+La identidad funcional del repositorio ya es **RAG Platform**. Mientras el
+slug de GitHub siga en transicion, cualquier referencia a `chatbot-sst` en
+rutas, claves, paquetes o artefactos debe leerse como un identificador tecnico
+heredado, no como el nombre vigente del producto.

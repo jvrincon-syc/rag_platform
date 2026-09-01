@@ -253,13 +253,47 @@ class DefaultEmbeddingEngineRegistry:
         return self._resolve(profile)
 
     def resolve_query_engine(self, profile: EmbeddingProfile) -> EmbeddingEngine:
-        """Return the engine allowed to embed queries for this profile."""
+        """Return the engine allowed to embed queries for this profile.
 
+        With ``RETRIEVAL_QUERY_EMBED=onnx`` and a bge profile, queries go through the ONNX
+        dense engine (~170x faster on CPU, cosine 1.0 vs FlagEmbedding, same space). Document
+        embedding is untouched, so ``resolve_document_engine`` still returns the full runtime.
+        """
+
+        if profile.provider == "bge":
+            mode = os.environ.get("RETRIEVAL_QUERY_EMBED")
+            if mode == "onnx":
+                return self._resolve_onnx_query_engine(profile)
+            if mode == "remote":
+                return self._resolve_remote_query_engine(profile)
         engine = self._resolve(profile)
         if not engine.supports_queries:
             raise QueryEmbeddingUnsupported(
                 f"engine for provider {profile.provider} cannot embed queries"
             )
+        return engine
+
+    def _resolve_onnx_query_engine(self, profile: EmbeddingProfile) -> EmbeddingEngine:
+        cached = self._cache.get("__onnx_query__" + profile.profile_id)
+        if cached is not None:
+            return cached
+        from embedding.infrastructure.onnx_bge_query_engine import OnnxBgeQueryEngine
+
+        engine = OnnxBgeQueryEngine(model_name=profile.model, dimension=profile.dimension)
+        self._cache["__onnx_query__" + profile.profile_id] = engine
+        return engine
+
+    def _resolve_remote_query_engine(self, profile: EmbeddingProfile) -> EmbeddingEngine:
+        cached = self._cache.get("__remote_query__" + profile.profile_id)
+        if cached is not None:
+            return cached
+        from retrieval.infrastructure.remote_bge import RemoteBgeQueryEngine
+
+        engine = RemoteBgeQueryEngine(
+            model_name=profile.model,
+            dimension=profile.dimension,
+        )
+        self._cache["__remote_query__" + profile.profile_id] = engine
         return engine
 
     def get_runtime_status(self, profile: EmbeddingProfile) -> EmbeddingRuntimeStatus:

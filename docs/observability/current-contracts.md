@@ -1,7 +1,9 @@
 # Current Backend Observability Contracts
 
-This file captures the current backend observability baseline for `chatbot-sst`.
-It is a compatibility snapshot, not a future design target.
+This file captures the current backend observability baseline for RAG Platform.
+When code or generated artifacts still use `chatbot-sst`, treat that string as a
+temporary technical identifier, not the active product name. This file is a
+compatibility snapshot, not a future design target.
 
 ## Verified channels
 

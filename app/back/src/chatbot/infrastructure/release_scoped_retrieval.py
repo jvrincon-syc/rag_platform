@@ -372,6 +372,7 @@ class PostgresReleaseScopedRetrievalPort(ChatbotReleaseRetrievalPort):
         retrieval_profiles,
         query_embedding: QueryEmbeddingService,
         reranker: object | None = None,
+        faq_resolver: object | None = None,
     ) -> None:
         self._connection = connection
         self._profiles = profiles
@@ -379,6 +380,10 @@ class PostgresReleaseScopedRetrievalPort(ChatbotReleaseRetrievalPort):
         self._retrieval_profiles = retrieval_profiles
         self._query_embedding = query_embedding
         self._reranker = reranker or NoOpReranker()
+        # Optional fast lexical/fuzzy FAQ shortcut. Checked first (sub-10ms); on a confident hit
+        # the answer comes straight from the curated FAQ and the embedding + vector + rerank path
+        # never runs. On a miss it stays None-effective and the full retrieval proceeds.
+        self._faq_resolver = faq_resolver
 
     def search(
         self,
@@ -390,6 +395,12 @@ class PostgresReleaseScopedRetrievalPort(ChatbotReleaseRetrievalPort):
         top_k: int,
     ) -> ChatbotReleaseRetrievalResult:
         del rag_variant_id
+        # FAQ-first: milliseconds vs seconds for the embed, so checking here means the embedding
+        # path never starts on a hit ("si esta en FAQ se para el embedding, si no continua").
+        if self._faq_resolver is not None:
+            match = self._faq_resolver.match(question)
+            if match is not None:
+                return self._faq_result(match, rag_release_id=rag_release_id)
         lane = self._resolve_lane(project_id=project_id, rag_release_id=rag_release_id)
         retrieval_profile = _release_profile(project_id=project_id, lane=lane)
         self._retrieval_profiles.upsert(retrieval_profile)
@@ -421,6 +432,61 @@ class PostgresReleaseScopedRetrievalPort(ChatbotReleaseRetrievalPort):
             lane=lane,
             evidence=tuple(evidence),
         )
+
+    def _faq_result(self, match: object, *, rag_release_id: str) -> ChatbotReleaseRetrievalResult:
+        """Build a single-evidence result from a FAQ hit — the curated answer as the only chunk.
+
+        Decoupled from the release lane on purpose: a FAQ answer must work even if the release
+        lane is unbuilt or unavailable, so the lane is a synthetic ``faq`` marker rather than a
+        Postgres lookup. Citation still carries the FAQ's referenced document via ``source_relpath``.
+        """
+
+        reference = getattr(match, "reference", None) or {}
+        pages = reference.get("pages") or []
+        page = int(pages[0]) if pages else None
+        # References carry two key shapes (normalized_path / chunk_file) and the FAQ's chunk_ids do
+        # not match the live corpus (they are audit metadata, not link targets). So surface a clean,
+        # human document identity from document_title or the file's basename, never the FAQ id or
+        # the stale chunk ids.
+        document_title = reference.get("document_title")
+        source_path = reference.get("normalized_path") or reference.get("chunk_file")
+        basename = (
+            source_path.rsplit("/", 1)[-1]
+            .replace(".child_chunks.jsonl", "")
+            .replace(".program", "")
+            if source_path
+            else None
+        )
+        document_id = str(document_title or basename or match.faq_id)
+        evidence = RetrievedEvidence(
+            node_id=f"faq-{match.faq_id}",
+            document_id=document_id,
+            parent_node_id=None,
+            child_chunk_id=f"faq-{match.faq_id}",
+            text=match.answer,
+            score=float(match.score),
+            source="lexical",
+            page_start=page,
+            page_end=page,
+            section_title=reference.get("document_title"),
+            section_path=None,
+            metadata={
+                "faq_id": match.faq_id,
+                "faq_status": match.status,
+                "faq_score": f"{match.score:.3f}",
+                "source_relpath": document_id,
+                "rag_release_id": rag_release_id,
+            },
+            embedding_profile_id="faq",
+            corpus_version="faq",
+            embedding_bundle_id=None,
+        )
+        lane = ChatbotReleaseLane(
+            embedding_profile_id="faq",
+            indexing_target_id="faq",
+            corpus_version="faq",
+        )
+        return ChatbotReleaseRetrievalResult(lane=lane, evidence=(evidence,))
 
     def _resolve_lane(
         self,

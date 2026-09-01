@@ -211,7 +211,7 @@ actual.
 - reducir concentración de lógica en los entrypoints más grandes si el equipo
   decide atacar deuda de código, no solo deuda documental.
 - completar la historia operativa que va desde retrieval hasta una respuesta
-  verificable de chatbot SST si ese tramo ya existe fuera de esta rama o se va a
+  verificable de RAG Platform si ese tramo ya existe fuera de esta rama o se va a
   construir después.
 
 ## Cómo interpretar esta deuda

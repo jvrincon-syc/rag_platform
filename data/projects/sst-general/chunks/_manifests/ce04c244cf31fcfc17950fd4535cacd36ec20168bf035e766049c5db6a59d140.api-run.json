@@ -1,0 +1,28 @@
+{
+  "completed_documents": 1,
+  "documents": [
+    {
+      "bundle_fingerprint": "chunk-bundle-6270d0132c9c7ea3373242391f04230f547d134b5bb0674457a7c63e77d173bd",
+      "document_id": "doc_89b7978304549ddd",
+      "normalized_relpath": "general_sst/manuales/introduccion.md",
+      "reused": true,
+      "run_id": "28082f0a1d4a24648a55f298e3be9f28f0e7d35f8d50248d71640ed04c755c14",
+      "status": "completed"
+    }
+  ],
+  "idempotency_key": "platform-chunk-proj_sst-general-documents-f701827ad346",
+  "payload_fingerprint": "28f66d695348165b1e834279f74bac6563ee1949d696e8627c520272f1e14b2f",
+  "request": {
+    "document_ids": [
+      "doc_89b7978304549ddd"
+    ],
+    "force": false,
+    "profile_id": "local-structural-v1",
+    "request_id": null,
+    "scope": "documents"
+  },
+  "requested_documents": 1,
+  "run_id": "ce04c244cf31fcfc17950fd4535cacd36ec20168bf035e766049c5db6a59d140",
+  "status": "completed",
+  "warnings": []
+}

@@ -15,6 +15,7 @@ from api.dependencies import (
     build_pipeline_services_from_env,
 )
 from core.feature_flags import FeatureFlags
+from retrieval.infrastructure.remote_bge import RemoteBgeReranker
 
 
 def test_resuelve_memory_por_defecto_sin_dsn() -> None:
@@ -134,6 +135,23 @@ def test_composicion_memory_no_abre_conexion(tmp_path: Path) -> None:
     try:
         assert services.persistence_mode == "memory"
         assert services.connection is None
+    finally:
+        services.close()
+
+
+def test_reranker_remoto_se_cablea_en_modo_postgres(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("RETRIEVAL_RERANKER", "remote")
+
+    services = build_pipeline_services(
+        chunks_root=tmp_path / "chunks",
+        embeddings_root=tmp_path / "embeddings",
+        connection=object(),
+        allow_mock_engine=True,
+    )
+    try:
+        assert isinstance(services.reranker, RemoteBgeReranker)
     finally:
         services.close()
 

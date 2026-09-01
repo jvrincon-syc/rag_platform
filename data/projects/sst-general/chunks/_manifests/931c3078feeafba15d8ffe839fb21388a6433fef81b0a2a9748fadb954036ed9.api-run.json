@@ -1,0 +1,28 @@
+{
+  "completed_documents": 1,
+  "documents": [
+    {
+      "bundle_fingerprint": "chunk-bundle-6fdd97dd48f5f643a30f4567c2a164adce5f29386adc26923c713860b9853fc3",
+      "document_id": "doc_f3bdcdea0cf60ee0",
+      "normalized_relpath": "convivencia_laboral/manual/principios_convivencia.md",
+      "reused": true,
+      "run_id": "48049f090f7ebcd8dc9f980959431d9bac805a03efd1b9d8c34c097251317e23",
+      "status": "completed"
+    }
+  ],
+  "idempotency_key": "platform-chunk-proj_sst-general-documents-f79ac6c6b2cb",
+  "payload_fingerprint": "5c8b86b4214f2582d59031316b73f7b114b53b49f0a0036a3bd7ff28d0086d92",
+  "request": {
+    "document_ids": [
+      "doc_f3bdcdea0cf60ee0"
+    ],
+    "force": false,
+    "profile_id": "local-structural-v1",
+    "request_id": null,
+    "scope": "documents"
+  },
+  "requested_documents": 1,
+  "run_id": "931c3078feeafba15d8ffe839fb21388a6433fef81b0a2a9748fadb954036ed9",
+  "status": "completed",
+  "warnings": []
+}

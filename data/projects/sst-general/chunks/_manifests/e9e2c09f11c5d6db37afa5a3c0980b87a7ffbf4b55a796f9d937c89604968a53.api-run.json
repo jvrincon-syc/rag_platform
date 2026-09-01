@@ -1,0 +1,28 @@
+{
+  "completed_documents": 1,
+  "documents": [
+    {
+      "bundle_fingerprint": "chunk-bundle-4c76aa697a3294ea1ddabdc93da257147f6700f5070d9428fd2b6bade218488c",
+      "document_id": "doc_864d906c5eae1183",
+      "normalized_relpath": "convivencia_laboral/manual/1761580555950_syc_RE.RH-04SST23102025.md",
+      "reused": false,
+      "run_id": "762923ea1cebf5e51406138b6683259fc43238de3ee1dea566f78541293ace82",
+      "status": "completed"
+    }
+  ],
+  "idempotency_key": "platform-chunk-proj_sst-general-documents-b2e2f21acf36",
+  "payload_fingerprint": "b820e7929b938b5f9bfde2f9e2e0592b65beb0622421973b232585970c3950e3",
+  "request": {
+    "document_ids": [
+      "doc_864d906c5eae1183"
+    ],
+    "force": false,
+    "profile_id": "local-structural-v1",
+    "request_id": null,
+    "scope": "documents"
+  },
+  "requested_documents": 1,
+  "run_id": "e9e2c09f11c5d6db37afa5a3c0980b87a7ffbf4b55a796f9d937c89604968a53",
+  "status": "completed",
+  "warnings": []
+}

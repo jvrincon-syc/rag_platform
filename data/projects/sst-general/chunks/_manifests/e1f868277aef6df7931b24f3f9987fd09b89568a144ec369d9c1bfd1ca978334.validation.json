@@ -1,0 +1,19 @@
+{
+  "checks": [
+    {
+      "detail": "1/1",
+      "name": "documents_completed",
+      "passed": true
+    },
+    {
+      "detail": "completed",
+      "name": "run_status_ok",
+      "passed": true
+    }
+  ],
+  "documents_checked": 1,
+  "errors": 0,
+  "run_id": "e1f868277aef6df7931b24f3f9987fd09b89568a144ec369d9c1bfd1ca978334",
+  "status": "passed",
+  "warnings": 0
+}

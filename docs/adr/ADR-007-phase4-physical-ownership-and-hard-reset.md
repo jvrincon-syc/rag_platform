@@ -5,7 +5,7 @@ Date: 2026-08-11
 ## Status
 
 Accepted. Alcance: Fase 4 del plan de plataforma RAG multi-proyecto
-(`docs/superpowers/plans/Plan_Ajustado_Plataforma_RAG_MultiProyecto(2).md`).
+(`docs/superpowers/plans/Plan_Ajustado_Plataforma_RAG_MultiProyecto(3).md`).
 Extiende [ADR-006](ADR-006-rag-platform-project-variant-release.md). Aditivo sobre
 la lane legacy; no retira constraints globales (eso queda para una migración
 futura aprobada aparte).
@@ -124,5 +124,5 @@ vector de A apuntando a un embedding bundle de B) si los FKs son simples.
 
 Diseño/código: dominio → puertos/aplicación → adaptadores → composition root.
 Despliegue: Gate 0 → DDL aditivo → código dual-mode → reset controlado → rebuild
-limpio → validación → habilitación. Detalle en el plan de Fase 4
-(`plans/2026-08-11-fase4-embedding-nodos-vectores.md`).
+limpio → validación → habilitación. El detalle operativo quedó absorbido por el
+plan maestro y los ADRs vigentes de plataforma.

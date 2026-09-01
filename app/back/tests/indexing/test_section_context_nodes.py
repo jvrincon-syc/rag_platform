@@ -53,6 +53,7 @@ def _content(*, section_title: str | None, section_path: str | None) -> ChunkBun
         source_content_fingerprint="f" * 64,
         corpus_version="corpus-1",
         document_id="doc01",
+        document_name="doc01.pdf",
         source_relpath="a/doc01.pdf",
         source_hash="a" * 64,
         normalized_relpath="a/doc01.md",
@@ -86,3 +87,9 @@ def test_build_nodes_deja_seccion_en_none_cuando_el_bundle_es_v1() -> None:
 
     assert all(node.section_title is None for node in nodes)
     assert all(node.section_path is None for node in nodes)
+
+
+def test_build_nodes_propaga_document_name_para_citas_legibles() -> None:
+    nodes = _nodes(_content(section_title="Articulo 1", section_path="Titulo I/Articulo 1"))
+
+    assert all(node.metadata["document_name"] == "doc01.pdf" for node in nodes)

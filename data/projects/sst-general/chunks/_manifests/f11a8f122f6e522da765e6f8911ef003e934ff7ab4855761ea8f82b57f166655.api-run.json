@@ -1,0 +1,28 @@
+{
+  "completed_documents": 1,
+  "documents": [
+    {
+      "bundle_fingerprint": "chunk-bundle-1c5f0342078e2e12d2d368d352965a7a56aa098d703bca80c74db19f186fbe2f",
+      "document_id": "doc_eb34bb480d443513",
+      "normalized_relpath": "copasst/funciones_presidente_copasst.md",
+      "reused": true,
+      "run_id": "1343eb639cb5a337fae5f07aed2404eba98b806d64f76b80cfab8b9056791e2d",
+      "status": "completed"
+    }
+  ],
+  "idempotency_key": "platform-chunk-proj_sst-general-documents-cd35bfa2b8f8",
+  "payload_fingerprint": "55018360e3a1ad1f8bcd36944dee0d49d2f076f9cb7806cc2b3348b3068114be",
+  "request": {
+    "document_ids": [
+      "doc_eb34bb480d443513"
+    ],
+    "force": false,
+    "profile_id": "local-structural-v1",
+    "request_id": null,
+    "scope": "documents"
+  },
+  "requested_documents": 1,
+  "run_id": "f11a8f122f6e522da765e6f8911ef003e934ff7ab4855761ea8f82b57f166655",
+  "status": "completed",
+  "warnings": []
+}

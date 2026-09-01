@@ -19,19 +19,18 @@ Fecha de la sesión: 2026-08-18.
 > resultado idéntico — PG 18.6, pgvector 0.8.5, 10 tablas de plataforma + 7
 > `idx_vec_*`, seed 1 por tabla (1 release, 1 config version, 1 binding), 1 versión
 > por proyecto (determinista), 0 FKs entrantes a bindings. Gate 0 se mantiene PASS.
-> Plan autoritativo confirmado: `2026-08-18-cierre-gaps-pre-fase7-plataforma-rag-v2.md`
-> (el archivo `-en.md` citado no existe en el repo).
+> Plan autoritativo de esa sesion: cierre pre-Fase 7 luego absorbido por
+> ADR-006, ADR-007, ADR-008 y el plan maestro
+> `docs/superpowers/plans/Plan_Ajustado_Plataforma_RAG_MultiProyecto(3).md`.
 
 ---
 
 ## A. Instrucciones del repositorio y plan autoritativo
 
 Leídos y obedecidos: `README_REGLAS.md`, `AGENTS.md`, `CLAUDE.md`,
-`app/back/AGENTS_back.md`, el plan congelado
-`docs/superpowers/plans/2026-08-18-cierre-gaps-pre-fase7-plataforma-rag-v2.md`
-(autoritativo para esta sesión), el plan maestro
-`docs/superpowers/plans/Plan_Ajustado_Plataforma_RAG_MultiProyecto(3).md` y el
-baseline archivado `docs/rag-platform/migration-baseline.md`.
+`app/back/AGENTS_back.md`, el cierre pre-Fase 7 luego absorbido por ADRs, el
+plan maestro `docs/superpowers/plans/Plan_Ajustado_Plataforma_RAG_MultiProyecto(3).md`
+y el baseline archivado `docs/rag-platform/migration-baseline.md`.
 
 Confirmación: esta sesión es Gate 0. No se reinterpretó la arquitectura congelada.
 

@@ -201,6 +201,7 @@ def write_chunk_bundle(
                 "child_count": len(children),
                 "corpus_version": CORPUS_VERSION,
                 "document_id": document_id,
+                "document_name": Path(source_relpath).name,
                 "normalized_relpath": source_relpath,
                 "parent_count": len(parents),
                 "profile_fingerprint": "chunking-profile-" + sha256(b"profile").hexdigest(),

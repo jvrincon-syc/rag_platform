@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from collections.abc import Mapping
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
@@ -11,6 +12,7 @@ from typing import TYPE_CHECKING
 from chatbot_runtime.dependencies import build_warmup_service
 from chatbot_runtime.warmup import BgeWarmupService
 from fastapi import FastAPI, Response, status
+from fastapi.responses import FileResponse
 
 if TYPE_CHECKING:
     from api.dependencies import PipelineServices
@@ -59,6 +61,27 @@ def create_chatbot_runtime_app(
             "warmed_reranker": snapshot.warmed_reranker,
             "last_error": snapshot.last_error,
         }
+
+    @app.get("/api/documents/raw/{file_path:path}")
+    def serve_raw_document(file_path: str) -> Response:
+        """Serve a raw document (PDF, etc.) by its relative path.
+
+        Public endpoint (no auth) so the frontend can open citations in a new tab.
+        Resolves the file from the configured raw docs root directory.
+        """
+        raw_root = Path(
+            os.environ.get(
+                "SST_RAW_DOCS_ROOT",
+                "data/docs_raw",
+            )
+        )
+        target = (raw_root / file_path).resolve()
+        if not str(target).startswith(str(raw_root.resolve())):
+            return Response(status_code=status.HTTP_403_FORBIDDEN)
+        if not target.is_file():
+            return Response(status_code=status.HTTP_404_NOT_FOUND)
+        media_type = "application/pdf" if target.suffix.lower() == ".pdf" else "application/octet-stream"
+        return FileResponse(target, media_type=media_type, filename=target.name)
 
     # Register probes before the root mount so they remain outside bearer auth.
     app.mount("/", pipeline_app)

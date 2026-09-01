@@ -1,0 +1,19 @@
+- generic [ref=e4]:
+  - generic [ref=e5]:
+    - heading "Iniciar sesión" [level=1] [ref=e10]
+    - paragraph [ref=e11]: Accede al asistente SST
+  - generic [ref=e12]:
+    - generic [ref=e13]:
+      - generic [ref=e14]: Correo electrónico
+      - textbox "Correo electrónico" [ref=e15]:
+        - /placeholder: tu@empresa.com
+    - generic [ref=e16]:
+      - generic [ref=e17]: Contraseña
+      - generic [ref=e18]:
+        - textbox "Contraseña" [ref=e19]:
+          - /placeholder: ••••••••
+        - button "Mostrar contraseña" [ref=e20] [cursor=pointer]
+    - button "Iniciar sesión" [ref=e24] [cursor=pointer]
+  - paragraph [ref=e25]:
+    - text: ¿No tienes cuenta?
+    - button "Regístrate aquí" [ref=e26] [cursor=pointer]

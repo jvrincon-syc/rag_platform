@@ -1,7 +1,7 @@
 # ADR-010 — Build de release asíncrono y durable
 
 - **Estado**: Aceptada (2026-08-24)
-- **Fase**: 8 (rework de GUIs de plataforma; plan `docs/superpowers/plans/2026-08-21-platform-gui-rework-reuse-legacy.md`, §D-3b)
+- **Fase**: 8 (rework de GUIs de plataforma; consolidado luego en `docs/superpowers/plans/2026-08-25-rag-platform-legacy-pipeline-parity.md`)
 - **Relacionada**: ADR-006 (proyecto/variante/release), ADR-009 (aislamiento por proyecto)
 
 ## Contexto

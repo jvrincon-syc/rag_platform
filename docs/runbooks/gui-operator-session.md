@@ -7,6 +7,10 @@ sesión local de operador. No cambia la lógica de negocio ni los manifests
 durables. La autorización sigue siendo responsabilidad de FastAPI (Fase 7): la
 GUI solo pone una cookie de sesión delante del bearer existente.
 
+> Nota de identidad: la interfaz operativa ya se documenta como **RAG Platform**.
+> Los nombres `chatbot_sst_gui_session` y `chatbot-sst.*` permanecen solo porque
+> son identificadores tecnicos reales del codigo vigente.
+
 ## Modelo de sesión (Gate 3)
 
 El browser nunca guarda el bearer. El flujo es:

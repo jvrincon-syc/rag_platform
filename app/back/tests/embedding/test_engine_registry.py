@@ -11,6 +11,7 @@ from embedding.domain.errors import (
     EmbeddingEngineUnavailable,
 )
 from indexing.infrastructure.embeddings.bge import BgeModelCache
+from retrieval.infrastructure.remote_bge import RemoteBgeQueryEngine
 
 from pipeline_fixtures import build_profile
 
@@ -182,6 +183,27 @@ def test_comparte_el_bge_model_cache_entre_perfiles_distintos_del_mismo_modelo()
     assert first_engine is not second_engine
     assert first_engine.provider.model_cache is shared_cache
     assert second_engine.provider.model_cache is shared_cache
+
+
+def test_resuelve_y_cachea_el_query_engine_remoto_para_bge(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("RETRIEVAL_QUERY_EMBED", "remote")
+    registry = DefaultEmbeddingEngineRegistry(environ={}, allow_mock=True)
+    profile = build_profile(
+        profile_id="bge-remote",
+        provider="bge",
+        model="BAAI/bge-m3",
+        dimension=1024,
+        normalization="l2",
+        vector_table="idx_vec_local_bge_m3_v1",
+    )
+
+    first_engine = registry.resolve_query_engine(profile)
+    second_engine = registry.resolve_query_engine(profile)
+
+    assert isinstance(first_engine, RemoteBgeQueryEngine)
+    assert second_engine is first_engine
 
 
 def test_trata_la_normalizacion_unknown_del_bge_m3_legacy_como_compatible() -> None:

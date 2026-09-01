@@ -231,6 +231,26 @@ class PipelineServices:
                 close()
 
 
+def _build_faq_resolver(chunks_root: Path) -> object | None:
+    """Load the direct-FAQ resolver if the project ships ``faq/sst-faq-80.md`` and it isn't disabled.
+
+    Best-effort optimization: a missing file, a parse error, or ``FAQ_MATCH=off`` just disables the
+    lexical/fuzzy shortcut so the full embedding retrieval runs — it never blocks startup.
+    """
+
+    if os.environ.get("FAQ_MATCH", "on").lower() == "off":
+        return None
+    faq_path = Path(chunks_root).parent / "faq" / "sst-faq-80.md"
+    if not faq_path.exists():
+        return None
+    try:
+        from retrieval.infrastructure.faq_resolver import FaqResolver
+
+        return FaqResolver.from_file(faq_path)
+    except Exception:  # noqa: BLE001 - the FAQ shortcut is an optimization, never a startup gate
+        return None
+
+
 def build_pipeline_services(
     *,
     chunks_root: Path,
@@ -314,7 +334,20 @@ def build_pipeline_services(
         vector_search = PostgresVectorSearch(connection)
         lexical_search = PostgresLexicalSearch(connection)
         parent_expansion = PostgresParentExpansion(connection)
-        reranker = BgeReranker(model_cache=bge_model_cache)
+        # RETRIEVAL_RERANKER=light swaps BGE-M3's colbert+sparse+dense compute_score
+        # (~2s/candidate on CPU) for the single-head bge-reranker-base cross-encoder
+        # (~4.6x faster). Default stays bge-m3 so ranking quality never changes silently.
+        _rr = os.environ.get("RETRIEVAL_RERANKER", "bge-m3").lower()
+        if _rr == "light":
+            from retrieval.infrastructure.light_reranker import LightCrossEncoderReranker
+
+            reranker = LightCrossEncoderReranker()
+        elif _rr == "remote":
+            from retrieval.infrastructure.remote_bge import RemoteBgeReranker
+
+            reranker = RemoteBgeReranker()
+        else:
+            reranker = BgeReranker(model_cache=bge_model_cache)
 
     readiness_evaluator = EmbeddingIndexingReadinessEvaluator(targets=targets)
     builder = EmbeddingBundleBuilder(
@@ -355,6 +388,7 @@ def build_pipeline_services(
         vector_search=vector_search,
         query_embedding=query_embedding,
     )
+    faq_resolver = _build_faq_resolver(chunks_root)
     if connection is None:
         release_retrieval = InMemoryReleaseScopedRetrievalPort(
             indexing_runs=indexing_runs,
@@ -375,6 +409,7 @@ def build_pipeline_services(
             retrieval_profiles=retrieval_profiles,
             query_embedding=query_embedding,
             reranker=reranker,
+            faq_resolver=faq_resolver,
         )
     services = PipelineServices(
         feature_flags=flags,

@@ -104,4 +104,7 @@ class BgeReranker:
             raise RuntimeError(
                 "FlagEmbedding is required for the bge reranker"
             ) from error
-        return BGEM3FlagModel(self.model_name, use_fp16=False)
+        # Match the embedding provider's fp16 choice so the shared BgeModelCache holds one model:
+        # warmup loads the reranker first, so if this forced fp32 the embed path would reuse fp32.
+        use_fp16 = os.environ.get("BGE_USE_FP16", "").lower() in ("1", "true", "yes")
+        return BGEM3FlagModel(self.model_name, use_fp16=use_fp16)

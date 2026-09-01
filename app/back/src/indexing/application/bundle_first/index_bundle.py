@@ -155,6 +155,7 @@ def build_nodes(
                 metadata={
                     "node_role": "parent",
                     "document_id": content.document_id,
+                    "document_name": content.document_name,
                     "chunking_profile_id": parent.profile_id,
                     "ordinal": parent.ordinal,
                     "block_ids": list(parent.block_ids),
@@ -191,6 +192,7 @@ def build_nodes(
                 metadata={
                     "node_role": "child",
                     "document_id": content.document_id,
+                    "document_name": content.document_name,
                     "parent_node_id": child.parent_id,
                     "chunking_profile_id": child.profile_id,
                     "ordinal": child.ordinal,

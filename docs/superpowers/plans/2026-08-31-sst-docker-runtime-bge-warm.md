@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build a dedicated Dockerized `app/back` runtime foundation with a real ASGI chatbot API entrypoint, a persistent BGE-M3 warm worker, and explicit health/readiness wiring that keeps the model warm before traffic.
+**Goal:** Build a dedicated Dockerized `app/back` runtime foundation with a real ASGI RAG API entrypoint, a persistent BGE-M3 warm worker, and explicit health/readiness wiring that keeps the model warm before traffic.
 
-**Architecture:** Introduce a new `chatbot_runtime` package that is independent from the legacy `ingestion.gui.server` bridge and owns runtime settings, BGE warmup, and dedicated FastAPI/Uvicorn composition for chatbot traffic. Package that runtime in Docker with separate `api` and `worker` services sharing a Hugging Face cache volume so BGE warmup survives ordinary restarts and does not cold-load on the first real request.
+**Architecture:** Introduce a new `chatbot_runtime` package that is independent from the legacy `ingestion.gui.server` bridge and owns runtime settings, BGE warmup, and dedicated FastAPI/Uvicorn composition for RAG traffic. Package that runtime in Docker with separate `api` and `worker` services sharing a Hugging Face cache volume so BGE warmup survives ordinary restarts and does not cold-load on the first real request.
 
 **Tech Stack:** Python 3.12, FastAPI, Uvicorn, Docker, Docker Compose, FlagEmbedding/BGE-M3, Hugging Face cache volume, pytest.
 
@@ -12,13 +12,13 @@
 
 ## Global Constraints
 
-- SST chatbot traffic must run through a real ASGI server, not `ThreadingHTTPServer + AsgiBridge`.
+- SST RAG traffic must run through a real ASGI server, not `ThreadingHTTPServer + AsgiBridge`.
 - BGE cold load in the user request path must be `0`.
 - The worker must keep one persistent BGE-M3 runtime warm before readiness becomes healthy.
 - Query embedding and reranking must reuse one BGE runtime.
-- Bearer authentication on the SST API must remain enabled.
+- Bearer authentication on the API must remain enabled.
 - Release isolation and fail-closed behavior must remain intact.
-- The work in this plan is limited to `chatbot-sst/app/back` foundation work and must not implement the full Redis/webhook architecture yet.
+- The work in this plan is limited to `app/back` foundation work and must not implement the full Redis/webhook architecture yet.
 - Dockerization is mandatory for the SST BGE runtime in this phase.
 - Containers must avoid baking secrets or raw corpus content into images.
 - Tests must prove readiness is false before warmup and true after warmup.
@@ -114,7 +114,7 @@ git add app/back/src/chatbot_runtime/__init__.py app/back/src/chatbot_runtime/se
 git commit -m "feat: add chatbot runtime warmup foundation"
 ```
 
-### Task 2: Dedicated ASGI Chatbot Runtime
+### Task 2: Dedicated ASGI RAG Runtime
 
 **Files:**
 - Create: `app/back/src/chatbot_runtime/app.py`

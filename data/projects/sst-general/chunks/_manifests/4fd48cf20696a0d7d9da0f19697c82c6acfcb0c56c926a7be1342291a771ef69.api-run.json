@@ -1,0 +1,28 @@
+{
+  "completed_documents": 1,
+  "documents": [
+    {
+      "bundle_fingerprint": "chunk-bundle-907e307436ddb7abb399595a5beb70ebd003f06f7f348780d47f9e1587709880",
+      "document_id": "doc_dec6dc6770fea917",
+      "normalized_relpath": "general_sst/manuales/organizacion/comite_convivencia_laboral/aspectos_juridicos_laborales.md",
+      "reused": true,
+      "run_id": "69b54a620b7c0b98977ea11860aa048d3e4a33c30e5b300f7a62bc4d2793ce08",
+      "status": "completed"
+    }
+  ],
+  "idempotency_key": "platform-chunk-proj_sst-general-documents-b3bccaf4cde4",
+  "payload_fingerprint": "db88371f3bf03f1b0e2c0ec30aaf74596904fc07f9b47af5a9e99c86a541a2f8",
+  "request": {
+    "document_ids": [
+      "doc_dec6dc6770fea917"
+    ],
+    "force": false,
+    "profile_id": "local-structural-v1",
+    "request_id": null,
+    "scope": "documents"
+  },
+  "requested_documents": 1,
+  "run_id": "4fd48cf20696a0d7d9da0f19697c82c6acfcb0c56c926a7be1342291a771ef69",
+  "status": "completed",
+  "warnings": []
+}
