@@ -81,7 +81,17 @@ _MAX_CHILDREN_PER_PARENT = 2
 #: casi no cambia el top_k final (un candidato ranked >10 por RRF rara vez sube
 #: a top-4 tras rerank) pero recorta el rerank ~3x.
 # ponytail: env knob, default preserva comportamiento; sube si el recall lo pide
-_RERANK_POOL_SIZE = int(os.environ.get("RETRIEVAL_RERANK_POOL_SIZE", "30"))
+_RERANK_POOL_SIZE_DEFAULT = 30
+
+
+def _rerank_pool_size() -> int:
+    """Rerank pool size, read at call time so secrets.env (merged into os.environ after this module
+    is imported) actually applies — a module-level constant would freeze the default at import."""
+
+    try:
+        return int(os.environ.get("RETRIEVAL_RERANK_POOL_SIZE", str(_RERANK_POOL_SIZE_DEFAULT)))
+    except ValueError:
+        return _RERANK_POOL_SIZE_DEFAULT
 
 
 def _now() -> datetime:
@@ -587,7 +597,7 @@ class RetrievalSearchService:
                     }
                 }
             )
-        rerank_pool = selected[: max(top_k, _RERANK_POOL_SIZE)]
+        rerank_pool = selected[: max(top_k, _rerank_pool_size())]
         result = self._reranker.rerank(query=query, candidates=rerank_pool, top_n=top_k)
         return result
 

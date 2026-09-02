@@ -1958,8 +1958,13 @@ def main() -> int:
             "port": 8765,
         },
     )
+    # Export secrets.env into os.environ (not only the local copy passed to the pipeline): the
+    # reranker/query-embed selection reads RETRIEVAL_RERANKER / RETRIEVAL_QUERY_EMBED and the remote
+    # client reads REMOTE_BGE_URL straight from os.environ, and urllib's proxy lookup only sees
+    # os.environ (HTTP(S)_PROXY / NO_PROXY). Without this the remote BGE offload to the Lightning
+    # studio silently stays local and OOMs the 8 GB box loading BGE-M3.
+    os.environ.update(load_secrets_env(ROOT / "secrets.env") or {})
     runtime_environ = dict(os.environ)
-    runtime_environ.update(load_secrets_env(ROOT / "secrets.env") or {})
     server_logger.info(
         "Backend configuration loaded",
         extra={

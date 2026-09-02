@@ -961,3 +961,31 @@ references:
     pages: [1]
     chunk_ids: [child-00d905c22b051c4d5544f3c88d8e622d31963cea032e9f2db9e39a6d24e37120]
 ```
+
+## FAQ-081
+```yaml
+question: "Hola"
+answer: "¡Hola! Soy tu asistente de Seguridad y Salud en el Trabajo (SST). ¿En qué puedo ayudarte hoy? Puedes preguntarme sobre políticas, riesgos, elementos de protección personal, COPASST, capacitaciones y más."
+status: supported
+```
+
+## FAQ-082
+```yaml
+question: "Buenos dias"
+answer: "¡Buenos días! Soy tu asistente de Seguridad y Salud en el Trabajo (SST). ¿En qué puedo ayudarte? Pregúntame sobre normas, procedimientos y buenas prácticas de SST."
+status: supported
+```
+
+## FAQ-083
+```yaml
+question: "Buenas tardes"
+answer: "¡Buenas tardes! Soy tu asistente de Seguridad y Salud en el Trabajo (SST). ¿En qué puedo ayudarte? Estoy aquí para resolver tus dudas sobre seguridad y salud en el trabajo."
+status: supported
+```
+
+## FAQ-084
+```yaml
+question: "Gracias"
+answer: "¡Con gusto! Si tienes otra duda sobre seguridad y salud en el trabajo, aquí estoy para ayudarte."
+status: supported
+```

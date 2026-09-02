@@ -231,6 +231,28 @@ class PipelineServices:
                 close()
 
 
+def _resolve_faq_path(chunks_root: Path) -> Path | None:
+    """Locate the curated ``sst-faq-80.md`` across the two runtime layouts.
+
+    The dedicated chatbot runtime passes ``chunks_root=data/projects/<proj>/chunks`` (the FAQ is a
+    sibling ``faq/`` dir), while the ingestion GUI server passes ``chunks_root=data/chunks`` (the FAQ
+    lives under ``data/projects/<proj>/faq``). Deriving only ``chunks_root.parent/faq`` silently
+    disabled the shortcut under the GUI server. ``FAQ_PATH`` overrides both when set.
+    """
+
+    explicit = os.environ.get("FAQ_PATH", "").strip()
+    if explicit:
+        candidate = Path(explicit)
+        return candidate if candidate.exists() else None
+    data_root = Path(chunks_root).parent
+    sibling = data_root / "faq" / "sst-faq-80.md"
+    if sibling.exists():
+        return sibling
+    # GUI-server layout: chunks_root is data/chunks, so the project FAQ is under data/projects/*.
+    matches = sorted(data_root.glob("projects/*/faq/sst-faq-80.md"))
+    return matches[0] if matches else None
+
+
 def _build_faq_resolver(chunks_root: Path) -> object | None:
     """Load the direct-FAQ resolver if the project ships ``faq/sst-faq-80.md`` and it isn't disabled.
 
@@ -240,8 +262,8 @@ def _build_faq_resolver(chunks_root: Path) -> object | None:
 
     if os.environ.get("FAQ_MATCH", "on").lower() == "off":
         return None
-    faq_path = Path(chunks_root).parent / "faq" / "sst-faq-80.md"
-    if not faq_path.exists():
+    faq_path = _resolve_faq_path(chunks_root)
+    if faq_path is None:
         return None
     try:
         from retrieval.infrastructure.faq_resolver import FaqResolver
