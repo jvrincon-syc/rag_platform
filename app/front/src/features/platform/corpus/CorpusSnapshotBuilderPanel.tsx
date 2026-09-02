@@ -17,8 +17,7 @@ import { useCorpusSnapshotWorkspace } from "./useCorpusSnapshotWorkspace.js";
 // Panel reusable del constructor de snapshot de corpus: estado en el hook
 // (lee `project_id` de `PlatformProjectContext`, no de props), presentación en
 // el inventario neutral + historial. Hospedado por `RAG / Releases`
-// (snapshot -> draft) y, durante la migración, por `CorpusSnapshotWorkspace`
-// para no perder cobertura de tests mientras se recompone la ruta.
+// (snapshot -> draft) y mantiene la cobertura del flujo en este componente activo.
 export function CorpusSnapshotBuilderPanel() {
   const workspace = useCorpusSnapshotWorkspace();
   const loading = workspace.candidates.status === "loading";

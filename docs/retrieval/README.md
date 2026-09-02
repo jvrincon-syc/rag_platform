@@ -16,7 +16,7 @@ This reflects committed `main` at `f918b512a5320b6fc434feefe1e3e9f780bc097b`. No
 - Lifecycle, readiness, query embeddings, and search: `app/back/src/retrieval/application/`.
 - API: `app/back/src/retrieval/api/` under `/api/retrieval`.
 - PostgreSQL/in-memory adapters: `app/back/src/retrieval/infrastructure/`.
-- Fusion, evidence, and parent expansion: `app/back/src/retrieval/*.py`.
+- Fusion and default reranking: `app/back/src/retrieval/fusion.py` and `app/back/src/retrieval/reranking.py`.
 - Tests: `app/back/tests/retrieval/`.
 
 ## 4. Inputs and outputs
@@ -58,7 +58,7 @@ npm run test:retrieval
 npm run test:pipeline
 ```
 
-Focused coverage includes bundle-first end-to-end, API lifecycle, evidence/fusion/parent expansion, FTS, vector retrieval, and isolation audits.
+Focused coverage includes bundle-first end-to-end, API lifecycle, fusion/reranking, and isolation audits.
 
 ## 10. Visible inconsistencies and debt
 
@@ -75,5 +75,4 @@ Focused coverage includes bundle-first end-to-end, API lifecycle, evidence/fusio
 - `app/back/src/retrieval/application/retrieval_service.py`
 - `app/back/src/retrieval/application/query_embedding_service.py`
 - `app/back/src/retrieval/infrastructure/postgres/repositories.py`
-- `app/back/src/retrieval/evidence_builder.py`
 - `app/back/tests/retrieval/`

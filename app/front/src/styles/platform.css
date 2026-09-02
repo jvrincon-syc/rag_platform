@@ -203,39 +203,6 @@ button.variant-cell.selected {
   }
 }
 
-/* --- Intake documental (Task 9) --------------------------------------- */
-/* Aside estrecho con los formularios (subir + normalizar) y una columna ancha
-   con la tabla de revisiones. Espejo de .variant-grid. */
-.document-grid {
-  align-items: start;
-  display: grid;
-  gap: 16px;
-  grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
-}
-
-.document-aside {
-  display: grid;
-  gap: 16px;
-  min-width: 0;
-}
-
-.document-main {
-  min-width: 0;
-}
-
-.platform-report {
-  border-top: 1px solid var(--accent-line);
-  display: grid;
-  gap: 10px;
-  padding-top: 12px;
-}
-
-@media (max-width: 900px) {
-  .document-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
 /* Superficie Platform: apila la sub-nav sobre el workspace activo. La
    .view-switcher (shell.css) se reutiliza tal cual; aquí solo el espaciado. */
 .platform-surface {
@@ -533,28 +500,6 @@ button.ui-list-item {
       "search";
     grid-template-columns: minmax(0, 1fr);
   }
-}
-
-/* Resumen de intake: tiles de procedencia (reusa MetricCard). Grid responsive. */
-.document-summary {
-  display: grid;
-  gap: 12px;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  margin-bottom: 4px;
-}
-
-@media (max-width: 900px) {
-  .document-summary {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-/* Toolbar de selección masiva del intake (seleccionar todos / limpiar). */
-.document-select-actions {
-  align-items: center;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
 }
 
 /* --- Projects view: dynamic corporate redesign -------------------------- */

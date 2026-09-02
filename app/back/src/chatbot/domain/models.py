@@ -68,7 +68,7 @@ class ChatbotWebhookChunk(StrictModel):
         # El contrato externo (.NET) deserializa ``metadata`` como
         # ``Dictionary<string, string?>`` (docs/other-backend-handoff.md):
         # valores no-string (p. ej. ``page_number`` int o ``retrieval_sources``
-        # list, agregados por ``ParentExpansionService``) rompen ese binding con
+        # list, agregados por la expansión de parents) rompen ese binding con
         # un 400. Se serializan a string en el borde de salida del webhook, sin
         # tocar el ``metadata`` interno de retrieval ni debilitar validación.
         data = evidence.model_dump(mode="json")

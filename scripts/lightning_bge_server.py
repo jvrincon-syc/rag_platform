@@ -161,7 +161,14 @@ def _qwen_command(binary: str) -> list[str]:
         binary,
         *subcommand,
         "-hf",
-        os.environ.get("QWEN_HF", "bartowski/Qwen_Qwen3-1.7B-GGUF:Q5_K_M"),
+        # Qwen2.5-3B-Instruct: default here -- follows refusal/grounding instructions far better than
+        # 1.7B while staying fast enough on a 4-vCPU CPU studio. For maximum fidelity (slower per
+        # answer) set QWEN_HF=bartowski/Qwen2.5-7B-Instruct-GGUF:Q4_K_M; no code change needed.
+        os.environ.get("QWEN_HF", "bartowski/Qwen2.5-3B-Instruct-GGUF:Q4_K_M"),
+        # Use the model's embedded chat template (correct Qwen2.5 special tokens / role markers);
+        # a wrong/guessed template feeds the model a malformed prompt and it emits garbled, doubled
+        # text ("con con", "Sioloó").
+        "--jinja",
         "--host",
         "127.0.0.1",
         "--port",
@@ -184,10 +191,13 @@ def _qwen_command(binary: str) -> list[str]:
         "1",
         "-ngl",
         os.environ.get("QWEN_NGL", "0"),
+        # f16 KV cache (default). A 4-bit KV cache (q4_0) badly degrades attention and makes the
+        # model emit degenerate/garbled text (repeated words, scrambled letters); with ctx=2048 the
+        # f16 cache is tiny, so there is no reason to quantize it. Override via QWEN_CTK/QWEN_CTV.
         "-ctk",
-        os.environ.get("QWEN_CTK", "q4_0"),
+        os.environ.get("QWEN_CTK", "f16"),
         "-ctv",
-        os.environ.get("QWEN_CTV", "q4_0"),
+        os.environ.get("QWEN_CTV", "f16"),
         "--cache-prompt",
         "--cache-reuse",
         os.environ.get("QWEN_CACHE_REUSE", "64"),

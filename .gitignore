@@ -186,6 +186,14 @@ local_pdf_alt_*/
 schema2_candidate_*/
 task6_*/
 task8_*/
+graphify-out/
+app/back/src/graphify-out/
+
+# Ad-hoc browser probes and captures
+scripts/pw_*.png
+scripts/pw_*.html
+scripts/pw_*.mjs
+scripts/pw_*.cjs
 
 # Local scratch space created by pytest and manual experiments
 pytest-fresh-integration-*/

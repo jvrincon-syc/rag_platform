@@ -8,6 +8,7 @@ from __future__ import annotations
 import logging
 from contextlib import asynccontextmanager
 
+from chatbot.api.raw_documents import router as raw_documents_router
 from chatbot.api.router import router as chatbot_router
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
@@ -172,4 +173,5 @@ def create_app(*, services: PipelineServices) -> FastAPI:
     app.include_router(retrieval_router)
     app.include_router(chatbot_router)
     app.include_router(platform_router)
+    app.include_router(raw_documents_router)
     return app

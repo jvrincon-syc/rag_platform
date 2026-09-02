@@ -474,7 +474,9 @@ class PostgresReleaseScopedRetrievalPort(ChatbotReleaseRetrievalPort):
                 "faq_id": match.faq_id,
                 "faq_status": match.status,
                 "faq_score": f"{match.score:.3f}",
-                "source_relpath": document_id,
+                # Use the reference's real file path (exists under docs_raw) so the citation link
+                # resolves; fall back to the display id when the reference has no path.
+                "source_relpath": source_path or document_id,
                 "rag_release_id": rag_release_id,
             },
             embedding_profile_id="faq",

@@ -13,10 +13,6 @@ const navigation = readFileSync(
 
 test("Platform pipeline views mount the project-scoped legacy pipeline host", () => {
   assert.match(source, /PlatformLegacyPipelineWorkspace/);
-  assert.doesNotMatch(source, /DocumentIntakeWorkspace/);
-  assert.doesNotMatch(source, /CorpusSnapshotWorkspace/);
-  assert.doesNotMatch(source, /ProjectInventoryWorkspace/);
-  assert.doesNotMatch(source, /PlatformReleaseBuildStageInfo/);
   assert.doesNotMatch(navigation, /read-only|solo lectura/i);
 });
 

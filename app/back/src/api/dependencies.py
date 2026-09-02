@@ -268,7 +268,16 @@ def _build_faq_resolver(chunks_root: Path) -> object | None:
     try:
         from retrieval.infrastructure.faq_resolver import FaqResolver
 
-        return FaqResolver.from_file(faq_path)
+        # High-precision FAQ: fire only on near-exact matches. The fuzzy scorer is dominated by the
+        # shared topic phrase, so different intents over the same subject ("que ES el comite" vs
+        # "que HACE el comite" vs "quien PRESIDE el comite") collapse to ~0.83 and hijack each other
+        # — and those hijacks even outscore some legitimate paraphrases. There is no clean threshold
+        # that keeps loose paraphrases without also admitting hijacks, so we set the bar high (0.85):
+        # curated entries still hit near-exact (greetings/identity 1.0, cargos 0.92, exact question
+        # 1.0) and everything looser falls through to retrieval + the relevance gate, which handle
+        # intent far better than token overlap. Tune via FAQ_THRESHOLD.
+        threshold = float(os.environ.get("FAQ_THRESHOLD", "0.85"))
+        return FaqResolver.from_file(faq_path, threshold=threshold)
     except Exception:  # noqa: BLE001 - the FAQ shortcut is an optimization, never a startup gate
         return None
 

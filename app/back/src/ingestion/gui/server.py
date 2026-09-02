@@ -65,6 +65,7 @@ PIPELINE_API_PREFIXES = (
     "/api/retrieval",
     "/api/platform",
     "/api/chatbot",
+    "/api/documents",
 )
 MANIFESTS_DIR = DOCS_NORMALIZED / "_manifests"
 REVIEW_DECISIONS_PATH = MANIFESTS_DIR / "review_decisions.json"
