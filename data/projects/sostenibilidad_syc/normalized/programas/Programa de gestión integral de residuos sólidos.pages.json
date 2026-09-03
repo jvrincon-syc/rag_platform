@@ -1,0 +1,30 @@
+{
+  "document_id": "doc_057fd61b6d2f82fa",
+  "page_count": 1,
+  "pages": [
+    {
+      "blocks": [],
+      "extraction_method": "markdown",
+      "normalization_actions": [],
+      "ocr_confidence": {
+        "engine": null,
+        "engine_version": null,
+        "kind": "unavailable",
+        "method": null,
+        "provenance": null,
+        "sample_size": null,
+        "unit": null,
+        "value": null,
+        "warnings": []
+      },
+      "page_number": 1,
+      "removed_spans": [],
+      "text_normalized": "Objetivo:\n\nPromover la gestión integral de los residuos sólidos generados en SYC S.A. en sus componentes de prevención, minimización, aprovechamiento y disposición final.\n\nObjetivos específicos:\n\n1. Realizar un manejo interno y externo ambientalmente seguro de los residuos peligrosos - RESPEL generados en la empresa.\n\n2. Ejecutar una adecuada disposición de los residuos sólidos generados en el desarrollo de las actividades de la empresa\n\n3. Involucrar a todos los trabajadores y contratistas, en el proceso de la gestión integral de los residuos sólidos.\n\nMETA:Aprovechamiento y/o disposición final adecuada del 100% de los residuos generados en la empresa.",
+      "text_raw": "Objetivo:\n\n\n\nPromover la gestión integral de los residuos sólidos generados en SYC S.A. en sus componentes de prevención, minimización, aprovechamiento y disposición final.\n\n\nObjetivos específicos:\n\n\n\n1. Realizar un manejo interno y externo ambientalmente seguro de los residuos peligrosos - RESPEL generados en la empresa.\n\n2. Ejecutar una adecuada disposición de los residuos sólidos generados en el desarrollo de las actividades de la empresa\n\n3. Involucrar a todos los trabajadores y contratistas, en el proceso de la gestión integral de los residuos sólidos.\n\nMETA:Aprovechamiento y/o disposición final adecuada del 100% de los residuos generados en la empresa.",
+      "warnings": [
+        "missing_title"
+      ]
+    }
+  ],
+  "schema_version": "2.0"
+}

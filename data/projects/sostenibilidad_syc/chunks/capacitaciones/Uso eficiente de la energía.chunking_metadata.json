@@ -1,0 +1,18 @@
+{
+  "artifact_relpath": "capacitaciones/Uso eficiente de la energ\u00eda.chunking_metadata.json",
+  "bundle_fingerprint": "chunk-bundle-f682c3e442440fe5e362f6ed5aec7db9e927b835b054f1c4ab9665456d7b191f",
+  "child_count": 1,
+  "corpus_version": "platform-normalized",
+  "document_id": "doc_0510002810bb345b",
+  "normalized_document_id": "ndoc_0abf322c448db7461d6d9d16cad63d4e",
+  "normalized_relpath": "capacitaciones/Uso eficiente de la energ\u00eda.md",
+  "parent_count": 1,
+  "profile_fingerprint": "chunking-profile-0fae4cc79888de2f075e148dd3a2f4fc677fbd0f7fc37ca60b5ae82d22f3d5fd",
+  "profile_id": "cp_custom-3665aaf9f77f-sostenibilidad_syc",
+  "project_id": "proj_sostenibilidad_syc",
+  "rag_variant_id": "ragv_local-bge-syc",
+  "semantic_recipe_fingerprint": "bd82bb646dcddaf91a4c9e4bb94e877c937a9c2ab18ed8f296f2a0827c34eece",
+  "source_document_revision_id": "srev_c5253ed6077dae64640b06ac6e0c8f8d",
+  "source_hash": "70104faeb0ba721376d4c1cd6143cd8863fe27953e856cb77c9e993682df8265",
+  "source_relpath": "capacitaciones/Uso eficiente de la energ\u00eda.md"
+}

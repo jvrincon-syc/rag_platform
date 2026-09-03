@@ -1,0 +1,18 @@
+{
+  "artifact_relpath": "convivencia_laboral/reglamento_comite/funcionamiento_comite.chunking_metadata.json",
+  "bundle_fingerprint": "chunk-bundle-2725f1d0b4229b6b99343d60fdc7287208b65c9d9cf170cb14ced4c576425080",
+  "child_count": 4,
+  "corpus_version": "platform-normalized",
+  "document_id": "doc_27d458b700f2924d",
+  "normalized_document_id": "ndoc_063e1b362b787ddafefdbeb88eaac7db",
+  "normalized_relpath": "convivencia_laboral/reglamento_comite/funcionamiento_comite.md",
+  "parent_count": 4,
+  "profile_fingerprint": "chunking-profile-63fa08787c766a7581fa9a19e8a50dcf531f63018b594181410772f9d6c29c4e",
+  "profile_id": "local-structural-v1",
+  "project_id": "proj_sst-general",
+  "rag_variant_id": "ragv_local-bge",
+  "semantic_recipe_fingerprint": "bd82bb646dcddaf91a4c9e4bb94e877c937a9c2ab18ed8f296f2a0827c34eece",
+  "source_document_revision_id": "srev_a67a6c65d3cc5cdba7f6776b793c71a1",
+  "source_hash": "f6f0b8b4dd71ab8f35d333ec6aeb77c91e6f5fb6de226b15c88e11314cb67b87",
+  "source_relpath": "convivencia_laboral/reglamento_comite/funcionamiento_comite.md"
+}

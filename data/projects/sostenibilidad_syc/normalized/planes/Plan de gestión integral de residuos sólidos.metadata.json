@@ -1,0 +1,154 @@
+{
+  "classification": {
+    "conflict_status": "none",
+    "conflicts": [],
+    "content_prediction": "formulario",
+    "document_type": "formulario",
+    "document_type_confidence": {
+      "engine": null,
+      "engine_version": null,
+      "kind": "estimated",
+      "method": "evidence_precedence",
+      "provenance": null,
+      "sample_size": null,
+      "unit": null,
+      "value": 0.78,
+      "warnings": []
+    },
+    "route_prior": null,
+    "signals": [
+      "formulario:formato:content",
+      "Formularios:formato:content"
+    ],
+    "subtopic": null,
+    "topic": "Formularios",
+    "topic_confidence": {
+      "engine": null,
+      "engine_version": null,
+      "kind": "estimated",
+      "method": "evidence_precedence",
+      "provenance": null,
+      "sample_size": null,
+      "unit": null,
+      "value": 0.78,
+      "warnings": []
+    },
+    "warnings": []
+  },
+  "corpus_version": "platform-normalized",
+  "document_control": {
+    "change_history": [],
+    "code": {
+      "evidence": [],
+      "status": "not_found",
+      "value": null,
+      "value_raw": null,
+      "warnings": []
+    },
+    "effective_date": {
+      "evidence": [],
+      "status": "not_found",
+      "value": null,
+      "value_raw": null,
+      "warnings": []
+    },
+    "publication_date": {
+      "evidence": [],
+      "status": "not_found",
+      "value": null,
+      "value_raw": null,
+      "warnings": []
+    },
+    "title": {
+      "evidence": [],
+      "status": "not_found",
+      "value": null,
+      "value_raw": null,
+      "warnings": []
+    },
+    "version": {
+      "evidence": [],
+      "status": "not_found",
+      "value": null,
+      "value_raw": null,
+      "warnings": []
+    },
+    "warnings": []
+  },
+  "document_id": "doc_8c7832d7681358f7",
+  "document_name": "Plan de gestión integral de residuos sólidos.md",
+  "extraction_method": "markdown",
+  "feature_observations": {},
+  "forms": {
+    "engine": null,
+    "engine_version": null,
+    "evidence": [],
+    "method": null,
+    "status": "not_evaluated",
+    "value": null,
+    "warnings": []
+  },
+  "handwriting": {
+    "engine": null,
+    "engine_version": null,
+    "evidence": [],
+    "method": null,
+    "status": "not_evaluated",
+    "value": null,
+    "warnings": []
+  },
+  "language": "es",
+  "legacy_normalized_path": "C:\\Users\\jvrincon\\Documents\\rag_platform\\rag_platform\\data\\projects\\sostenibilidad_syc\\.normalized.staging\\planes\\Plan de gestión integral de residuos sólidos.md",
+  "legacy_path": null,
+  "legacy_source_path": null,
+  "llama_cloud": null,
+  "normalized_relpath": "planes/Plan de gestión integral de residuos sólidos.md",
+  "ocr_confidence": {
+    "engine": null,
+    "engine_version": null,
+    "kind": "unavailable",
+    "method": null,
+    "provenance": null,
+    "sample_size": null,
+    "unit": null,
+    "value": null,
+    "warnings": []
+  },
+  "page_count": 1,
+  "pipeline_version": "2.0.0",
+  "platform_identity": {
+    "normalized_document_id": "ndoc_c3ed2039e0feb53171dc48e6a5482402",
+    "processing_profile_fingerprint": "69a6eacf2959f2b76a02711d7fd33dc8cb8ce14a2a8523da433781c4a212dfdb",
+    "processing_profile_id": "pp_local-syc",
+    "project_id": "proj_sostenibilidad_syc",
+    "provenance": {
+      "rag_variant_id": null,
+      "semantic_recipe_fingerprint": null
+    },
+    "schema_version": "2.0",
+    "source_document_id": "sdoc_20b547fe5a8fecda7773d49da83cbfbf",
+    "source_document_revision_id": "srev_a615c7540c597608a26d333a0a558dcf"
+  },
+  "platform_provenance": {
+    "rag_variant_id": "ragv_local-bge-syc",
+    "semantic_recipe_fingerprint": "bd82bb646dcddaf91a4c9e4bb94e877c937a9c2ab18ed8f296f2a0827c34eece"
+  },
+  "processed_at": "2026-09-03T12:02:14.380481-05:00",
+  "processing_status": "processed",
+  "review_reasons": [],
+  "schema_version": "2.0",
+  "source_hash": "ce6bbcbcbcca7d5bcc2b0cc6364e125748dfc0ba3d75b3f78e0fa2ab46452c2d",
+  "source_relpath": "planes/Plan de gestión integral de residuos sólidos.md",
+  "tables": {
+    "engine": null,
+    "engine_version": null,
+    "evidence": [],
+    "method": null,
+    "status": "not_evaluated",
+    "value": null,
+    "warnings": []
+  },
+  "warnings": [
+    "missing_title"
+  ]
+}

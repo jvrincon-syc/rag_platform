@@ -1,0 +1,18 @@
+{
+  "artifact_relpath": "politicas/Pol\u00edtica de compras sostenibles.chunking_metadata.json",
+  "bundle_fingerprint": "chunk-bundle-18f2d931b6ca501407f38ecc983778f26cbe177b38b785b3cfd2520f032cbba1",
+  "child_count": 1,
+  "corpus_version": "platform-normalized",
+  "document_id": "doc_f3312aabdd639490",
+  "normalized_document_id": "ndoc_3fc4afddc9ede38b8c72302d76de16d8",
+  "normalized_relpath": "politicas/Pol\u00edtica de compras sostenibles.md",
+  "parent_count": 1,
+  "profile_fingerprint": "chunking-profile-0fae4cc79888de2f075e148dd3a2f4fc677fbd0f7fc37ca60b5ae82d22f3d5fd",
+  "profile_id": "cp_custom-3665aaf9f77f-sostenibilidad_syc",
+  "project_id": "proj_sostenibilidad_syc",
+  "rag_variant_id": "ragv_local-bge-syc",
+  "semantic_recipe_fingerprint": "bd82bb646dcddaf91a4c9e4bb94e877c937a9c2ab18ed8f296f2a0827c34eece",
+  "source_document_revision_id": "srev_526e18632aa27f30b3dccca3e5ac9989",
+  "source_hash": "3a8c587bcb770cfcc696835e648a208edadfa8ef6e70334e13953ce6d601279f",
+  "source_relpath": "politicas/Pol\u00edtica de compras sostenibles.md"
+}

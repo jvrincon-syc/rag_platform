@@ -23,6 +23,12 @@
       "password_salt": "IIddeXxTyn9B6wqR/mIUuQ==",
       "project_scope": null,
       "username": "prueba3"
+    },
+    {
+      "password_hash": "2e6ddf15dc39c116f70b6cfeec5b0a0e5e47015bbf9dfe27dcab5e60d8008ae2",
+      "password_salt": "5tTj/Y9lUNX3P6bLo51jYg==",
+      "project_scope": null,
+      "username": "prueba4"
     }
   ]
 }

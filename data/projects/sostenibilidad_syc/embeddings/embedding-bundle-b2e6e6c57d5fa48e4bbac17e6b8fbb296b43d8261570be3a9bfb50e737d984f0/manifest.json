@@ -1,0 +1,24 @@
+{
+  "bundle_schema_version": "embedding-bundle-v1",
+  "checksums": {
+    "chunk_map.jsonl": "26b21406c6326aa165d9ebba2b0580a041132e6a9d9cc36cafa94eb74a5a1451",
+    "vectors.npy": "1fe6358c38424c4051af809149cd0fd74e2e487b996512289af19872bb4ca09c"
+  },
+  "configuration_fingerprint": "9b3ddef1933ca3b9e9a405c8c6fd37ee024737aa5a2fe05fdb638cc99fd87f0b",
+  "corpus_version": "platform-normalized",
+  "dimension": 1024,
+  "distance_metric": "cosine",
+  "embedding_bundle_id": "embedding-bundle-b2e6e6c57d5fa48e4bbac17e6b8fbb296b43d8261570be3a9bfb50e737d984f0",
+  "embedding_input_template": "context_prefix\\ntext",
+  "embedding_profile_id": "local-bge-m3-v1",
+  "engine_revision_observed": "remote-bge-m3",
+  "model": "BAAI/bge-m3",
+  "model_revision": "5617a9f61b028005a4858fdac845db406aefb181",
+  "normalization": "l2",
+  "provider": "bge",
+  "source_chunk_bundle_id": "chunk-bundle-7eb779113ce8727dd4a9ba2d29613326e9bcb197ada5840b99d484c47f76cbd3",
+  "source_content_fingerprint": "f5d796c108531afa1a0090b39d8954c7dc3a756d1e0cd4266c16409e530f7727",
+  "vector_count": 8,
+  "vector_dtype": "float32",
+  "vector_shape": "8x1024"
+}

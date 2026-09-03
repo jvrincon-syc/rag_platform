@@ -1,0 +1,18 @@
+{
+  "artifact_relpath": "politicas/1771356588537_syc_Polticadeusoracional.chunking_metadata.json",
+  "bundle_fingerprint": "chunk-bundle-b2b9e91d0124880c6480a5018da863f034106a1848d2d4cbca3527296996d8f8",
+  "child_count": 11,
+  "corpus_version": "platform-normalized",
+  "document_id": "doc_2d7a784439db3c7b",
+  "normalized_document_id": "ndoc_d92416c660f724a7ced6b53bd642c914",
+  "normalized_relpath": "politicas/1771356588537_syc_Polticadeusoracional.md",
+  "parent_count": 9,
+  "profile_fingerprint": "chunking-profile-0fae4cc79888de2f075e148dd3a2f4fc677fbd0f7fc37ca60b5ae82d22f3d5fd",
+  "profile_id": "cp_custom-3665aaf9f77f-sostenibilidad_syc",
+  "project_id": "proj_sostenibilidad_syc",
+  "rag_variant_id": "ragv_local-bge-syc",
+  "semantic_recipe_fingerprint": "bd82bb646dcddaf91a4c9e4bb94e877c937a9c2ab18ed8f296f2a0827c34eece",
+  "source_document_revision_id": "srev_ebefc5c1941af9ea7597695cf841ed5d",
+  "source_hash": "206c78f1afb789e8e7b6ce904573d8cbafff631ae7ad1ded00d0d5f34c589e62",
+  "source_relpath": "politicas/1771356588537_syc_Polticadeusoracional.pdf"
+}

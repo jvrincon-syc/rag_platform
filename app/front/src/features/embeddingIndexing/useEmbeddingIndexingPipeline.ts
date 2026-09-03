@@ -131,6 +131,7 @@ type UseEmbeddingIndexingPipelineOptions = {
   persistedState: EmbeddingIndexingState;
   onPersistedStateChange: (patch: Partial<EmbeddingIndexingState>) => void;
   api?: EmbeddingIndexingApiClient;
+  projectId?: string;
 };
 
 const TERMINAL_RUN_STATUSES = new Set(["completed", "failed", "blocked", "cancelled"]);
@@ -173,6 +174,7 @@ export function useEmbeddingIndexingPipeline({
   persistedState,
   onPersistedStateChange,
   api = legacyEmbeddingIndexingApiClient,
+  projectId,
 }: UseEmbeddingIndexingPipelineOptions) {
   const embeddingApi = api.embedding;
   const indexingApi = api.indexing;
@@ -374,7 +376,7 @@ export function useEmbeddingIndexingPipeline({
     setRetrievalProfilesLoading(true);
     setRetrievalProfilesError(null);
     try {
-      const retrievalPage = await retrievalApi.loadProfiles();
+      const retrievalPage = await retrievalApi.loadProfiles({ projectId });
       setRetrievalProfiles(retrievalPage.items);
       setRetrievalProfileId((current) => {
         const currentIsAvailable =
@@ -395,7 +397,7 @@ export function useEmbeddingIndexingPipeline({
     } finally {
       setRetrievalProfilesLoading(false);
     }
-  }, [embeddingApi, indexingApi, retrievalApi, persistState]);
+  }, [embeddingApi, indexingApi, retrievalApi, persistState, projectId]);
 
   useEffect(() => {
     void refreshCatalog();

@@ -1,0 +1,2 @@
+Establece el compromiso de SYC S.A. con la reducción del consumo de papel, la optimización de los recursos y la implementación de prácticas responsables de gestión documental. A través de este lineamiento, la organización promueve la digitalización de procesos, el uso eficiente de herramientas tecnológicas y la adopción de soluciones digitales que contribuyan a la disminución de impactos ambientales, el fortalecimiento de la eficiencia operativa y la mejora continua.
+

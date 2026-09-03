@@ -745,7 +745,16 @@ class ChunkBundle:
                 raise ChunkInvariantError("all children must use profile_id")
             if child.parent_id not in parent_ids:
                 raise ChunkInvariantError("child parent_id must exist in parents")
-            if child.token_count > self.profile.child_max_tokens:
+            # Una unidad INDIVISIBLE puede superar child_max_tokens sin que sea un bug:
+            # una fila de tabla/formulario atómica, o una "oración"/línea de texto sin
+            # frontera interna que sola excede el máximo. El builder es la autoridad de
+            # "no se pudo partir" y marca esos children (warnings no vacío, o
+            # TABLE_OR_FORM_BOUNDARY). El invariante acepta el sobre-máximo SOLO en ese
+            # caso flagged; un oversize sin marca sí es un bug de particionado.
+            is_indivisible = bool(child.warnings) or (
+                ZeroOverlapReason.TABLE_OR_FORM_BOUNDARY in child.zero_overlap_reasons
+            )
+            if child.token_count > self.profile.child_max_tokens and not is_indivisible:
                 raise ChunkInvariantError(
                     "child token_count must not exceed child_max_tokens including overlap"
                 )

@@ -37,11 +37,12 @@ export function createPlatformDashboardDataSource(input: {
     loadStatus,
     async uploadDocument(form) {
       if (!form.file) throw new Error("Selecciona un archivo .pdf o .md.");
-      // Honestidad: POST /documents solo acepta file + source_relpath. La
-      // categoria del panel Legacy no tiene contrato Platform: su select se
-      // renderiza deshabilitado-con-motivo y nunca se envia ni se simula.
+      // POST /documents solo acepta file + source_relpath. El nombre del
+      // documento se deriva del documentName del formulario.
+      const name = form.documentName.trim() || form.file.name;
       const folder = form.folder.trim().replace(/^\/+|\/+$/g, "");
-      const sourceRelpath = folder ? `${folder}/${form.file.name}` : form.file.name;
+      const baseName = name.includes(".") ? name : `${name}${form.file.name.match(/\.[^.]+$/)?.[0] ?? ".md"}`;
+      const sourceRelpath = folder ? `${folder}/${baseName}` : baseName;
       const revision = await uploadDocument(input.projectId, form.file, sourceRelpath);
       return {
         ok: true,

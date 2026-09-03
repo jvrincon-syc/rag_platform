@@ -1,0 +1,18 @@
+{
+  "artifact_relpath": "politicas/1771356568966_syc_Polticadesostenibili.chunking_metadata.json",
+  "bundle_fingerprint": "chunk-bundle-cac8d7d02bbf7a23e80abe49f53de17782b48ca6a3ceb025c0199b0a060dc351",
+  "child_count": 11,
+  "corpus_version": "platform-normalized",
+  "document_id": "doc_45b68b1c2cbaeb13",
+  "normalized_document_id": "ndoc_3cbbf57d8e4ee1724094e4940a63066c",
+  "normalized_relpath": "politicas/1771356568966_syc_Polticadesostenibili.md",
+  "parent_count": 6,
+  "profile_fingerprint": "chunking-profile-0fae4cc79888de2f075e148dd3a2f4fc677fbd0f7fc37ca60b5ae82d22f3d5fd",
+  "profile_id": "cp_custom-3665aaf9f77f-sostenibilidad_syc",
+  "project_id": "proj_sostenibilidad_syc",
+  "rag_variant_id": "ragv_local-bge-syc",
+  "semantic_recipe_fingerprint": "bd82bb646dcddaf91a4c9e4bb94e877c937a9c2ab18ed8f296f2a0827c34eece",
+  "source_document_revision_id": "srev_4837283cc7112bc072970fedab694fff",
+  "source_hash": "d51b0d3fdd4a2582fe4db389accfd7cca1d57a6e05db2d2be7a8de7a5be971b0",
+  "source_relpath": "politicas/1771356568966_syc_Polticadesostenibili.pdf"
+}

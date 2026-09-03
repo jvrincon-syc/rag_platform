@@ -1,0 +1,19 @@
+{
+  "document_id": "doc_7e9b90f520b6d4cd",
+  "groups": [],
+  "page_observations": [
+    {
+      "engine": null,
+      "engine_version": null,
+      "evidence": [],
+      "method": null,
+      "status": "not_evaluated",
+      "value": null,
+      "warnings": []
+    }
+  ],
+  "schema_version": "2.0",
+  "warnings": [
+    "form_detection_not_evaluated"
+  ]
+}

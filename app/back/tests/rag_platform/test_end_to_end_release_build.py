@@ -80,7 +80,21 @@ def _variant_seeded(dsn: str) -> bool:
 
 
 def _clear_derived_artifacts(dsn: str) -> None:
-    """Borra derivados (no raw/normalized/revisiones) para forzar el path BUILD."""
+    """Borra derivados (no raw/normalized/revisiones) para forzar el path BUILD.
+
+    DESTRUCTIVO: hace ``DELETE FROM`` de todos los derivados (idx_vec_*,
+    embedding_bundles, rag_releases, chunk_bundles...). En dev el DSN de test comparte
+    la BD real, asÃ­ que se NIEGA a correr salvo autorizaciÃ³n explÃ­cita por
+    ``RAG_PLATFORM_ALLOW_DESTRUCTIVE_TESTS=1`` (solo contra una BD desechable).
+    """
+
+    import os
+
+    if os.environ.get("RAG_PLATFORM_ALLOW_DESTRUCTIVE_TESTS") != "1":
+        raise RuntimeError(
+            "cleanup destructivo bloqueado: set RAG_PLATFORM_ALLOW_DESTRUCTIVE_TESTS=1"
+            " para autorizarlo (borra la BD; usar solo una desechable)"
+        )
 
     connection = _connect(dsn)
     connection.autocommit = False
@@ -152,6 +166,12 @@ def test_release_build_persiste_rag_release_id(capsys) -> None:
         pytest.skip("proyecto/variante no sembrados; corre scripts/rag_platform/seed_project.py")
 
     import os
+
+    if os.environ.get("RAG_PLATFORM_ALLOW_DESTRUCTIVE_TESTS") != "1":
+        pytest.skip(
+            "destructivo: borra todos los derivados de la BD real; corre solo contra"
+            " una BD desechable con RAG_PLATFORM_ALLOW_DESTRUCTIVE_TESTS=1"
+        )
 
     from rag_platform.application.corpus_snapshot_service import CreateCorpusSnapshotUseCase
     from rag_platform.application.platform_access import PlatformActor

@@ -1,0 +1,18 @@
+{
+  "artifact_relpath": "capacitaciones/Residuos de aparatos el\u00e9ctricos y electr\u00f3nicos.chunking_metadata.json",
+  "bundle_fingerprint": "chunk-bundle-59e37bc78003397388d489ed8431de27fb2a9584c0dfb5de4590d96a5e8818a9",
+  "child_count": 3,
+  "corpus_version": "platform-normalized",
+  "document_id": "doc_6917cc0b88b7fcda",
+  "normalized_document_id": "ndoc_5000e0b45ebedc8bc4dc1a272caedaf8",
+  "normalized_relpath": "capacitaciones/Residuos de aparatos el\u00e9ctricos y electr\u00f3nicos.md",
+  "parent_count": 1,
+  "profile_fingerprint": "chunking-profile-0fae4cc79888de2f075e148dd3a2f4fc677fbd0f7fc37ca60b5ae82d22f3d5fd",
+  "profile_id": "cp_custom-3665aaf9f77f-sostenibilidad_syc",
+  "project_id": "proj_sostenibilidad_syc",
+  "rag_variant_id": "ragv_local-bge-syc",
+  "semantic_recipe_fingerprint": "bd82bb646dcddaf91a4c9e4bb94e877c937a9c2ab18ed8f296f2a0827c34eece",
+  "source_document_revision_id": "srev_6bebe4f737f54b52541e5bf9318a6edf",
+  "source_hash": "293073302f29d40830daaa577331920f53fb889f6cf25b12c84bf8d9164c9fd1",
+  "source_relpath": "capacitaciones/Residuos de aparatos el\u00e9ctricos y electr\u00f3nicos.md"
+}

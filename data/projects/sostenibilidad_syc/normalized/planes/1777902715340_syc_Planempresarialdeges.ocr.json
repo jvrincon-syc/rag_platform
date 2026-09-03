@@ -1,0 +1,429 @@
+{
+  "document_confidence": {
+    "engine": "tesseract",
+    "engine_version": "5.4.0.20240606",
+    "kind": "measured",
+    "method": null,
+    "provenance": null,
+    "sample_size": 22,
+    "unit": "mean_word_confidence",
+    "value": 0.6341012831818181,
+    "warnings": []
+  },
+  "document_id": "doc_ace51beec98e07b9",
+  "engine": "tesseract",
+  "engine_version": "5.4.0.20240606",
+  "language": "spa",
+  "pages": [
+    {
+      "confidence": {
+        "engine": "tesseract",
+        "engine_version": "5.4.0.20240606",
+        "kind": "measured",
+        "method": null,
+        "provenance": null,
+        "sample_size": 8,
+        "unit": "mean_word_confidence",
+        "value": 0.94749152125,
+        "warnings": []
+      },
+      "deskew": {
+        "engine": null,
+        "engine_version": null,
+        "evidence": [],
+        "method": null,
+        "status": "not_evaluated",
+        "value": null,
+        "warnings": []
+      },
+      "handwriting": {
+        "engine": null,
+        "engine_version": null,
+        "evidence": [],
+        "method": null,
+        "status": "not_evaluated",
+        "value": null,
+        "warnings": []
+      },
+      "low_confidence_word_count": 0,
+      "page_number": 9,
+      "rotation": {
+        "engine": null,
+        "engine_version": null,
+        "evidence": [],
+        "method": null,
+        "provenance": null,
+        "status": "unavailable",
+        "unit": null,
+        "value": null,
+        "warnings": []
+      },
+      "warnings": [],
+      "word_count": 8,
+      "words": [
+        {
+          "bbox": {
+            "bottom": 22.0,
+            "coordinate_system": "pixels",
+            "top": 9.0,
+            "x0": 326.0,
+            "x1": 362.0
+          },
+          "confidence": 0.96119316,
+          "text": "MESA",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 22.0,
+            "coordinate_system": "pixels",
+            "top": 8.0,
+            "x0": 367.0,
+            "x1": 431.0
+          },
+          "confidence": 0.9660142500000001,
+          "text": "DIRECTIVA",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 50.0,
+            "coordinate_system": "pixels",
+            "top": 37.0,
+            "x0": 337.0,
+            "x1": 420.0
+          },
+          "confidence": 0.9247171799999999,
+          "text": "PRESIDENCIA",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 455.0,
+            "coordinate_system": "pixels",
+            "top": 445.0,
+            "x0": 304.0,
+            "x1": 369.0
+          },
+          "confidence": 0.93465073,
+          "text": "Plataforma",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 455.0,
+            "coordinate_system": "pixels",
+            "top": 445.0,
+            "x0": 374.0,
+            "x1": 387.0
+          },
+          "confidence": 0.9642157,
+          "text": "de",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 458.0,
+            "coordinate_system": "pixels",
+            "top": 445.0,
+            "x0": 392.0,
+            "x1": 455.0
+          },
+          "confidence": 0.90387756,
+          "text": "inteligencia",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 471.0,
+            "coordinate_system": "pixels",
+            "top": 461.0,
+            "x0": 345.0,
+            "x1": 357.0
+          },
+          "confidence": 0.96199203,
+          "text": "de",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 473.0,
+            "coordinate_system": "pixels",
+            "top": 464.0,
+            "x0": 362.0,
+            "x1": 414.0
+          },
+          "confidence": 0.96327156,
+          "text": "procesos",
+          "warnings": []
+        }
+      ]
+    },
+    {
+      "confidence": {
+        "engine": "tesseract",
+        "engine_version": "5.4.0.20240606",
+        "kind": "measured",
+        "method": null,
+        "provenance": null,
+        "sample_size": 8,
+        "unit": "mean_word_confidence",
+        "value": 0.70653823375,
+        "warnings": []
+      },
+      "deskew": {
+        "engine": null,
+        "engine_version": null,
+        "evidence": [],
+        "method": null,
+        "status": "not_evaluated",
+        "value": null,
+        "warnings": []
+      },
+      "handwriting": {
+        "engine": null,
+        "engine_version": null,
+        "evidence": [],
+        "method": null,
+        "status": "not_evaluated",
+        "value": null,
+        "warnings": []
+      },
+      "low_confidence_word_count": 4,
+      "page_number": 11,
+      "rotation": {
+        "engine": null,
+        "engine_version": null,
+        "evidence": [],
+        "method": null,
+        "provenance": null,
+        "status": "unavailable",
+        "unit": null,
+        "value": null,
+        "warnings": []
+      },
+      "warnings": [],
+      "word_count": 8,
+      "words": [
+        {
+          "bbox": {
+            "bottom": 33.0,
+            "coordinate_system": "pixels",
+            "top": 19.0,
+            "x0": 304.0,
+            "x1": 461.0
+          },
+          "confidence": 0.19481186,
+          "text": "——....PROCESOS",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 33.0,
+            "coordinate_system": "pixels",
+            "top": 16.0,
+            "x0": 467.0,
+            "x1": 581.0
+          },
+          "confidence": 0.91797836,
+          "text": "ESTRATÉGICOS.",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 502.0,
+            "coordinate_system": "pixels",
+            "top": 458.0,
+            "x0": 740.0,
+            "x1": 764.0
+          },
+          "confidence": 0.65922318,
+          "text": "AN",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 595.0,
+            "coordinate_system": "pixels",
+            "top": 567.0,
+            "x0": 236.0,
+            "x1": 283.0
+          },
+          "confidence": 0.5735961900000001,
+          "text": "—",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 575.0,
+            "coordinate_system": "pixels",
+            "top": 573.0,
+            "x0": 313.0,
+            "x1": 338.0
+          },
+          "confidence": 0.5482686999999999,
+          "text": "e",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 585.0,
+            "coordinate_system": "pixels",
+            "top": 571.0,
+            "x0": 393.0,
+            "x1": 477.0
+          },
+          "confidence": 0.96970306,
+          "text": "PROCESOS",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 585.0,
+            "coordinate_system": "pixels",
+            "top": 571.0,
+            "x0": 484.0,
+            "x1": 504.0
+          },
+          "confidence": 0.9570755,
+          "text": "DE",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 585.0,
+            "coordinate_system": "pixels",
+            "top": 571.0,
+            "x0": 509.0,
+            "x1": 565.0
+          },
+          "confidence": 0.83164902,
+          "text": "APOYO",
+          "warnings": []
+        }
+      ]
+    },
+    {
+      "confidence": {
+        "engine": "tesseract",
+        "engine_version": "5.4.0.20240606",
+        "kind": "measured",
+        "method": null,
+        "provenance": null,
+        "sample_size": 6,
+        "unit": "mean_word_confidence",
+        "value": 0.11966503166666666,
+        "warnings": []
+      },
+      "deskew": {
+        "engine": null,
+        "engine_version": null,
+        "evidence": [],
+        "method": null,
+        "status": "not_evaluated",
+        "value": null,
+        "warnings": []
+      },
+      "handwriting": {
+        "engine": null,
+        "engine_version": null,
+        "evidence": [],
+        "method": null,
+        "status": "not_evaluated",
+        "value": null,
+        "warnings": []
+      },
+      "low_confidence_word_count": 6,
+      "page_number": 14,
+      "rotation": {
+        "engine": null,
+        "engine_version": null,
+        "evidence": [],
+        "method": null,
+        "provenance": null,
+        "status": "unavailable",
+        "unit": null,
+        "value": null,
+        "warnings": []
+      },
+      "warnings": [],
+      "word_count": 6,
+      "words": [
+        {
+          "bbox": {
+            "bottom": 395.0,
+            "coordinate_system": "pixels",
+            "top": 342.0,
+            "x0": 776.0,
+            "x1": 804.0
+          },
+          "confidence": 0.04152939,
+          "text": "lala",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 332.0,
+            "coordinate_system": "pixels",
+            "top": 293.0,
+            "x0": 776.0,
+            "x1": 804.0
+          },
+          "confidence": 0.04152939,
+          "text": "[els",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 283.0,
+            "coordinate_system": "pixels",
+            "top": 275.0,
+            "x0": 776.0,
+            "x1": 804.0
+          },
+          "confidence": 0.18846496999999998,
+          "text": "|",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 266.0,
+            "coordinate_system": "pixels",
+            "top": 235.0,
+            "x0": 781.0,
+            "x1": 796.0
+          },
+          "confidence": 0.20530067,
+          "text": "so",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 224.0,
+            "coordinate_system": "pixels",
+            "top": 125.0,
+            "x0": 781.0,
+            "x1": 796.0
+          },
+          "confidence": 0.0,
+          "text": "[+jafsjsjs",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 509.0,
+            "coordinate_system": "pixels",
+            "top": 412.0,
+            "x0": 782.0,
+            "x1": 794.0
+          },
+          "confidence": 0.24116577,
+          "text": "alefójojo",
+          "warnings": []
+        }
+      ]
+    }
+  ],
+  "schema_version": "2.0",
+  "warnings": []
+}

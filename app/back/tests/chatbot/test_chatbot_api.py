@@ -347,6 +347,10 @@ def test_despacha_pregunta_y_chunks_al_webhook(client: TestClient) -> None:
     assert payload.chunks[0].text
     assert payload.chunks[0].metadata["document_name"] == "example.md"
     assert payload.chunks[0].metadata["citation_label"] == "example.md"
+    assert (
+        payload.chunks[0].metadata["answer_reference_phrase"]
+        == "En el documento example.md se estipula"
+    )
 
 
 def test_despacha_release_publicada_sin_activar_la_lane_legacy(client: TestClient) -> None:

@@ -1,0 +1,30 @@
+{
+  "document_id": "doc_2534b7f4ab5cb313",
+  "page_count": 1,
+  "pages": [
+    {
+      "blocks": [],
+      "extraction_method": "markdown",
+      "normalization_actions": [],
+      "ocr_confidence": {
+        "engine": null,
+        "engine_version": null,
+        "kind": "unavailable",
+        "method": null,
+        "provenance": null,
+        "sample_size": null,
+        "unit": null,
+        "value": null,
+        "warnings": []
+      },
+      "page_number": 1,
+      "removed_spans": [],
+      "text_normalized": "Para fortalecer la gestión responsable de los residuos sólidos y promover una cultura ambiental más consciente, el Ministerio de Ambiente adoptó un sistema unificado de colores para la separación en la fuente, establecido en la Resolución 2184 de 2019. Esta medida, implementada desde 2021, facilita la correcta clasificación de los residuos y mejora los procesos de aprovechamiento y reciclaje.\n\nEl código de colores se organiza así:​​\n\n1. Color blanco: Residuos aprovechables, como plástico, vidrio, metales, papel y cartón.​\n2. Color negro: Residuos no aprovechables, como papel higiénico, servilletas, papeles y cartones con restos de comida, y papeles metalizados.​\n\n3. Color verde: Residuos orgánicos aprovechables, como restos de alimentos y desechos agrícolas.​",
+      "text_raw": "\nPara fortalecer la gestión responsable de los residuos sólidos y promover una cultura ambiental más consciente, el Ministerio de Ambiente adoptó un sistema unificado de colores para la separación en la fuente, establecido en la Resolución 2184 de 2019. Esta medida, implementada desde 2021, facilita la correcta clasificación de los residuos y mejora los procesos de aprovechamiento y reciclaje.\n\n\n\nEl código de colores se organiza así:​​\n\n\n\n1. Color blanco: Residuos aprovechables, como plástico, vidrio, metales, papel y cartón.​\n2. Color negro: Residuos no aprovechables, como papel higiénico, servilletas, papeles y cartones con restos de comida, y papeles metalizados.​\n\n3. Color verde: Residuos orgánicos aprovechables, como restos de alimentos y desechos agrícolas.​\n\n",
+      "warnings": [
+        "missing_title"
+      ]
+    }
+  ],
+  "schema_version": "2.0"
+}

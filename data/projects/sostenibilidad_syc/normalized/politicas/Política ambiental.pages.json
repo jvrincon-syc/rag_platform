@@ -1,0 +1,30 @@
+{
+  "document_id": "doc_46ac6f9db922a5a4",
+  "page_count": 1,
+  "pages": [
+    {
+      "blocks": [],
+      "extraction_method": "markdown",
+      "normalization_actions": [],
+      "ocr_confidence": {
+        "engine": null,
+        "engine_version": null,
+        "kind": "unavailable",
+        "method": null,
+        "provenance": null,
+        "sample_size": null,
+        "unit": null,
+        "value": null,
+        "warnings": []
+      },
+      "page_number": 1,
+      "removed_spans": [],
+      "text_normalized": "Establece el compromiso de la organización con la protección del medio ambiente, la prevención de la contaminación y el cumplimiento de la normativa ambiental vigente. A través de este lineamiento, SYC S.A. orienta sus decisiones y acciones hacia el uso responsable de los recursos naturales, la mitigación de los impactos ambientales y la mejora continua de su desempeño ambiental, promoviendo una cultura de sostenibilidad entre sus trabajadores y grupos de interés",
+      "text_raw": "Establece el compromiso de la organización con la protección del medio ambiente, la prevención de la contaminación y el cumplimiento de la normativa ambiental vigente. A través de este lineamiento, SYC S.A. orienta sus decisiones y acciones hacia el uso responsable de los recursos naturales, la mitigación de los impactos ambientales y la mejora continua de su desempeño ambiental, promoviendo una cultura de sostenibilidad entre sus trabajadores y grupos de interés",
+      "warnings": [
+        "missing_title"
+      ]
+    }
+  ],
+  "schema_version": "2.0"
+}

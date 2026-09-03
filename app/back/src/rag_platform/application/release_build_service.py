@@ -37,6 +37,7 @@ from rag_platform.application.release_service import (
 )
 from rag_platform.domain.errors import (
     IncompatibleTargetBinding,
+    RagReleaseMembershipDrift,
     ReleaseBuildTooLarge,
 )
 from rag_platform.domain.identity import PlatformId, RagBuildContext
@@ -163,6 +164,14 @@ class BuildRagReleaseUseCase:
 
         reused = 0
         built = 0
+        # Resume idempotente: un build previo pudo dejar membresías durables (commit
+        # por revisión) antes de fallar en otra revisión. Se indexan por ordinal para
+        # reusar las idénticas y no reinsertarlas (el INSERT es plano y explota ante
+        # duplicados). Una existente que difiera es drift → fail-closed.
+        existing_memberships = {
+            membership.ordinal: membership
+            for membership in self._memberships.list_for_release(rag_release_id)
+        }
         documents = sorted(snapshot.documents, key=lambda doc: doc.ordinal)
         if (
             self._max_build_documents is not None
@@ -197,18 +206,25 @@ class BuildRagReleaseUseCase:
                     elif resolution.outcome is BuildOutcome.BUILT:
                         built += 1
 
-                self._memberships.add(
-                    RagReleaseMembership(
-                        rag_release_id=rag_release_id,
-                        project_id=release.project_id,
-                        ordinal=document.ordinal,
-                        source_document_revision_id=revision_id,
-                        normalized_document_id=artifacts.normalize.artifact_id,
-                        chunk_bundle_id=artifacts.chunk.artifact_id,
-                        embedding_bundle_id=artifacts.embed.artifact_id,
-                        materialization_id=artifacts.index.artifact_id,
-                    )
+                membership = RagReleaseMembership(
+                    rag_release_id=rag_release_id,
+                    project_id=release.project_id,
+                    ordinal=document.ordinal,
+                    source_document_revision_id=revision_id,
+                    normalized_document_id=artifacts.normalize.artifact_id,
+                    chunk_bundle_id=artifacts.chunk.artifact_id,
+                    embedding_bundle_id=artifacts.embed.artifact_id,
+                    materialization_id=artifacts.index.artifact_id,
                 )
+                previous = existing_memberships.get(document.ordinal)
+                if previous is None:
+                    self._memberships.add(membership)
+                elif not _membership_matches(previous, membership):
+                    # Mismo ordinal, artefactos distintos: procedencia divergente.
+                    raise RagReleaseMembershipDrift(
+                        f"release {rag_release_id.value} ordinal {document.ordinal} "
+                        "already has a different membership; refusing to overwrite"
+                    )
 
         return RagReleaseBuildReport(
             rag_release_id=rag_release_id.value,
@@ -243,3 +259,23 @@ class BuildRagReleaseUseCase:
             indexing_target_id=binding.indexing_target_id,
             semantic_recipe_fingerprint=variant.semantic_recipe_fingerprint,
         )
+
+
+def _membership_matches(
+    existing: RagReleaseMembership, resolved: RagReleaseMembership
+) -> bool:
+    """¿La membresía ya persistida apunta a los MISMOS artefactos que la resuelta?
+
+    Compara la procedencia (revisión + ids de normalizado/chunk/embedding/
+    materialización). Si todo coincide, el reintento puede reusarla; si algo
+    difiere, es drift y el caller falla cerrado.
+    """
+
+    return (
+        existing.source_document_revision_id.value
+        == resolved.source_document_revision_id.value
+        and existing.normalized_document_id == resolved.normalized_document_id
+        and existing.chunk_bundle_id == resolved.chunk_bundle_id
+        and existing.embedding_bundle_id == resolved.embedding_bundle_id
+        and existing.materialization_id == resolved.materialization_id
+    )

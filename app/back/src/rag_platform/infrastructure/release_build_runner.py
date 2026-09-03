@@ -109,16 +109,21 @@ class ReleaseBuildRunner:
     def __init__(
         self,
         *,
-        execute_build: Callable[[str, PlatformId, PlatformActor], None],
+        execute_build: Callable[[str, PlatformId, PlatformActor, "str | None"], None],
     ) -> None:
         self._execute_build = execute_build
 
     def submit(
-        self, *, build_job_id: str, rag_release_id: PlatformId, actor: PlatformActor
+        self,
+        *,
+        build_job_id: str,
+        rag_release_id: PlatformId,
+        actor: PlatformActor,
+        embedding_runtime: "str | None" = None,
     ) -> None:
         thread = threading.Thread(
             target=self._execute_build,
-            args=(build_job_id, rag_release_id, actor),
+            args=(build_job_id, rag_release_id, actor, embedding_runtime),
             name=f"release-build-{build_job_id}",
             daemon=True,
         )

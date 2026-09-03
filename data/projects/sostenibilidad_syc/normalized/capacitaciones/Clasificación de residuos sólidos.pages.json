@@ -1,0 +1,30 @@
+{
+  "document_id": "doc_8223597088b8bd18",
+  "page_count": 1,
+  "pages": [
+    {
+      "blocks": [],
+      "extraction_method": "markdown",
+      "normalization_actions": [],
+      "ocr_confidence": {
+        "engine": null,
+        "engine_version": null,
+        "kind": "unavailable",
+        "method": null,
+        "provenance": null,
+        "sample_size": null,
+        "unit": null,
+        "value": null,
+        "warnings": []
+      },
+      "page_number": 1,
+      "removed_spans": [],
+      "text_normalized": "Residuos sólidos\nLa correcta clasificación de los residuos es fundamental para gestionar de manera eficiente los desechos que generamos. Este proceso consiste en separar los residuos en categorías específicas como aprovechables, no aprovechables y orgánicos aprovechables para garantizar su tratamiento adecuado. Al hacerlo, se facilita el reciclaje y la reutilización de materiales, se reduce la contaminación y se contribuye significativamente a la protección del medio ambiente.",
+      "text_raw": "\nResiduos sólidos\nLa correcta clasificación de los residuos es fundamental para gestionar de manera eficiente los desechos que generamos. Este proceso consiste en separar los residuos en categorías específicas como aprovechables, no aprovechables y orgánicos aprovechables para garantizar su tratamiento adecuado. Al hacerlo, se facilita el reciclaje y la reutilización de materiales, se reduce la contaminación y se contribuye significativamente a la protección del medio ambiente.",
+      "warnings": [
+        "missing_title"
+      ]
+    }
+  ],
+  "schema_version": "2.0"
+}

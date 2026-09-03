@@ -1,0 +1,30 @@
+{
+  "document_id": "doc_ee67cdb615ee8fce",
+  "page_count": 1,
+  "pages": [
+    {
+      "blocks": [],
+      "extraction_method": "markdown",
+      "normalization_actions": [],
+      "ocr_confidence": {
+        "engine": null,
+        "engine_version": null,
+        "kind": "unavailable",
+        "method": null,
+        "provenance": null,
+        "sample_size": null,
+        "unit": null,
+        "value": null,
+        "warnings": []
+      },
+      "page_number": 1,
+      "removed_spans": [],
+      "text_normalized": "Objetivo:\n\nContribuir a la creación y conservación de áreas de vida, impulsando la restauración ecológica y el desarrollo sostenible en el país, en cumplimiento de la Ley 2173 de 2021.\n\nObjetivos específicos:\n\nImplementar la siembra de un número de especies arbóreas nativas igual o superior al doble del personal de planta, conforme a los lineamientos técnicos y normativos definidos en la Resolución 1491 de 2025 por la autoridad ambiental y municipal.\n\nMeta:Ejecutar la siembra y mantenimiento de especies nativas seleccionadas según criterios técnicos de adaptación al piso térmico, fitosanidad y características edáficas, garantizando la coordinación con autoridades ambientales nacionales, regionales y municipales.",
+      "text_raw": "Objetivo:\n\n\nContribuir a la creación y conservación de áreas de vida, impulsando la restauración ecológica y el desarrollo sostenible en el país, en cumplimiento de la Ley 2173 de 2021.\n\n\nObjetivos específicos:\n\n\nImplementar la siembra de un número de especies arbóreas nativas igual o superior al doble del personal de planta, conforme a los lineamientos técnicos y normativos definidos en la Resolución 1491 de 2025 por la autoridad ambiental y municipal.\n\nMeta:Ejecutar la siembra y mantenimiento de especies nativas seleccionadas según criterios técnicos de adaptación al piso térmico, fitosanidad y características edáficas, garantizando la coordinación con autoridades ambientales nacionales, regionales y municipales.",
+      "warnings": [
+        "missing_title"
+      ]
+    }
+  ],
+  "schema_version": "2.0"
+}

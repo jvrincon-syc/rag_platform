@@ -1,0 +1,1 @@
+Establece los criterios para adquirir bienes y servicios de manera responsable, integrando consideraciones ambientales, sociales y éticas. Define requisitos para proveedores, promueve productos con menor impacto ambiental y asigna responsabilidades internas para asegurar procesos de compra transparentes y orientados a la sostenibilidad.

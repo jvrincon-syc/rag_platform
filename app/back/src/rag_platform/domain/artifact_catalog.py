@@ -12,10 +12,10 @@ from ingestion.schemas.common import RelativePosixPath, StrictModel
 from rag_platform.domain.models import ProcessingOrigin
 
 
-_PROJECT_ID_PATTERN = r"^proj_[a-z0-9][a-z0-9-]{0,127}$"
-_SOURCE_DOCUMENT_ID_PATTERN = r"^sdoc_[a-z0-9][a-z0-9-]{0,127}$"
-_REVISION_ID_PATTERN = r"^srev_[a-z0-9][a-z0-9-]{0,127}$"
-_PROCESSING_PROFILE_ID_PATTERN = r"^pp_[a-z0-9][a-z0-9-]{0,127}$"
+_PROJECT_ID_PATTERN = r"^proj_[a-z0-9][a-z0-9_-]{0,127}$"
+_SOURCE_DOCUMENT_ID_PATTERN = r"^sdoc_[a-z0-9][a-z0-9_-]{0,127}$"
+_REVISION_ID_PATTERN = r"^srev_[a-z0-9][a-z0-9_-]{0,127}$"
+_PROCESSING_PROFILE_ID_PATTERN = r"^pp_[a-z0-9][a-z0-9_-]{0,127}$"
 _FINGERPRINT_PATTERN = r"^[0-9a-f]{64}$"
 
 

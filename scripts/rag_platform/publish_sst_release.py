@@ -106,7 +106,6 @@ def _verify(dsn: str, release_id: str) -> None:
 def main() -> int:
     dsn = _dsn()
     os.environ["RAG_PLATFORM_POSTGRES_DSN"] = dsn
-    os.environ["SST_POSTGRES_DSN"] = dsn
     os.environ["SST_PERSISTENCE_MODE"] = "postgres"
     os.environ["SST_FEATURE_RAG_PLATFORM_V1"] = "true"
 

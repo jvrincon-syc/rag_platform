@@ -1,0 +1,18 @@
+{
+  "artifact_relpath": "programas/Programa de gesti\u00f3n integral de residuos s\u00f3lidos.chunking_metadata.json",
+  "bundle_fingerprint": "chunk-bundle-a91a45846e4ff82a803fd4741acdf61a672833f163f11f01916a5787479b5349",
+  "child_count": 1,
+  "corpus_version": "platform-normalized",
+  "document_id": "doc_057fd61b6d2f82fa",
+  "normalized_document_id": "ndoc_a98352b7c4e1ae5177f92247ef84847a",
+  "normalized_relpath": "programas/Programa de gesti\u00f3n integral de residuos s\u00f3lidos.md",
+  "parent_count": 1,
+  "profile_fingerprint": "chunking-profile-0fae4cc79888de2f075e148dd3a2f4fc677fbd0f7fc37ca60b5ae82d22f3d5fd",
+  "profile_id": "cp_custom-3665aaf9f77f-sostenibilidad_syc",
+  "project_id": "proj_sostenibilidad_syc",
+  "rag_variant_id": "ragv_local-bge-syc",
+  "semantic_recipe_fingerprint": "bd82bb646dcddaf91a4c9e4bb94e877c937a9c2ab18ed8f296f2a0827c34eece",
+  "source_document_revision_id": "srev_de388c273713e8beb11573ec7bbebfbb",
+  "source_hash": "b8f27bb6019fb9b663b8213c5ae7ca403e89901c7f24e375e908d39a86f2a4ab",
+  "source_relpath": "programas/Programa de gesti\u00f3n integral de residuos s\u00f3lidos.md"
+}

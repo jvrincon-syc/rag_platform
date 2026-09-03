@@ -1,0 +1,2 @@
+Tips para ahorrar energía.
+Apagar una luz o elegir tecnologías más eficientes no solo ahorra energía, sino que también ilumina el camino hacia un futuro sostenible. Cada vatio ahorrado es un paso hacia la construcción de un mundo más verde, más limpio y más próspero para todos. Tenemos el poder de hacer la diferencia apagando una luz y encendiendo la conciencia.

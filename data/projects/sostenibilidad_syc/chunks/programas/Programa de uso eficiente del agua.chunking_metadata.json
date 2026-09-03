@@ -1,0 +1,18 @@
+{
+  "artifact_relpath": "programas/Programa de uso eficiente del agua.chunking_metadata.json",
+  "bundle_fingerprint": "chunk-bundle-20ee11c18d98a5205e7143c271cbdad5883cb609487a50646c624c086832b349",
+  "child_count": 1,
+  "corpus_version": "platform-normalized",
+  "document_id": "doc_aa3a3c43d080a3b4",
+  "normalized_document_id": "ndoc_ffffd48f310b572515648fb00f3ca2d7",
+  "normalized_relpath": "programas/Programa de uso eficiente del agua.md",
+  "parent_count": 1,
+  "profile_fingerprint": "chunking-profile-0fae4cc79888de2f075e148dd3a2f4fc677fbd0f7fc37ca60b5ae82d22f3d5fd",
+  "profile_id": "cp_custom-3665aaf9f77f-sostenibilidad_syc",
+  "project_id": "proj_sostenibilidad_syc",
+  "rag_variant_id": "ragv_local-bge-syc",
+  "semantic_recipe_fingerprint": "bd82bb646dcddaf91a4c9e4bb94e877c937a9c2ab18ed8f296f2a0827c34eece",
+  "source_document_revision_id": "srev_f782442a4b2f88acf04f89ba7458dbf5",
+  "source_hash": "395130d0d3f045da5742fb808ccae29bf98c1d19b565118dfe3362c65ec1e4d4",
+  "source_relpath": "programas/Programa de uso eficiente del agua.md"
+}

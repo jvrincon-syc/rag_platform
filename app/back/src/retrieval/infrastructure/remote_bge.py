@@ -72,7 +72,10 @@ class RemoteBgeQueryEngine:
         return "remote-bge-m3"
 
     def embed_documents(self, texts: Sequence[str]) -> list[list[float]]:
-        raise NotImplementedError("RemoteBgeQueryEngine is query-only; document embedding stays local")
+        # BGE-M3's dense space is symmetric: the studio's /embed produces the same
+        # vectors for documents as for queries, so offloading document embedding
+        # here matches the locally indexed corpus. Opt-in via EMBEDDING_DOC_EMBED=remote.
+        return self.embed_queries(texts)
 
     def embed_queries(self, texts: Sequence[str]) -> list[list[float]]:
         vectors = _post("/embed", {"texts": list(texts)}).get("vectors", [])

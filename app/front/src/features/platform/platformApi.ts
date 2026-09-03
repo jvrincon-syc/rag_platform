@@ -93,6 +93,48 @@ export function createProject(body: CreateProjectRequest, options?: PipelinePost
   return postJson<Project>(`${BASE}/projects`, body, options);
 }
 
+// Autoprovisiona el setup RAG por defecto (allowlist + binding + processing + chunking
+// + variante) de un proyecto recien creado, segun el backend de embedding elegido, para
+// que ingiera sin pasos manuales.
+export function provisionDefaultVariant(
+  projectId: string,
+  embeddingBackend: "local" | "lightning" | "voyage",
+  options?: PipelinePostOptions,
+): Promise<Record<string, unknown>> {
+  return postJson<Record<string, unknown>>(
+    `${BASE}/projects/${projectId}/provision-default-variant`,
+    { embedding_backend: embeddingBackend },
+    options,
+  );
+}
+
+// Hiperparámetros de chunking a medida (#2): crea un chunking profile
+// `structural-custom` + una variante que lo referencia. El backend valida los
+// invariantes (min<=target<=max, overlap en rango) antes de persistir; los campos
+// omitidos caen a los defaults canónicos v1. Idempotente por receta.
+export type CustomChunkingParams = {
+  embedding_backend: "local" | "lightning" | "voyage";
+  child_min_tokens?: number | null;
+  child_target_tokens?: number | null;
+  child_max_tokens?: number | null;
+  overlap_min_tokens?: number | null;
+  overlap_max_tokens?: number | null;
+  overlap_ratio?: number | null;
+  include_section_context?: boolean;
+};
+
+export function provisionCustomChunkingVariant(
+  projectId: string,
+  body: CustomChunkingParams,
+  options?: PipelinePostOptions,
+): Promise<Record<string, unknown>> {
+  return postJson<Record<string, unknown>>(
+    `${BASE}/projects/${projectId}/provision-custom-chunking-variant`,
+    body,
+    options,
+  );
+}
+
 export function updateProject(
   projectId: string,
   body: UpdateProjectRequest,
@@ -252,8 +294,35 @@ export function createReleaseDraft(
 // no bloquea el request. El progreso se observa con `getReleaseBuildStatus`.
 // Un replay del mismo Idempotency-Key devuelve el mismo `build_job_id` sin
 // re-encolar (idempotencia por intención lógica, cf. `useIdempotentReleaseAction`).
-export function buildRelease(releaseId: string, options?: PipelinePostOptions): Promise<ReleaseBuildAccepted> {
-  return postJson<ReleaseBuildAccepted>(`${BASE}/releases/${releaseId}/build`, {}, withIdempotency(options));
+// `embeddingRuntime` elige dónde embebe ESTA corrida: `local` (modelo en la caja),
+// `remote` (Lightning studio) o `null` (respeta el runtime global del servidor). Solo
+// afecta variantes BGE; el backend lo ignora para otros proveedores (voyage).
+export function buildRelease(
+  releaseId: string,
+  embeddingRuntime?: "local" | "remote" | null,
+  options?: PipelinePostOptions,
+): Promise<ReleaseBuildAccepted> {
+  const body = embeddingRuntime ? { embedding_runtime: embeddingRuntime } : {};
+  return postJson<ReleaseBuildAccepted>(
+    `${BASE}/releases/${releaseId}/build`,
+    body,
+    withIdempotency(options),
+  );
+}
+
+// Activación EXPLÍCITA de una release construida: pone sus vectores en vivo
+// (is_active=true) y crea el retrieval profile release-scoped que el chatbot
+// consulta. Publicar NO activa (ADR-006 / publication_service): esto es el paso
+// separado de operador. Idempotente. Devuelve un resumen (bundles/filas/profiles).
+export function activateRelease(
+  releaseId: string,
+  options?: PipelinePostOptions,
+): Promise<Record<string, unknown>> {
+  return postJson<Record<string, unknown>>(
+    `${BASE}/releases/${releaseId}/activate`,
+    {},
+    options,
+  );
 }
 
 // Read-model del build asíncrono para el polling de la GUI. `null` = la release

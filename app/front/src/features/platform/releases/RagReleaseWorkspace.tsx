@@ -1,12 +1,17 @@
+import { useState } from "react";
 import {
   AlertCircle,
   Bot,
+  Cpu,
   GitBranch,
   Layers3,
   Loader2,
   Radar,
   RefreshCw,
   Rocket,
+  Scissors,
+  Server,
+  Zap,
 } from "lucide-react";
 import { DashboardNotice } from "../../dashboard/components/DashboardChrome.js";
 import { RetrievalProfilesPanel } from "../../retrieval/components/RetrievalProfilesPanel.js";
@@ -14,6 +19,8 @@ import { RetrievalSearchPanel } from "../../retrieval/components/RetrievalSearch
 import { RetrievalStatusPanel } from "../../retrieval/components/RetrievalStatusPanel.js";
 import { RetrievalValidationPanel } from "../../retrieval/components/RetrievalValidationPanel.js";
 import { CorpusSnapshotBuilderPanel } from "../corpus/CorpusSnapshotBuilderPanel.js";
+import type { CustomChunkingParams } from "../platformApi.js";
+import type { Variant } from "../platformTypes.js";
 import { BuildReport } from "./BuildReport.js";
 import { ReleaseDraftForm } from "./ReleaseDraftForm.js";
 import { ReleaseHistory } from "./ReleaseHistory.js";
@@ -21,6 +28,245 @@ import { ReleaseLifecycle } from "./ReleaseLifecycle.js";
 import { useRagReleaseWorkspace } from "./useRagReleaseWorkspace.js";
 import type { ReleaseWorkspaceData } from "./useRagReleaseWorkspace.js";
 import { useReleaseRetrievalPanel } from "./useReleaseRetrievalPanel.js";
+import { describeVariant } from "./variantRecipe.js";
+
+// Encabezado de panel con número de paso: el ciclo RAG ES una secuencia real
+// (snapshot → draft → build → publicar), así que numerarlo informa el orden en
+// vez de decorar. El número es aria-hidden; el <h2> conserva el nombre accesible.
+function StepPanelHeading({
+  step,
+  title,
+  hint,
+}: {
+  step: number;
+  title: string;
+  hint: string;
+}) {
+  return (
+    <div className="panel-heading step-heading">
+      <span className="step-badge" aria-hidden="true">
+        {step}
+      </span>
+      <div>
+        <h2>{title}</h2>
+        <span>{hint}</span>
+      </div>
+    </div>
+  );
+}
+
+// Configuración del build ANTES de construir: muestra la receta real de la variante
+// (embedding + chunking, fijados por la variante) y deja elegir el runtime de BGE
+// (local en la caja / Lightning studio) para ESTA corrida. Voyage usa su propio
+// motor: ahí el runtime BGE no aplica y se deshabilita, sin fingir que hace algo.
+function BuildConfigCard({
+  variant,
+  runtime,
+  onRuntimeChange,
+  disabled,
+}: {
+  variant: Variant | null;
+  runtime: "local" | "remote" | null;
+  onRuntimeChange: (value: "local" | "remote" | null) => void;
+  disabled: boolean;
+}) {
+  const recipe = variant ? describeVariant(variant) : null;
+  const isVoyage = recipe?.embeddingKind === "voyage";
+
+  return (
+    <div className="build-config-card">
+      <div className="build-recipe" aria-label="Receta de la variante">
+        <span className="build-recipe-chip">
+          <Cpu size={13} aria-hidden="true" /> {recipe?.embeddingLabel ?? "—"}
+        </span>
+        <span className="build-recipe-chip">
+          <Scissors size={13} aria-hidden="true" /> {recipe?.chunkingLabel ?? "—"}
+        </span>
+      </div>
+
+      <div className="ui-field build-runtime-selector">
+        <label htmlFor="build-embedding-runtime">
+          <Server size={13} aria-hidden="true" /> Runtime de embedding (para este build)
+        </label>
+        <select
+          id="build-embedding-runtime"
+          value={runtime ?? "global"}
+          disabled={disabled || isVoyage}
+          onChange={(event) => {
+            const next = event.target.value;
+            onRuntimeChange(next === "global" ? null : (next as "local" | "remote"));
+          }}
+        >
+          <option value="global">Global del servidor (por defecto)</option>
+          <option value="local">Local (modelo en la caja)</option>
+          <option value="remote">Lightning studio (remoto)</option>
+        </select>
+        <span className="ui-hint">
+          {isVoyage
+            ? "Esta variante es Voyage: usa su propio motor por API; el runtime BGE no aplica."
+            : "Local y Lightning studio comparten el mismo espacio BGE; solo cambia dónde corre. No toca el perfil de retrieval activo del chatbot."}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// Chunking con hiperparámetros a medida (#2): crea una variante `structural-custom`
+// con la política de tokens/overlap dada. Campos vacíos = defaults canónicos (v1). El
+// backend valida los invariantes (min<=target<=max, overlap en rango) antes de crear.
+function CustomChunkingForm({
+  creating,
+  onCreate,
+}: {
+  creating: boolean;
+  onCreate: (params: CustomChunkingParams) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [backend, setBackend] = useState<"local" | "lightning" | "voyage">("local");
+  const [values, setValues] = useState<Record<string, string>>({});
+  const [sectionContext, setSectionContext] = useState(false);
+
+  const field = (key: string): number | null => {
+    const raw = (values[key] ?? "").trim();
+    if (!raw) return null;
+    const parsed = Number(raw);
+    return Number.isFinite(parsed) ? parsed : null;
+  };
+
+  const NUM_FIELDS: { key: string; label: string; placeholder: string }[] = [
+    { key: "child_min_tokens", label: "Child min", placeholder: "250" },
+    { key: "child_target_tokens", label: "Child target", placeholder: "350" },
+    { key: "child_max_tokens", label: "Child max", placeholder: "450" },
+    { key: "overlap_min_tokens", label: "Overlap min", placeholder: "30" },
+    { key: "overlap_max_tokens", label: "Overlap max", placeholder: "60" },
+    { key: "overlap_ratio", label: "Overlap ratio", placeholder: "0.12" },
+  ];
+
+  if (!open) {
+    return (
+      <div className="custom-chunking-toggle">
+        <button className="ghost-button" type="button" onClick={() => setOpen(true)}>
+          <Scissors size={15} /> Chunking avanzado (crear variante a medida)
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <form
+      className="custom-chunking-form"
+      onSubmit={(event) => {
+        event.preventDefault();
+        onCreate({
+          embedding_backend: backend,
+          child_min_tokens: field("child_min_tokens"),
+          child_target_tokens: field("child_target_tokens"),
+          child_max_tokens: field("child_max_tokens"),
+          overlap_min_tokens: field("overlap_min_tokens"),
+          overlap_max_tokens: field("overlap_max_tokens"),
+          overlap_ratio: field("overlap_ratio"),
+          include_section_context: sectionContext,
+        });
+      }}
+    >
+      <div className="ui-field">
+        <label htmlFor="custom-chunk-backend">Embedding de la variante</label>
+        <select
+          id="custom-chunk-backend"
+          value={backend}
+          disabled={creating}
+          onChange={(event) =>
+            setBackend(event.target.value as "local" | "lightning" | "voyage")
+          }
+        >
+          <option value="local">BGE-M3 (local/lightning)</option>
+          <option value="voyage">Voyage</option>
+        </select>
+      </div>
+
+      <div className="custom-chunking-grid">
+        {NUM_FIELDS.map((f) => (
+          <div className="ui-field" key={f.key}>
+            <label htmlFor={`custom-chunk-${f.key}`}>{f.label}</label>
+            <input
+              id={`custom-chunk-${f.key}`}
+              inputMode="decimal"
+              placeholder={`${f.placeholder} (def.)`}
+              value={values[f.key] ?? ""}
+              disabled={creating}
+              onChange={(event) =>
+                setValues((current) => ({ ...current, [f.key]: event.target.value }))
+              }
+            />
+          </div>
+        ))}
+      </div>
+
+      <label className="custom-chunking-check">
+        <input
+          type="checkbox"
+          checked={sectionContext}
+          disabled={creating}
+          onChange={(event) => setSectionContext(event.target.checked)}
+        />
+        Incluir contexto de sección (v2)
+      </label>
+
+      <div className="platform-actions">
+        <button className="primary-button" type="submit" disabled={creating}>
+          {creating ? <Loader2 className="spin" size={16} /> : <Scissors size={16} />}
+          Crear variante
+        </button>
+        <button
+          className="ghost-button"
+          type="button"
+          onClick={() => setOpen(false)}
+          disabled={creating}
+        >
+          Cerrar
+        </button>
+      </div>
+      <span className="ui-hint">
+        Vacío = default canónico. min ≤ target ≤ max; overlap dentro de rango. La
+        variante aparecerá en el selector de arriba.
+      </span>
+    </form>
+  );
+}
+
+// Activación explícita: pone los vectores de la release en vivo (is_active=true) y
+// crea el retrieval profile release-scoped. Es un paso SEPARADO de publicar (publish
+// nunca activa); sin este paso el chatbot ve 0 filas activas (NO_ACTIVE_VECTOR_ROWS).
+function ActivateLivePanel({
+  published,
+  activating,
+  onActivate,
+}: {
+  published: boolean;
+  activating: boolean;
+  onActivate: () => void;
+}) {
+  return (
+    <div className="activate-live">
+      <button
+        className="primary-button"
+        type="button"
+        onClick={onActivate}
+        disabled={activating}
+      >
+        {activating ? <Loader2 className="spin" size={16} /> : <Zap size={16} />}
+        Activar en vivo
+      </button>
+      <span className="ui-hint">
+        Pone los vectores de esta release en vivo y crea su retrieval profile (paso
+        aparte de publicar). Sin esto el chatbot recupera 0 resultados.
+        {published
+          ? ""
+          : " Recomendado tras publicar, pero funciona en cuanto la release está construida."}
+      </span>
+    </div>
+  );
+}
 
 // Composición pura del release lifecycle workspace: estado en el hook, presentación
 // en los subcomponentes. Aquí solo layout, topbar, notice y estados globales.
@@ -63,7 +309,7 @@ export function RagReleaseWorkspace() {
 
 function RagReleaseBody({ workspace }: { workspace: ReturnType<typeof useRagReleaseWorkspace> }) {
   const { load } = workspace;
-  const retrieval = useReleaseRetrievalPanel();
+  const retrieval = useReleaseRetrievalPanel({ projectId: workspace.projectId ?? undefined });
 
   if (load.status === "no-project") {
     return (
@@ -77,8 +323,8 @@ function RagReleaseBody({ workspace }: { workspace: ReturnType<typeof useRagRele
   }
 
   // Retrieval es independiente del estado de carga de releases (no depende de
-  // la release ni del proyecto, ver nota en `useReleaseRetrievalPanel`): un
-  // fallo o loading de `load` no debe ocultar un panel que ya cargó bien.
+  // la release seleccionada, ver nota en `useReleaseRetrievalPanel`), pero SÍ
+  // depende del proyecto activo para filtrar perfiles por tenant.
   return (
     <>
       {load.status === "loading" ? (
@@ -120,16 +366,20 @@ function ReleaseSections({
   data: ReleaseWorkspaceData;
 }) {
   const publishedReleases = data.releases.filter((release) => release.state === "published");
+  const selectedVariant = workspace.selectedRelease
+    ? (data.variants.find(
+        (variant) => variant.rag_variant_id === workspace.selectedRelease?.rag_variant_id,
+      ) ?? null)
+    : null;
 
   return (
     <>
       <section className="panel" aria-label="Snapshot de corpus">
-        <div className="panel-heading">
-          <div>
-            <h2>Snapshot de corpus</h2>
-            <span>Congela revisiones aprobadas antes de crear una release.</span>
-          </div>
-        </div>
+        <StepPanelHeading
+          step={1}
+          title="Snapshot de corpus"
+          hint="Congela las revisiones aprobadas: la foto inmutable del corpus que la release construirá."
+        />
         <div className="ui-panel-body">
           <CorpusSnapshotBuilderPanel />
         </div>
@@ -181,6 +431,34 @@ function ReleaseSections({
 
       <section className="release-grid">
         <div className="release-aside">
+          <section className="panel" aria-label="Nuevo draft de release">
+            <StepPanelHeading
+              step={2}
+              title="Nuevo draft"
+              hint="Elige embedding y chunking (la receta) + snapshot y binding. Queda una release reproducible."
+            />
+            <div className="ui-panel-body">
+              <ReleaseDraftForm
+                variants={data.variants}
+                snapshots={data.snapshots}
+                bindingKeys={data.bindingKeys}
+                variantId={workspace.draftVariantId}
+                snapshotId={workspace.draftSnapshotId}
+                bindingKey={workspace.draftBindingKey}
+                creating={workspace.creating}
+                canCreate={workspace.canCreateDraft}
+                onVariantChange={workspace.setDraftVariantId}
+                onSnapshotChange={workspace.setDraftSnapshotId}
+                onBindingKeyChange={workspace.setDraftBindingKey}
+                onCreate={workspace.createDraft}
+              />
+              <CustomChunkingForm
+                creating={workspace.creatingChunkingVariant}
+                onCreate={(params) => void workspace.createCustomChunkingVariant(params)}
+              />
+            </div>
+          </section>
+
           <section className="panel" aria-label="Variantes y releases del proyecto">
             <div className="panel-heading">
               <div>
@@ -200,46 +478,26 @@ function ReleaseSections({
               />
             </div>
           </section>
-
-          <section className="panel" aria-label="Nuevo draft de release">
-            <div className="panel-heading">
-              <div>
-                <h2>Nuevo draft</h2>
-                <span>Congela variante, snapshot y binding lógico en una release reproducible.</span>
-              </div>
-            </div>
-            <div className="ui-panel-body">
-              <ReleaseDraftForm
-                variants={data.variants}
-                snapshots={data.snapshots}
-                bindingKeys={data.bindingKeys}
-                variantId={workspace.draftVariantId}
-                snapshotId={workspace.draftSnapshotId}
-                bindingKey={workspace.draftBindingKey}
-                creating={workspace.creating}
-                canCreate={workspace.canCreateDraft}
-                onVariantChange={workspace.setDraftVariantId}
-                onSnapshotChange={workspace.setDraftSnapshotId}
-                onBindingKeyChange={workspace.setDraftBindingKey}
-                onCreate={workspace.createDraft}
-              />
-            </div>
-          </section>
         </div>
 
         <div className="release-main">
           <section className="panel" aria-label="Gestión de la release seleccionada">
-            <div className="panel-heading">
-              <div>
-                <h2>Gestión de la release seleccionada</h2>
-                <span>
-                  {workspace.selectedRelease
-                    ? `${workspace.selectedRelease.rag_variant_id} · ${workspace.selectedRelease.rag_release_id}`
-                    : "Selecciona una release para ver sus transiciones, disponibilidad para chatbot y contexto congelado."}
-                </span>
-              </div>
-            </div>
+            <StepPanelHeading
+              step={3}
+              title="Configurar y construir"
+              hint={
+                workspace.selectedRelease
+                  ? `${workspace.selectedRelease.rag_variant_id} · ${workspace.selectedRelease.rag_release_id}`
+                  : "Selecciona una release para configurar su build y ver sus transiciones."
+              }
+            />
             <div className="ui-panel-body">
+              <BuildConfigCard
+                variant={selectedVariant}
+                runtime={workspace.buildEmbeddingRuntime}
+                onRuntimeChange={workspace.setBuildEmbeddingRuntime}
+                disabled={workspace.busyAction !== null}
+              />
               <ReleaseLifecycle
                 release={workspace.selectedRelease}
                 busyAction={workspace.busyAction}
@@ -248,6 +506,13 @@ function ReleaseSections({
                 onPublish={workspace.publish}
                 onRetire={workspace.retire}
               />
+              {workspace.selectedRelease ? (
+                <ActivateLivePanel
+                  published={workspace.selectedRelease.state === "published"}
+                  activating={workspace.activating}
+                  onActivate={() => void workspace.activate()}
+                />
+              ) : null}
             </div>
           </section>
 

@@ -31,6 +31,7 @@ class FaqMatch:
     status: str
     score: float
     reference: dict[str, Any] | None
+    source_url: str | None = None
 
 
 def normalize(text: str) -> str:
@@ -47,19 +48,32 @@ def normalize(text: str) -> str:
 _BLOCK = re.compile(r"##\s*(FAQ-\d+)\s*\n```yaml\n(.*?)\n```", re.DOTALL)
 
 
+def _build_source_url_from_ref(reference: dict[str, Any] | None, base_url: str) -> str | None:
+    """Build a document source URL from a FAQ reference dict."""
+    if not base_url or not reference:
+        return None
+    normalized_path = reference.get("normalized_path")
+    if not normalized_path:
+        return None
+    return f"{base_url}/api/documents/raw/{normalized_path}"
+
+
 @dataclass
 class FaqResolver:
     """Fuzzy/lexical FAQ lookup over the curated question set."""
 
-    entries: list[tuple[str, str, str, str, dict | None, str]]
+    entries: list[tuple[str, str, str, str, dict | None, str, str | None]]
     threshold: float = 0.72
 
     @classmethod
     def from_file(cls, path: str | Path, threshold: float = 0.72) -> "FaqResolver":
+        import os
+
         import yaml
 
+        base_url = os.environ.get("SST_DOCUMENTS_BASE_URL", "").strip().rstrip("/")
         raw = Path(path).read_text(encoding="utf-8")
-        entries: list[tuple[str, str, str, str, dict | None, str]] = []
+        entries: list[tuple[str, str, str, str, dict | None, str, str | None]] = []
         for block in _BLOCK.finditer(raw):
             faq_id = block.group(1)
             data = yaml.safe_load(block.group(2)) or {}
@@ -70,7 +84,8 @@ class FaqResolver:
             references = data.get("references") or []
             reference = references[0] if references else None
             status = str(data.get("status", "supported"))
-            entries.append((faq_id, question, answer, status, reference, normalize(question)))
+            source_url = str(data.get("source_url", "")).strip() or _build_source_url_from_ref(reference, base_url)
+            entries.append((faq_id, question, answer, status, reference, normalize(question), source_url))
         return cls(entries=entries, threshold=threshold)
 
     def match(self, question: str) -> FaqMatch | None:
@@ -82,15 +97,16 @@ class FaqResolver:
 
         best = self._best_score(query_norm)  # (score_0_1, entry_index) or None
         if best is not None and best[0] >= self.threshold:
-            faq_id, q_text, answer, status, reference, _ = self.entries[best[1]]
+            faq_id, q_text, answer, status, reference, _, source_url = self.entries[best[1]]
             return FaqMatch(
                 faq_id=faq_id, question=q_text, answer=answer,
                 status=status, score=best[0], reference=reference,
+                source_url=source_url,
             )
         return None
 
     def _best_score(self, query_norm: str) -> tuple[float, int] | None:
-        choices = [entry[5] for entry in self.entries]  # normalized FAQ questions
+        choices = [entry[5] for entry in self.entries]  # normalized FAQ questions (index 5)
         try:
             from rapidfuzz import fuzz, process
         except ImportError:
@@ -146,4 +162,6 @@ if __name__ == "__main__":
         print(f"  {'HIT ' if m else 'miss'} score={m.score:.2f} {m.faq_id}" if m else f"  miss        {p!r}")
         if m:
             print(f"       -> {m.answer[:70]}...")
+            if m.source_url:
+                print(f"       -> {m.source_url}")
     print("OK")

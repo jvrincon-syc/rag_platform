@@ -4,6 +4,7 @@ import {
   createProject as apiCreateProject,
   getConfiguration,
   listProjects,
+  provisionDefaultVariant as apiProvisionDefaultVariant,
   updateConfiguration as apiUpdateConfiguration,
   updateProject as apiUpdateProject,
 } from "../platformApi.js";
@@ -54,6 +55,7 @@ export function useProjectWorkspace() {
 
   const [notice, setNotice] = useState<ProjectWorkspaceNotice>(null);
   const [creatingProject, setCreatingProject] = useState(false);
+  const [provisioningBackend, setProvisioningBackend] = useState(false);
   const [renamingProject, setRenamingProject] = useState(false);
   const [savingConfiguration, setSavingConfiguration] = useState(false);
 
@@ -143,7 +145,10 @@ export function useProjectWorkspace() {
   );
 
   const createProject = useCallback(
-    async (body: CreateProjectRequest): Promise<boolean> => {
+    async (
+      body: CreateProjectRequest,
+      embeddingBackend: "local" | "lightning" | "voyage",
+    ): Promise<boolean> => {
       setCreatingProject(true);
       setNotice(null);
       try {
@@ -154,7 +159,20 @@ export function useProjectWorkspace() {
         ]);
         upsertProject(project);
         setSelectedProject(project.project_id);
-        setNotice({ tone: "success", message: `Proyecto "${project.display_name}" creado.` });
+        // Autoprovisiona la variante por defecto para que el proyecto ingiera de una.
+        // Fail-soft: si falla, el proyecto igual quedo creado; se avisa sin ocultarlo.
+        try {
+          await apiProvisionDefaultVariant(project.project_id, embeddingBackend);
+          setNotice({
+            tone: "success",
+            message: `Proyecto "${project.display_name}" creado y provisionado (${embeddingBackend}).`,
+          });
+        } catch (provisionError) {
+          setNotice({
+            tone: "warning",
+            message: `Proyecto "${project.display_name}" creado, pero el auto-provisioning falló: ${messageFromError(provisionError)}`,
+          });
+        }
         return true;
       } catch (error) {
         setNotice({ tone: "danger", message: messageFromError(error) });
@@ -213,11 +231,40 @@ export function useProjectWorkspace() {
     [activeProjectId],
   );
 
+  // Provisiona/agrega un backend de embedding a un proyecto YA creado (idempotente):
+  // el auto-provision de creación solo cubre el alta, así que esto permite sumar
+  // backends (p. ej. voyage) o reasegurar la variante por defecto despues.
+  const provisionBackend = useCallback(
+    async (embeddingBackend: "local" | "lightning" | "voyage"): Promise<boolean> => {
+      if (!activeProjectId) {
+        return false;
+      }
+      setProvisioningBackend(true);
+      setNotice(null);
+      try {
+        await apiProvisionDefaultVariant(activeProjectId, embeddingBackend);
+        setNotice({
+          tone: "success",
+          message: `Backend "${embeddingBackend}" provisionado en el proyecto.`,
+        });
+        return true;
+      } catch (error) {
+        setNotice({ tone: "danger", message: messageFromError(error) });
+        return false;
+      } finally {
+        setProvisioningBackend(false);
+      }
+    },
+    [activeProjectId],
+  );
+
   const refresh = useCallback(() => {
     void loadProjects();
   }, [loadProjects]);
 
   return {
+    provisioningBackend,
+    provisionBackend,
     projects,
     projectsLoading,
     projectsError,

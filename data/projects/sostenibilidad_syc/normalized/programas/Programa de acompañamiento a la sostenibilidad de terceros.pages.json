@@ -1,0 +1,30 @@
+{
+  "document_id": "doc_e52393a39ccd98c4",
+  "page_count": 1,
+  "pages": [
+    {
+      "blocks": [],
+      "extraction_method": "markdown",
+      "normalization_actions": [],
+      "ocr_confidence": {
+        "engine": null,
+        "engine_version": null,
+        "kind": "unavailable",
+        "method": null,
+        "provenance": null,
+        "sample_size": null,
+        "unit": null,
+        "value": null,
+        "warnings": []
+      },
+      "page_number": 1,
+      "removed_spans": [],
+      "text_normalized": "(entidades públicas y privadas)\n\nObjetivo:\n\nContribuir activamente al cumplimiento de los objetivos de sostenibilidad ambiental, social y de buen gobierno (ESG) de las entidades usuarias de los servicios de SYC S.A. (clientes públicos y privados), a través del diseño, implementación y soporte de soluciones tecnológicas que optimicen sus recursos, reduzcan su huella ambiental y fortalezcan sus capacidades institucionales.\n\nObjetivos específicos:\n\n1. Alinear los servicios prestados por SYC S.A. con las metas ambientales de las entidades públicas, según lo establecido en sus propios PIGA, Planes de Compras Sostenibles y esquemas de gestión ambiental institucional.\n\n2. Integrar en el diseño y operación de plataformas y servicios digitales criterios de reducción de papel, movilidad física, residuos tecnológicos y consumo energético institucional.\n\n3. Promover el uso de puntos de atención híbridos (como las Casas del Libro Total) para reducir el impacto ambiental y social del funcionamiento tradicional de oficinas públicas.\n\n4. Acompañar a las entidades públicas en el fortalecimiento de su reporte ambiental y cumplimiento del Modelo Integrado de Planeación y Gestión (MIPG), especialmente en la dimensión de Gestión Ambiental.\n\n5. Establecer mecanismos de monitoreo y evidencia que permitan cuantificar el impacto positivo que genera SYC S.A. en los procesos ESG de sus clientes públicos.\n\nMeta:\n1. Identificar e incorporar criterios ESG en las plataformas o servicios tecnológicos SYC S.A. diseñados o adaptados para entidades públicas o privadas.\n\n2. Cuantificar y reportar el impacto ambiental evitado o reducido en los clientes, derivado de la digitalización, automatización o desmaterialización de procesos institucionales.",
+      "text_raw": "(entidades públicas y privadas)\n\n\n\nObjetivo:\n\n\nContribuir activamente al cumplimiento de los objetivos de sostenibilidad ambiental, social y de buen gobierno (ESG) de las entidades usuarias de los servicios de SYC S.A. (clientes públicos y privados), a través del diseño, implementación y soporte de soluciones tecnológicas que optimicen sus recursos, reduzcan su huella ambiental y fortalezcan sus capacidades institucionales. \n\n\nObjetivos específicos:\n\n\n1. Alinear los servicios prestados por SYC S.A. con las metas ambientales de las entidades públicas, según lo establecido en sus propios PIGA, Planes de Compras Sostenibles y esquemas de gestión ambiental institucional. \n\n2. Integrar en el diseño y operación de plataformas y servicios digitales criterios de reducción de papel, movilidad física, residuos tecnológicos y consumo energético institucional.\n\n3. Promover el uso de puntos de atención híbridos (como las Casas del Libro Total) para reducir el impacto ambiental y social del funcionamiento tradicional de oficinas públicas. \n\n4. Acompañar a las entidades públicas en el fortalecimiento de su reporte ambiental y cumplimiento del Modelo Integrado de Planeación y Gestión (MIPG), especialmente en la dimensión de Gestión Ambiental. \n\n5. Establecer mecanismos de monitoreo y evidencia que permitan cuantificar el impacto positivo que genera SYC S.A. en los procesos ESG de sus clientes públicos. \n\nMeta:\n1. Identificar e incorporar criterios ESG en las plataformas o servicios tecnológicos SYC S.A. diseñados o adaptados para entidades públicas o privadas. \n\n\n\n2. Cuantificar y reportar el impacto ambiental evitado o reducido en los clientes, derivado de la digitalización, automatización o desmaterialización de procesos institucionales. ",
+      "warnings": [
+        "missing_title"
+      ]
+    }
+  ],
+  "schema_version": "2.0"
+}

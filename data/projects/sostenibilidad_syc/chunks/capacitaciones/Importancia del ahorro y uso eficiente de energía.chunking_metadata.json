@@ -1,0 +1,18 @@
+{
+  "artifact_relpath": "capacitaciones/Importancia del ahorro y uso eficiente de energ\u00eda.chunking_metadata.json",
+  "bundle_fingerprint": "chunk-bundle-c8efcdf494d158140868fb903646ea791c5e2c8062b45db78b5a8331614c6bb4",
+  "child_count": 1,
+  "corpus_version": "platform-normalized",
+  "document_id": "doc_b1da76147373fcbc",
+  "normalized_document_id": "ndoc_f5aefdf1572c8e1b4278ea04228ffc53",
+  "normalized_relpath": "capacitaciones/Importancia del ahorro y uso eficiente de energ\u00eda.md",
+  "parent_count": 1,
+  "profile_fingerprint": "chunking-profile-0fae4cc79888de2f075e148dd3a2f4fc677fbd0f7fc37ca60b5ae82d22f3d5fd",
+  "profile_id": "cp_custom-3665aaf9f77f-sostenibilidad_syc",
+  "project_id": "proj_sostenibilidad_syc",
+  "rag_variant_id": "ragv_local-bge-syc",
+  "semantic_recipe_fingerprint": "bd82bb646dcddaf91a4c9e4bb94e877c937a9c2ab18ed8f296f2a0827c34eece",
+  "source_document_revision_id": "srev_fc69f54f1c907574cfe0119f036ec445",
+  "source_hash": "bd7805334140df9a105e14faf445b18c48eb8f1de4f816e57b1706373f44ad03",
+  "source_relpath": "capacitaciones/Importancia del ahorro y uso eficiente de energ\u00eda.md"
+}

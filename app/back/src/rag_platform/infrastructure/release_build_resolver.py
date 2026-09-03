@@ -135,8 +135,13 @@ class Schema2FilesystemNormalizedArtifactBuilder:
 
     def build(self, context: ProjectDocumentContext):
         revision = self._source_documents.get_revision(context.source_document_revision_id)
+        # source_relpath puede venir con separador Windows (p. ej. altas manuales en
+        # BD). El backend corre en intérprete POSIX, donde `Path` NO trata `\` como
+        # separador, así que el backslash sobreviviría y `resolve_artifact` lo
+        # rechazaría (UNSAFE_ARTIFACT_PATH). Normaliza a POSIX antes de construir.
+        source_posix = revision.source_relpath.replace("\\", "/")
         artifact_relpath = (
-            f"normalized/{Path(revision.source_relpath).with_suffix('.md').as_posix()}"
+            f"normalized/{PurePosixPath(source_posix).with_suffix('.md').as_posix()}"
         )
         normalized_root = self._storage.resolve_root(context.project_id, "normalized")
         absolute_path = self._storage.resolve_artifact(

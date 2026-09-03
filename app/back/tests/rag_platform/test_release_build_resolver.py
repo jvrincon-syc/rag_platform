@@ -90,3 +90,58 @@ def test_falla_cerrado_cuando_el_fingerprint_no_corresponde_a_la_receta() -> Non
 
     with pytest.raises(UnsupportedRuntimeChunkingRecipe):
         RuntimeChunkingProfileResolver().resolve(tampered)
+
+
+def test_resuelve_runtime_custom_con_hiperparametros_del_config() -> None:
+    # Estrategia structural-custom: el runtime se construye DESDE sanitized_config
+    # (hiperparametros libres), no de un preset fijo. #2: chunking editable.
+    platform_profile = _chunking_profile(
+        strategy="structural-custom",
+        sanitized_config={
+            "child_min_tokens": 120,
+            "child_target_tokens": 200,
+            "child_max_tokens": 320,
+            "overlap_min_tokens": 10,
+            "overlap_max_tokens": 40,
+            "overlap_ratio": 0.1,
+        },
+    )
+
+    runtime = RuntimeChunkingProfileResolver().resolve(platform_profile)
+
+    assert runtime.child_min_tokens == 120
+    assert runtime.child_target_tokens == 200
+    assert runtime.child_max_tokens == 320
+    assert runtime.overlap_max_tokens == 40
+    # profile_id del runtime derivado del chunking_profile_id de plataforma: params
+    # distintos -> ids/fingerprints de chunk distintos (identidad correcta).
+    assert runtime.profile_id == "cp_structural"
+
+
+def test_receta_custom_con_defaults_cuando_faltan_params() -> None:
+    # Config parcial: las claves ausentes caen a los defaults de v1 (coherente).
+    platform_profile = _chunking_profile(
+        strategy="structural-custom",
+        sanitized_config={"child_max_tokens": 512},
+    )
+
+    runtime = RuntimeChunkingProfileResolver().resolve(platform_profile)
+
+    assert runtime.child_max_tokens == 512
+    assert runtime.child_min_tokens == 250  # default v1
+    assert runtime.child_target_tokens == 350  # default v1
+
+
+def test_receta_custom_incoherente_falla_cerrado() -> None:
+    # min > target viola el orden del perfil: fail-closed, nunca degrada a v1.
+    platform_profile = _chunking_profile(
+        strategy="structural-custom",
+        sanitized_config={
+            "child_min_tokens": 400,
+            "child_target_tokens": 200,
+            "child_max_tokens": 300,
+        },
+    )
+
+    with pytest.raises(UnsupportedRuntimeChunkingRecipe):
+        RuntimeChunkingProfileResolver().resolve(platform_profile)

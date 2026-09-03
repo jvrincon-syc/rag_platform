@@ -1,0 +1,40 @@
+---
+document_id: doc_6917cc0b88b7fcda
+document_type: informacion_general
+topic: Capacitaciones
+source_relpath: capacitaciones/Residuos de aparatos eléctricos y electrónicos.md
+extraction_method: markdown
+page_count: 1
+corpus_version: platform-normalized
+pipeline_version: 2.0.0
+---
+
+¿Cómo se clasifican?
+
+La clasificación más común de los RAEE desde una perspectiva comercial se basa en los tipos de electrodomésticos, es decir, en aquellos equipos diseñados para realizar o facilitar tareas en el hogar. Bajo este enfoque, los residuos se agrupan en cuatro categorías principales: línea blanca, línea marrón, línea gris y pequeños electrodomésticos.
+
+Por otra parte, la Directiva de la Unión Europea 2012/19/UE, comenzó a regir a partir del 15 de agosto de 2018 clasifica los AEE en seis categorías considerando las posibles fracciones de recolección y separación de los RAEE.
+
+Estas categorías son: aparatos de intercambio de temperatura, pantallas y monitores, lámparas, grandes y pequeños aparatos, y aparatos de informática y telecomunicaciones.
+
+En términos generales se puede decir que existen dos grandes grupos: los AEE domésticos o de consumo masivo y los especializados o de uso industrial.
+
+Impacto sobre la salud y el ambiente
+
+La presencia de metales pesados, contaminantes orgánicos persistentes, retardantes de llama y otras sustancias peligrosas que se pueden encontrar en los RAEE constituyen un riesgo para la salud humana y el ambiente si estos residuos no se gestionan adecuadamente.
+
+Hay tres fuentes principales de sustancias que se pueden liberar durante la recuperación de materiales y el reciclaje de los RAEE que son motivo de preocupación mundial: los constituyentes originales de los equipos, como el plomo, el cadmio y el mercurio; las sustancias que pueden añadirse durante algunos procesos de recuperación, como el cianuro; y las sustancias no intencionales que pueden formarse durante estos procesos como las dioxinas y furanos (Lundgren, 2012).
+
+Por otra parte, la contaminación ambiental que resulta de la extracción inapropiada de los materiales aprovechables de los RAEE, puede conducir a exposiciones indirectas de las personas que habitan o permanecen en los alrededores de los sitios de manipulación de los residuos de aparatos eléctricos y electrónicos por medio de la contaminación del suelo, el aire y el agua.
+
+Residuos de Aparatos Eléctricos y Electrónicos – RAEE
+
+Los aparatos eléctricos y electrónicos (AEE) están presentes en prácticamente todos los aspectos de nuestra vida cotidiana. Estos equipos están conformados por distintos componentes que requieren corriente eléctrica o campos electromagnéticos para funcionar y cumplir múltiples tareas. Cuando sus propietarios consideran que ya no les son útiles y los descartan, pasan a convertirse en residuos de aparatos eléctricos y electrónicos (RAEE).
+
+La fabricación y el consumo de equipos eléctricos, electrónicos, informáticos y sus combinaciones han aumentado considerablemente, impulsados por un modelo socioeconómico basado en el crecimiento ilimitado, el consumismo y el acelerado avance científico y tecnológico de la sociedad actual.
+
+Este escenario genera impactos en todas las etapas del ciclo de vida de los productos: explotación intensiva de materias primas, uso de energía proveniente en gran parte de fuentes fósiles y creciente generación de residuos. Todo ello pone en riesgo la sostenibilidad ambiental del planeta y puede afectar la salud y la vida de sus habitantes.
+
+La rápida innovación tecnológica, la obsolescencia y la reducción del tiempo de vida útil de los dispositivos han convertido a los RAEE en una de las corrientes de residuos de mayor crecimiento en el mundo, tanto en países industrializados como en aquellos en desarrollo, con una tasa global anual cercana al 5 %. En Colombia, por ejemplo, la generación de RAEE domésticos en 2014 se estimó en 252.000 toneladas, equivalente a 5,3 kg por habitante (Baldé, Wang, Kuehr & Huisman, 2015).
+
+​

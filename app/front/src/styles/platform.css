@@ -243,10 +243,15 @@ button.variant-cell.selected {
 
 /* Corpus Snapshot Workspace: constructor + historial. Reusa .panel/.table-wrap/
    .ui-*; aquí solo la rejilla y la barra de acción. Sin hex de marca. */
+/* Una sola columna: el constructor aloja adentro su propio grid tabla+inspector
+   (.inventory-layout). Anidar dos grids de 2 columnas comprimía el constructor y
+   el inspector "Detalle de revisión" desbordaba sobre el historial (solape). Con
+   el constructor a ancho completo, el inventario interno tiene espacio y no se
+   solapa; el historial queda debajo. */
 .corpus-grid {
   display: grid;
   gap: 16px;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 360px);
+  grid-template-columns: minmax(0, 1fr);
   align-items: start;
 }
 
@@ -866,10 +871,143 @@ button.project-card.active {
   color: var(--success-ink);
 }
 
+/* --- Guided steps + build config (visual redesign) --------------------- */
+/* El ciclo RAG es una secuencia real: cada panel lleva su número de paso. El
+   badge es solo señalética visual (aria-hidden); el <h2> mantiene el nombre
+   accesible. Tokens semánticos, sin hex de marca. */
+.panel-heading.step-heading {
+  align-items: center;
+  gap: 12px;
+}
+
+.step-badge {
+  align-items: center;
+  background: var(--accent);
+  border-radius: 999px;
+  color: #ffffff;
+  display: inline-flex;
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 760;
+  height: 26px;
+  justify-content: center;
+  width: 26px;
+}
+
+/* Selectores de receta del draft: Embedding + Chunking lado a lado. Los labels
+   con icono alinean su contenido en línea. */
+.release-recipe-fields {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.release-recipe-fields label,
+.build-runtime-selector label {
+  align-items: center;
+  display: inline-flex;
+  gap: 6px;
+}
+
+.release-resolved-variant {
+  align-items: center;
+  background: var(--panel-soft);
+  border: 1px solid var(--accent-line);
+  border-radius: 10px;
+  color: var(--muted);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 12px;
+  gap: 8px;
+  margin: 0;
+  padding: 8px 10px;
+}
+
+.release-resolved-variant code {
+  font-size: 12px;
+}
+
+/* Card de configuración del build: receta (solo lectura) + selector de runtime.
+   Se lee como un bloque previo al riel de estados, no como otro panel suelto. */
+.build-config-card {
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-line);
+  border-radius: 12px;
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+}
+
+.build-recipe {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.build-recipe-chip {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid var(--accent-border);
+  border-radius: 999px;
+  color: var(--accent-ink);
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 640;
+  gap: 6px;
+  padding: 5px 11px;
+}
+
+/* Chunking avanzado: form colapsable que crea una variante a medida. */
+.custom-chunking-toggle {
+  border-top: 1px solid var(--accent-line);
+  margin-top: 4px;
+  padding-top: 12px;
+}
+
+.custom-chunking-form {
+  border-top: 1px solid var(--accent-line);
+  display: grid;
+  gap: 12px;
+  margin-top: 4px;
+  padding-top: 12px;
+}
+
+.custom-chunking-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.custom-chunking-check {
+  align-items: center;
+  display: inline-flex;
+  font-size: 13px;
+  gap: 8px;
+}
+
+@media (max-width: 900px) {
+  .custom-chunking-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Activación en vivo: acción separada del riel de estados, con su motivo visible. */
+.activate-live {
+  border-top: 1px solid var(--accent-line);
+  display: grid;
+  gap: 8px;
+  margin-top: 4px;
+  padding-top: 12px;
+}
+
 @media (max-width: 900px) {
   .release-overview-metrics,
   .release-focus-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .release-recipe-fields {
+    grid-template-columns: 1fr;
   }
 
   .release-focus-header,

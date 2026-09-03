@@ -142,7 +142,7 @@ describe("platform contract guards — request bodies", () => {
 
 describe("platform contract guards — idempotency plumbing", () => {
   it("las 4 mutaciones de release adjuntan Idempotency-Key y reusan la que se pasa", async () => {
-    await buildRelease("ragr_1", { idempotencyKey: "platform-key-A" });
+    await buildRelease("ragr_1", null, { idempotencyKey: "platform-key-A" });
     await validateRelease("ragr_1", { idempotencyKey: "platform-key-A" });
     await publishRelease("ragr_1", { idempotencyKey: "platform-key-B" });
     await retireRelease("ragr_1", { reason: "x" }, { idempotencyKey: "platform-key-B" });
@@ -173,14 +173,15 @@ describe("platform contract guards — persistencia aislada del legacy", () => {
       selectedRagReleaseId: "ragr_1",
     });
     const stored = readPlatformPreferences();
-    expect(Object.keys(stored).sort()).toEqual([
+    expect(stored).not.toBeNull();
+    expect(Object.keys(stored ?? {}).sort()).toEqual([
       "selectedCorpusSnapshotId",
       "selectedProjectId",
       "selectedRagReleaseId",
       "selectedRagVariantId",
     ]);
     for (const key of ["bearer", "token", "indexing_target_id", "target_bindings"]) {
-      expect(key in stored).toBe(false);
+      expect(key in (stored ?? {})).toBe(false);
     }
   });
 

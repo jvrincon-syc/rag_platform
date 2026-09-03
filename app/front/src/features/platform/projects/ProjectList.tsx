@@ -32,7 +32,10 @@ export function ProjectList({
   error: string | null;
   creating: boolean;
   onSelect: (projectId: string) => void;
-  onCreate: (body: CreateProjectRequest) => Promise<boolean>;
+  onCreate: (
+    body: CreateProjectRequest,
+    embeddingBackend: "local" | "lightning" | "voyage",
+  ) => Promise<boolean>;
   onRefresh: () => void;
 }) {
   const [formOpen, setFormOpen] = useState(false);
@@ -40,6 +43,11 @@ export function ProjectList({
   const [displayName, setDisplayName] = useState("");
   const [policy, setPolicy] = useState<CorpusOrganizationPolicy>("source-folders-v1");
   const [template, setTemplate] = useState<DocumentTypeTemplate>("generic");
+  // Backend de embedding con el que se autoprovisiona la variante por defecto del
+  // proyecto (para que ingiera sin pasos manuales). local/lightning = BGE; voyage = Voyage.
+  const [embeddingBackend, setEmbeddingBackend] = useState<
+    "local" | "lightning" | "voyage"
+  >("local");
 
   const canSubmit = slug.trim().length > 0 && displayName.trim().length > 0 && !creating;
 
@@ -48,17 +56,21 @@ export function ProjectList({
     if (!canSubmit) {
       return;
     }
-    const ok = await onCreate({
-      project_slug: slug.trim(),
-      display_name: displayName.trim(),
-      corpus_organization_policy: policy,
-      document_type_template: template,
-    });
+    const ok = await onCreate(
+      {
+        project_slug: slug.trim(),
+        display_name: displayName.trim(),
+        corpus_organization_policy: policy,
+        document_type_template: template,
+      },
+      embeddingBackend,
+    );
     if (ok) {
       setSlug("");
       setDisplayName("");
       setPolicy("source-folders-v1");
       setTemplate("generic");
+      setEmbeddingBackend("local");
       setFormOpen(false);
     }
   }
@@ -147,6 +159,26 @@ export function ProjectList({
                   ))}
                 </select>
               </div>
+            </div>
+            <div className="ui-field">
+              <label htmlFor="new-project-embedding">Backend de embedding</label>
+              <select
+                id="new-project-embedding"
+                value={embeddingBackend}
+                onChange={(event) =>
+                  setEmbeddingBackend(
+                    event.target.value as "local" | "lightning" | "voyage",
+                  )
+                }
+              >
+                <option value="local">Local (BGE en la caja)</option>
+                <option value="lightning">Lightning studio (BGE remoto)</option>
+                <option value="voyage">Voyage (API)</option>
+              </select>
+              <span className="ui-field-note">
+                Se autoprovisiona la variante por defecto para que el proyecto ingiera de
+                una. El runtime local/remoto de BGE se elige luego por build.
+              </span>
             </div>
             <div className="ui-actions">
               <button className="primary-button" type="submit" disabled={!canSubmit}>

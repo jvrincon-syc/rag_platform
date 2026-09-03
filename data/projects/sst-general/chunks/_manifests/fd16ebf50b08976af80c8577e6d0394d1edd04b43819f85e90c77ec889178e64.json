@@ -1,0 +1,10 @@
+{
+  "bundle_fingerprint": "chunk-bundle-a976a5a5298cff94d9b821329f5d89738512d59a178025962075926234cb77b5",
+  "document_id": "doc_7d2eb40310345805",
+  "normalized_relpath": "general_sst/capacitaciones/pausas_activas/info.md",
+  "profile_fingerprint": "chunking-profile-63fa08787c766a7581fa9a19e8a50dcf531f63018b594181410772f9d6c29c4e",
+  "profile_id": "local-structural-v1",
+  "reused": true,
+  "run_id": "fd16ebf50b08976af80c8577e6d0394d1edd04b43819f85e90c77ec889178e64",
+  "status": "passed"
+}

@@ -1,0 +1,18 @@
+{
+  "artifact_relpath": "capacitaciones/capacitaciones.chunking_metadata.json",
+  "bundle_fingerprint": "chunk-bundle-07f535414b0931a79c6c85193de5d7dcc28ecbb954e497bddbd303a942f2910b",
+  "child_count": 1,
+  "corpus_version": "platform-normalized",
+  "document_id": "doc_5d68eb2158aca4e2",
+  "normalized_document_id": "ndoc_d793140fb25da4a4c39d636470e027b9",
+  "normalized_relpath": "capacitaciones/capacitaciones.md",
+  "parent_count": 1,
+  "profile_fingerprint": "chunking-profile-0fae4cc79888de2f075e148dd3a2f4fc677fbd0f7fc37ca60b5ae82d22f3d5fd",
+  "profile_id": "cp_custom-3665aaf9f77f-sostenibilidad_syc",
+  "project_id": "proj_sostenibilidad_syc",
+  "rag_variant_id": "ragv_local-bge-syc",
+  "semantic_recipe_fingerprint": "bd82bb646dcddaf91a4c9e4bb94e877c937a9c2ab18ed8f296f2a0827c34eece",
+  "source_document_revision_id": "srev_730e9d6cc1f23534ca463720ab5f0659",
+  "source_hash": "e0564f8c9c00739bed7ba23a2cceb199afd77dd2738aeda04a09d2c11d99248e",
+  "source_relpath": "capacitaciones/capacitaciones.md"
+}

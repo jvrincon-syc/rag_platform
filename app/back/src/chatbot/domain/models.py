@@ -76,6 +76,9 @@ class ChatbotWebhookChunk(StrictModel):
         raw_metadata = dict(data.get("metadata", {}))
         raw_metadata["document_name"] = document_name
         raw_metadata["citation_label"] = document_name
+        raw_metadata["answer_reference_phrase"] = _build_answer_reference_phrase(
+            document_name
+        )
         source_url = _build_source_url(raw_metadata)
         if source_url is not None:
             raw_metadata["source_url"] = source_url
@@ -95,6 +98,10 @@ def _resolve_document_name(evidence: RetrievedEvidence) -> str:
     if isinstance(source_relpath, str) and source_relpath.strip():
         return PurePosixPath(source_relpath.strip()).name
     return evidence.document_id
+
+
+def _build_answer_reference_phrase(document_name: str) -> str:
+    return f"En el documento {document_name} se estipula"
 
 
 def _build_source_url(metadata: dict[str, object]) -> str | None:

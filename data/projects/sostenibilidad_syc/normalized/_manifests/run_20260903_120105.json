@@ -1,0 +1,2035 @@
+{
+  "bundles": [
+    {
+      "artifact_hashes": [
+        {
+          "byte_size": 13940,
+          "relpath": "capacitaciones/1769611726809_syc_PresentacingestinambientalSYC.md",
+          "schema_version": "2.0",
+          "sha256": "b66f3f107e0ead3767705347c99e6cb0f405544c055b56faf23dbcf03da2e775"
+        },
+        {
+          "byte_size": 4537,
+          "relpath": "capacitaciones/1769611726809_syc_PresentacingestinambientalSYC.metadata.json",
+          "schema_version": "2.0",
+          "sha256": "69e900ef093c1b8fe1a7238a9ea2826f7531f30eb8eccdf29c5001f90ecae042"
+        },
+        {
+          "byte_size": 376155,
+          "relpath": "capacitaciones/1769611726809_syc_PresentacingestinambientalSYC.pages.json",
+          "schema_version": "2.0",
+          "sha256": "76eb348770b1a7c004496ce204c0ca292de6cafb9fd16ea72508e49716138db3"
+        },
+        {
+          "byte_size": 246882,
+          "relpath": "capacitaciones/1769611726809_syc_PresentacingestinambientalSYC.ocr.json",
+          "schema_version": "2.0",
+          "sha256": "19ec2bfa69a2688fe49d23ee3a8e2974e00e22f2c61fe3e605744576bcdae03b"
+        },
+        {
+          "byte_size": 8781,
+          "relpath": "capacitaciones/1769611726809_syc_PresentacingestinambientalSYC.tables.json",
+          "schema_version": "2.0",
+          "sha256": "58f2942a76a05eb2c9fe7abaa87630239002c05080611c529701d8909526297c"
+        },
+        {
+          "byte_size": 3877,
+          "relpath": "capacitaciones/1769611726809_syc_PresentacingestinambientalSYC.forms.json",
+          "schema_version": "2.0",
+          "sha256": "33ae9dee99c48efb5ebf4c496122839fe3443f34f7345bb158c1091c0f0d014d"
+        }
+      ],
+      "document_id": "doc_d968c43cfdb70b26",
+      "document_status": "processed",
+      "normalized_base": "capacitaciones/1769611726809_syc_PresentacingestinambientalSYC",
+      "processing_fingerprint": "1eba6ef3f581be213896fe1f317c9c80cdbd9304a6c4f6733257036e6184914d",
+      "required_artifacts": [
+        "capacitaciones/1769611726809_syc_PresentacingestinambientalSYC.md",
+        "capacitaciones/1769611726809_syc_PresentacingestinambientalSYC.metadata.json",
+        "capacitaciones/1769611726809_syc_PresentacingestinambientalSYC.pages.json",
+        "capacitaciones/1769611726809_syc_PresentacingestinambientalSYC.ocr.json",
+        "capacitaciones/1769611726809_syc_PresentacingestinambientalSYC.tables.json",
+        "capacitaciones/1769611726809_syc_PresentacingestinambientalSYC.forms.json"
+      ],
+      "schema_version": "2.0",
+      "source_hash": "9811eb7e725276790717f8fdad296e435a2b9b17472b23945d21f4da9e430932",
+      "source_relpath": "capacitaciones/1769611726809_syc_PresentacingestinambientalSYC.pdf"
+    },
+    {
+      "artifact_hashes": [
+        {
+          "byte_size": 1013,
+          "relpath": "capacitaciones/cada gota cuenta.md",
+          "schema_version": "2.0",
+          "sha256": "127b66133a77fb3b6f3fd459da9b3c090aa898292256055c5c38df5cab3b42b0"
+        },
+        {
+          "byte_size": 4253,
+          "relpath": "capacitaciones/cada gota cuenta.metadata.json",
+          "schema_version": "2.0",
+          "sha256": "478ecfb72bb2f00e4ff300e60ba24a459d1269f2724dc65b9facb534b6a6f39e"
+        },
+        {
+          "byte_size": 2175,
+          "relpath": "capacitaciones/cada gota cuenta.pages.json",
+          "schema_version": "2.0",
+          "sha256": "a9e0cd0f34d3228e7f9ae66ed686eadb8c6249f614925919e16c6343e3123246"
+        },
+        {
+          "byte_size": 427,
+          "relpath": "capacitaciones/cada gota cuenta.ocr.json",
+          "schema_version": "2.0",
+          "sha256": "f0d79f6ac391310c17f53d25385cbab05fd21a655f08bd8bb3b8fd97df03bb83"
+        },
+        {
+          "byte_size": 377,
+          "relpath": "capacitaciones/cada gota cuenta.tables.json",
+          "schema_version": "2.0",
+          "sha256": "7e6d5315c391c0006365e48004fab203edf0bc342b2e8b6fdc998b99dc006baa"
+        },
+        {
+          "byte_size": 356,
+          "relpath": "capacitaciones/cada gota cuenta.forms.json",
+          "schema_version": "2.0",
+          "sha256": "e92931c9dc10b88915b0b2a21a29878667bb5e9c70faeefda66d67b82b5fd083"
+        }
+      ],
+      "document_id": "doc_4b31f01c2b690307",
+      "document_status": "needs_review",
+      "normalized_base": "capacitaciones/cada gota cuenta",
+      "processing_fingerprint": "1eba6ef3f581be213896fe1f317c9c80cdbd9304a6c4f6733257036e6184914d",
+      "required_artifacts": [
+        "capacitaciones/cada gota cuenta.md",
+        "capacitaciones/cada gota cuenta.metadata.json",
+        "capacitaciones/cada gota cuenta.pages.json",
+        "capacitaciones/cada gota cuenta.ocr.json",
+        "capacitaciones/cada gota cuenta.tables.json",
+        "capacitaciones/cada gota cuenta.forms.json"
+      ],
+      "schema_version": "2.0",
+      "source_hash": "7ca771d88cb23e07ae0dc446edece66ef331ec6c34dea2ff48680c732f223968",
+      "source_relpath": "capacitaciones/cada gota cuenta.md"
+    },
+    {
+      "artifact_hashes": [
+        {
+          "byte_size": 680,
+          "relpath": "capacitaciones/capacitaciones.md",
+          "schema_version": "2.0",
+          "sha256": "dd22094d2d5db421ed2fc5308a9bb6e9030ac767ca508d5a2faefeb0304c98f0"
+        },
+        {
+          "byte_size": 4194,
+          "relpath": "capacitaciones/capacitaciones.metadata.json",
+          "schema_version": "2.0",
+          "sha256": "d96950d4b140cf7c2710e10d1a9b8dce164ce8e184c38d968ae2be29669cba4b"
+        },
+        {
+          "byte_size": 1510,
+          "relpath": "capacitaciones/capacitaciones.pages.json",
+          "schema_version": "2.0",
+          "sha256": "c97818f2be399944005f168d568c4c70533a1c6e25b021aef2fbe536d64406e8"
+        },
+        {
+          "byte_size": 427,
+          "relpath": "capacitaciones/capacitaciones.ocr.json",
+          "schema_version": "2.0",
+          "sha256": "cdaf2f069adcfd8ade8afeb47135eed702e51d7e715dda5625df9a8077af7da5"
+        },
+        {
+          "byte_size": 377,
+          "relpath": "capacitaciones/capacitaciones.tables.json",
+          "schema_version": "2.0",
+          "sha256": "aced40c056fb3d2dc824cefbea55ffd837f34105006142e9a6f15414e68c377f"
+        },
+        {
+          "byte_size": 356,
+          "relpath": "capacitaciones/capacitaciones.forms.json",
+          "schema_version": "2.0",
+          "sha256": "19a07d1f371579aa5642a5453d16ef5df6ac355156c64fe4d241bed8e41a9923"
+        }
+      ],
+      "document_id": "doc_5d68eb2158aca4e2",
+      "document_status": "processed",
+      "normalized_base": "capacitaciones/capacitaciones",
+      "processing_fingerprint": "1eba6ef3f581be213896fe1f317c9c80cdbd9304a6c4f6733257036e6184914d",
+      "required_artifacts": [
+        "capacitaciones/capacitaciones.md",
+        "capacitaciones/capacitaciones.metadata.json",
+        "capacitaciones/capacitaciones.pages.json",
+        "capacitaciones/capacitaciones.ocr.json",
+        "capacitaciones/capacitaciones.tables.json",
+        "capacitaciones/capacitaciones.forms.json"
+      ],
+      "schema_version": "2.0",
+      "source_hash": "e0564f8c9c00739bed7ba23a2cceb199afd77dd2738aeda04a09d2c11d99248e",
+      "source_relpath": "capacitaciones/capacitaciones.md"
+    },
+    {
+      "artifact_hashes": [
+        {
+          "byte_size": 755,
+          "relpath": "capacitaciones/Clasificación de residuos sólidos.md",
+          "schema_version": "2.0",
+          "sha256": "2c8b7160315dac0f6c9315723d5337e84a31ab634405fb40284c0e01792fc770"
+        },
+        {
+          "byte_size": 4329,
+          "relpath": "capacitaciones/Clasificación de residuos sólidos.metadata.json",
+          "schema_version": "2.0",
+          "sha256": "8397b6031d7fbd38fbf864724ab9e7e00cf1e2a00abb7b5050fb6a8ad557f84d"
+        },
+        {
+          "byte_size": 1621,
+          "relpath": "capacitaciones/Clasificación de residuos sólidos.pages.json",
+          "schema_version": "2.0",
+          "sha256": "80c92cf7519acfba931809ec8c38ca965bba3f2508f459f1da54beb8086634c6"
+        },
+        {
+          "byte_size": 427,
+          "relpath": "capacitaciones/Clasificación de residuos sólidos.ocr.json",
+          "schema_version": "2.0",
+          "sha256": "f7b5a8f3a768ed29455891e924ca49a22919519b63099f14c9af7ad2654d97f2"
+        },
+        {
+          "byte_size": 377,
+          "relpath": "capacitaciones/Clasificación de residuos sólidos.tables.json",
+          "schema_version": "2.0",
+          "sha256": "a55dcd11a186a2f146257d05b6d7c6a1cbcb1cfcae5196447db2d1ba6cd88483"
+        },
+        {
+          "byte_size": 356,
+          "relpath": "capacitaciones/Clasificación de residuos sólidos.forms.json",
+          "schema_version": "2.0",
+          "sha256": "be850d023f298bc8d5857172577132b8dc073ce4b0e3d158e92e427b402f5539"
+        }
+      ],
+      "document_id": "doc_8223597088b8bd18",
+      "document_status": "needs_review",
+      "normalized_base": "capacitaciones/Clasificación de residuos sólidos",
+      "processing_fingerprint": "1eba6ef3f581be213896fe1f317c9c80cdbd9304a6c4f6733257036e6184914d",
+      "required_artifacts": [
+        "capacitaciones/Clasificación de residuos sólidos.md",
+        "capacitaciones/Clasificación de residuos sólidos.metadata.json",
+        "capacitaciones/Clasificación de residuos sólidos.pages.json",
+        "capacitaciones/Clasificación de residuos sólidos.ocr.json",
+        "capacitaciones/Clasificación de residuos sólidos.tables.json",
+        "capacitaciones/Clasificación de residuos sólidos.forms.json"
+      ],
+      "schema_version": "2.0",
+      "source_hash": "28cd8f55c2ea54439715a33c4300a394001815682563ea73d29b1e6f384946a3",
+      "source_relpath": "capacitaciones/Clasificación de residuos sólidos.md"
+    },
+    {
+      "artifact_hashes": [
+        {
+          "byte_size": 1034,
+          "relpath": "capacitaciones/Código de colores.md",
+          "schema_version": "2.0",
+          "sha256": "10ea833e50af490cf7cbaae40fe9e94f0edf4c09162bf3f8600c5eac353cfb92"
+        },
+        {
+          "byte_size": 4241,
+          "relpath": "capacitaciones/Código de colores.metadata.json",
+          "schema_version": "2.0",
+          "sha256": "219f233ccbcc107cebbd24881d9f90f3079f8a85ddec748d79c23bcf405ba44f"
+        },
+        {
+          "byte_size": 2253,
+          "relpath": "capacitaciones/Código de colores.pages.json",
+          "schema_version": "2.0",
+          "sha256": "1f4ddbce28f3d37372b29c718aa4b540b80a9ba0145e1b1a3b4c3079e81fec99"
+        },
+        {
+          "byte_size": 427,
+          "relpath": "capacitaciones/Código de colores.ocr.json",
+          "schema_version": "2.0",
+          "sha256": "5b002ecbfe5b6751fe97f633ba6c5412186877ec6325615eb07ba4cd3a28996b"
+        },
+        {
+          "byte_size": 377,
+          "relpath": "capacitaciones/Código de colores.tables.json",
+          "schema_version": "2.0",
+          "sha256": "9a6d89459f7083a561bacd5c6893fb4b044a90c42ec7528f2aa62127908c3427"
+        },
+        {
+          "byte_size": 356,
+          "relpath": "capacitaciones/Código de colores.forms.json",
+          "schema_version": "2.0",
+          "sha256": "b68ebc30d5c62eff1845d6f82fbd08f4e2dff7b5f38a29b82289daafba7bebeb"
+        }
+      ],
+      "document_id": "doc_2534b7f4ab5cb313",
+      "document_status": "needs_review",
+      "normalized_base": "capacitaciones/Código de colores",
+      "processing_fingerprint": "1eba6ef3f581be213896fe1f317c9c80cdbd9304a6c4f6733257036e6184914d",
+      "required_artifacts": [
+        "capacitaciones/Código de colores.md",
+        "capacitaciones/Código de colores.metadata.json",
+        "capacitaciones/Código de colores.pages.json",
+        "capacitaciones/Código de colores.ocr.json",
+        "capacitaciones/Código de colores.tables.json",
+        "capacitaciones/Código de colores.forms.json"
+      ],
+      "schema_version": "2.0",
+      "source_hash": "0569a8189a3cd587a176ef9c4f6d8235f4c154de6f10e652b101469d3443e51c",
+      "source_relpath": "capacitaciones/Código de colores.md"
+    },
+    {
+      "artifact_hashes": [
+        {
+          "byte_size": 1759,
+          "relpath": "capacitaciones/Gestión integral de residuos.md",
+          "schema_version": "2.0",
+          "sha256": "c8089af9c9eeb51ad2aaad82e09dbda4aae9fe07f36d3c0946f3e3dbab311329"
+        },
+        {
+          "byte_size": 4305,
+          "relpath": "capacitaciones/Gestión integral de residuos.metadata.json",
+          "schema_version": "2.0",
+          "sha256": "33a39b7863be83e777628fd120165a32e27a4fa3c47f58dea6494132988d0335"
+        },
+        {
+          "byte_size": 3675,
+          "relpath": "capacitaciones/Gestión integral de residuos.pages.json",
+          "schema_version": "2.0",
+          "sha256": "b87d1f76deff8037750e8d93410ae77dd601827145367d7bef880ce50d0aa1a4"
+        },
+        {
+          "byte_size": 427,
+          "relpath": "capacitaciones/Gestión integral de residuos.ocr.json",
+          "schema_version": "2.0",
+          "sha256": "ffe72d3297bc860119ed78351d3149d82fc72b00d9b663559e20229f583f2f90"
+        },
+        {
+          "byte_size": 377,
+          "relpath": "capacitaciones/Gestión integral de residuos.tables.json",
+          "schema_version": "2.0",
+          "sha256": "14b68865629ea999e138977f63d6a5a172bc113fd240675a4d67007c1a030ff8"
+        },
+        {
+          "byte_size": 356,
+          "relpath": "capacitaciones/Gestión integral de residuos.forms.json",
+          "schema_version": "2.0",
+          "sha256": "219f8e7e573226f2fce1091d44b98a2dbf167b13af0efa8f4466cce5c13f660f"
+        }
+      ],
+      "document_id": "doc_02ad694c03baf938",
+      "document_status": "needs_review",
+      "normalized_base": "capacitaciones/Gestión integral de residuos",
+      "processing_fingerprint": "1eba6ef3f581be213896fe1f317c9c80cdbd9304a6c4f6733257036e6184914d",
+      "required_artifacts": [
+        "capacitaciones/Gestión integral de residuos.md",
+        "capacitaciones/Gestión integral de residuos.metadata.json",
+        "capacitaciones/Gestión integral de residuos.pages.json",
+        "capacitaciones/Gestión integral de residuos.ocr.json",
+        "capacitaciones/Gestión integral de residuos.tables.json",
+        "capacitaciones/Gestión integral de residuos.forms.json"
+      ],
+      "schema_version": "2.0",
+      "source_hash": "336755a3b8966f6f0fba77a65dcc85fe05db8eeeb8beef5371a7cc173ebd135e",
+      "source_relpath": "capacitaciones/Gestión integral de residuos.md"
+    },
+    {
+      "artifact_hashes": [
+        {
+          "byte_size": 543,
+          "relpath": "capacitaciones/Huella de carbono.md",
+          "schema_version": "2.0",
+          "sha256": "5739979941144fea083e8ae02dd824d65bc289611203038e0a1a5a08c916a34f"
+        },
+        {
+          "byte_size": 4168,
+          "relpath": "capacitaciones/Huella de carbono.metadata.json",
+          "schema_version": "2.0",
+          "sha256": "3d29ceac8938edc2ce555ffc2807ff5b736fcadda0a69c8b33aba7d8ef6c0362"
+        },
+        {
+          "byte_size": 1245,
+          "relpath": "capacitaciones/Huella de carbono.pages.json",
+          "schema_version": "2.0",
+          "sha256": "f0fad09c59e322bcdb0a69edb54f1383b898cadde39f4c4f21cc88bfb2299074"
+        },
+        {
+          "byte_size": 427,
+          "relpath": "capacitaciones/Huella de carbono.ocr.json",
+          "schema_version": "2.0",
+          "sha256": "fdd4c9929a90ca1c9f25c7fbfb73b83bb6ca8328c291e9fc0b2a77c0b02b9f71"
+        },
+        {
+          "byte_size": 377,
+          "relpath": "capacitaciones/Huella de carbono.tables.json",
+          "schema_version": "2.0",
+          "sha256": "2acc36ca3c8132fa1af11408452cb3e2220510a9e972cf6b646cac160c9b081b"
+        },
+        {
+          "byte_size": 356,
+          "relpath": "capacitaciones/Huella de carbono.forms.json",
+          "schema_version": "2.0",
+          "sha256": "88bd76b9085b7db37563a934752c914fa4efcd14fc8e40d0d9e8b399213c92a6"
+        }
+      ],
+      "document_id": "doc_514afedd34b3024b",
+      "document_status": "processed",
+      "normalized_base": "capacitaciones/Huella de carbono",
+      "processing_fingerprint": "1eba6ef3f581be213896fe1f317c9c80cdbd9304a6c4f6733257036e6184914d",
+      "required_artifacts": [
+        "capacitaciones/Huella de carbono.md",
+        "capacitaciones/Huella de carbono.metadata.json",
+        "capacitaciones/Huella de carbono.pages.json",
+        "capacitaciones/Huella de carbono.ocr.json",
+        "capacitaciones/Huella de carbono.tables.json",
+        "capacitaciones/Huella de carbono.forms.json"
+      ],
+      "schema_version": "2.0",
+      "source_hash": "6ea1895ec27ea3096cd2e85bc2abd324544819d025dd1cad0522cb258951517b",
+      "source_relpath": "capacitaciones/Huella de carbono.md"
+    },
+    {
+      "artifact_hashes": [
+        {
+          "byte_size": 1065,
+          "relpath": "capacitaciones/Importancia del ahorro y uso eficiente de energía.md",
+          "schema_version": "2.0",
+          "sha256": "f9c773430799460d899d40f438c143263dd287688c369635e04caa86d9d51f0d"
+        },
+        {
+          "byte_size": 4389,
+          "relpath": "capacitaciones/Importancia del ahorro y uso eficiente de energía.metadata.json",
+          "schema_version": "2.0",
+          "sha256": "d9f8496e1042132b51a7fddd17a7d11778f79becdb32349882d2f39340c01928"
+        },
+        {
+          "byte_size": 2239,
+          "relpath": "capacitaciones/Importancia del ahorro y uso eficiente de energía.pages.json",
+          "schema_version": "2.0",
+          "sha256": "52799f1d78e8e0f2eae8af49c3f457e7beccd31c873bd699c60773f0cfc98971"
+        },
+        {
+          "byte_size": 427,
+          "relpath": "capacitaciones/Importancia del ahorro y uso eficiente de energía.ocr.json",
+          "schema_version": "2.0",
+          "sha256": "d7d79b02f59896c9cb07a1ea15d673ffc848e6470ea9b5d48ee8dcdef068bbd4"
+        },
+        {
+          "byte_size": 377,
+          "relpath": "capacitaciones/Importancia del ahorro y uso eficiente de energía.tables.json",
+          "schema_version": "2.0",
+          "sha256": "0784eee5fc55eddf1b37b9290264e65998f0b99a0e973caa00cd5988025bd6f5"
+        },
+        {
+          "byte_size": 356,
+          "relpath": "capacitaciones/Importancia del ahorro y uso eficiente de energía.forms.json",
+          "schema_version": "2.0",
+          "sha256": "6b7b5b3529d163ba0b342d8a2de5504b2a818900a749d7437b52e30419391eeb"
+        }
+      ],
+      "document_id": "doc_b1da76147373fcbc",
+      "document_status": "needs_review",
+      "normalized_base": "capacitaciones/Importancia del ahorro y uso eficiente de energía",
+      "processing_fingerprint": "1eba6ef3f581be213896fe1f317c9c80cdbd9304a6c4f6733257036e6184914d",
+      "required_artifacts": [
+        "capacitaciones/Importancia del ahorro y uso eficiente de energía.md",
+        "capacitaciones/Importancia del ahorro y uso eficiente de energía.metadata.json",
+        "capacitaciones/Importancia del ahorro y uso eficiente de energía.pages.json",
+        "capacitaciones/Importancia del ahorro y uso eficiente de energía.ocr.json",
+        "capacitaciones/Importancia del ahorro y uso eficiente de energía.tables.json",
+        "capacitaciones/Importancia del ahorro y uso eficiente de energía.forms.json"
+      ],
+      "schema_version": "2.0",
+      "source_hash": "bd7805334140df9a105e14faf445b18c48eb8f1de4f816e57b1706373f44ad03",
+      "source_relpath": "capacitaciones/Importancia del ahorro y uso eficiente de energía.md"
+    },
+    {
+      "artifact_hashes": [
+        {
+          "byte_size": 2901,
+          "relpath": "capacitaciones/Reciclaje.md",
+          "schema_version": "2.0",
+          "sha256": "e8bfcbbb4d53ee134f94ace91d80e87839256e9d7b6d96932f0a0b4333caec0c"
+        },
+        {
+          "byte_size": 4078,
+          "relpath": "capacitaciones/Reciclaje.metadata.json",
+          "schema_version": "2.0",
+          "sha256": "27901abd1a602c8d230d580315b7b24c4c7afd9ede3600171155ce32f8560e4a"
+        },
+        {
+          "byte_size": 6062,
+          "relpath": "capacitaciones/Reciclaje.pages.json",
+          "schema_version": "2.0",
+          "sha256": "042bb6ba26318d4ec0c7096a749c38bb9d228185ca0a90a0dcaf19238a120f61"
+        },
+        {
+          "byte_size": 427,
+          "relpath": "capacitaciones/Reciclaje.ocr.json",
+          "schema_version": "2.0",
+          "sha256": "70f6c49a97b131083512f4a0ea4c994a53a30c6e769b0543e3b2cb01ba0cfaa2"
+        },
+        {
+          "byte_size": 377,
+          "relpath": "capacitaciones/Reciclaje.tables.json",
+          "schema_version": "2.0",
+          "sha256": "22678188a7bf21e263d17588ec5bcecb7cef7335bc39ccc41f835bf7bf594909"
+        },
+        {
+          "byte_size": 356,
+          "relpath": "capacitaciones/Reciclaje.forms.json",
+          "schema_version": "2.0",
+          "sha256": "65cbf6af0976829bfb63bdb1d514d4fd24f5ba146883d89627bbfdd798f0be96"
+        }
+      ],
+      "document_id": "doc_7a14c601955a5a3c",
+      "document_status": "processed",
+      "normalized_base": "capacitaciones/Reciclaje",
+      "processing_fingerprint": "1eba6ef3f581be213896fe1f317c9c80cdbd9304a6c4f6733257036e6184914d",
+      "required_artifacts": [
+        "capacitaciones/Reciclaje.md",
+        "capacitaciones/Reciclaje.metadata.json",
+        "capacitaciones/Reciclaje.pages.json",
+        "capacitaciones/Reciclaje.ocr.json",
+        "capacitaciones/Reciclaje.tables.json",
+        "capacitaciones/Reciclaje.forms.json"
+      ],
+      "schema_version": "2.0",
+      "source_hash": "6a569d111f7cce6f46b9ba7b0bcc53f50e5bc6f6e9fedf396e868f91404a7408",
+      "source_relpath": "capacitaciones/Reciclaje.md"
+    },
+    {
+      "artifact_hashes": [
+        {
+          "byte_size": 4054,
+          "relpath": "capacitaciones/Residuos de aparatos eléctricos y electrónicos.md",
+          "schema_version": "2.0",
+          "sha256": "e7d2a6079256948dcb8240be678979aefa850b1468eeca849838722a7d4c1d4f"
+        },
+        {
+          "byte_size": 4345,
+          "relpath": "capacitaciones/Residuos de aparatos eléctricos y electrónicos.metadata.json",
+          "schema_version": "2.0",
+          "sha256": "33f18af0259c03d176bfe17e754d051fef28db68327875c347e892ebf5b13abd"
+        },
+        {
+          "byte_size": 8278,
+          "relpath": "capacitaciones/Residuos de aparatos eléctricos y electrónicos.pages.json",
+          "schema_version": "2.0",
+          "sha256": "d02d5a65f71e0321558c392a89e84cbf6d01917b82cb7752ee6ac524daf5652a"
+        },
+        {
+          "byte_size": 427,
+          "relpath": "capacitaciones/Residuos de aparatos eléctricos y electrónicos.ocr.json",
+          "schema_version": "2.0",
+          "sha256": "45ef79c00b74b0129011d1c789d8c04a362d2b5913764cb0148b81e62305da48"
+        },
+        {
+          "byte_size": 377,
+          "relpath": "capacitaciones/Residuos de aparatos eléctricos y electrónicos.tables.json",
+          "schema_version": "2.0",
+          "sha256": "868a3ef3e59a4e650c9b8868ab5da2c6e80fc5a45daebca09eafd1d439dc3d8f"
+        },
+        {
+          "byte_size": 356,
+          "relpath": "capacitaciones/Residuos de aparatos eléctricos y electrónicos.forms.json",
+          "schema_version": "2.0",
+          "sha256": "00d3ab4e4ee6b6e53dc8053cb0b46a9bfd0e37bf39ffbe7136cf989097452b5d"
+        }
+      ],
+      "document_id": "doc_6917cc0b88b7fcda",
+      "document_status": "processed",
+      "normalized_base": "capacitaciones/Residuos de aparatos eléctricos y electrónicos",
+      "processing_fingerprint": "1eba6ef3f581be213896fe1f317c9c80cdbd9304a6c4f6733257036e6184914d",
+      "required_artifacts": [
+        "capacitaciones/Residuos de aparatos eléctricos y electrónicos.md",
+        "capacitaciones/Residuos de aparatos eléctricos y electrónicos.metadata.json",
+        "capacitaciones/Residuos de aparatos eléctricos y electrónicos.pages.json",
+        "capacitaciones/Residuos de aparatos eléctricos y electrónicos.ocr.json",
+        "capacitaciones/Residuos de aparatos eléctricos y electrónicos.tables.json",
+        "capacitaciones/Residuos de aparatos eléctricos y electrónicos.forms.json"
+      ],
+      "schema_version": "2.0",
+      "source_hash": "293073302f29d40830daaa577331920f53fb889f6cf25b12c84bf8d9164c9fd1",
+      "source_relpath": "capacitaciones/Residuos de aparatos eléctricos y electrónicos.md"
+    },
+    {
+      "artifact_hashes": [
+        {
+          "byte_size": 631,
+          "relpath": "capacitaciones/Tips para ahorrar energía.md",
+          "schema_version": "2.0",
+          "sha256": "5ca579d36714759a11d9ea92483efcad4710e412a2c8a4068bd0837534534060"
+        },
+        {
+          "byte_size": 4293,
+          "relpath": "capacitaciones/Tips para ahorrar energía.metadata.json",
+          "schema_version": "2.0",
+          "sha256": "5d2ee4a30dac05afc34f8f883f2a302bfafbcf7bfaeb59ad8f757f17fe09859a"
+        },
+        {
+          "byte_size": 1389,
+          "relpath": "capacitaciones/Tips para ahorrar energía.pages.json",
+          "schema_version": "2.0",
+          "sha256": "f5ded67c13ebc806ce8f8eae63d3cb55b15b9e9f0c0c0ea279ed2ed79d5f00d9"
+        },
+        {
+          "byte_size": 427,
+          "relpath": "capacitaciones/Tips para ahorrar energía.ocr.json",
+          "schema_version": "2.0",
+          "sha256": "c9b2fb994d3fd6dd9b1215fd8744ae2c46acd84cdead9df48ff7242ae32dae4a"
+        },
+        {
+          "byte_size": 377,
+          "relpath": "capacitaciones/Tips para ahorrar energía.tables.json",
+          "schema_version": "2.0",
+          "sha256": "daa691d249a12383cecfffe2eebfe99e0201217c2d115c4ee35d9bc1461b7f5b"
+        },
+        {
+          "byte_size": 356,
+          "relpath": "capacitaciones/Tips para ahorrar energía.forms.json",
+          "schema_version": "2.0",
+          "sha256": "8fcefcb92c9569eff46f3f2322b5739913c46f4e65de081df6d8b1c117bec516"
+        }
+      ],
+      "document_id": "doc_97e1bb5aebb37fe8",
+      "document_status": "needs_review",
+      "normalized_base": "capacitaciones/Tips para ahorrar energía",
+      "processing_fingerprint": "1eba6ef3f581be213896fe1f317c9c80cdbd9304a6c4f6733257036e6184914d",
+      "required_artifacts": [
+        "capacitaciones/Tips para ahorrar energía.md",
+        "capacitaciones/Tips para ahorrar energía.metadata.json",
+        "capacitaciones/Tips para ahorrar energía.pages.json",
+        "capacitaciones/Tips para ahorrar energía.ocr.json",
+        "capacitaciones/Tips para ahorrar energía.tables.json",
+        "capacitaciones/Tips para ahorrar energía.forms.json"
+      ],
+      "schema_version": "2.0",
+      "source_hash": "0362b2c5975276385a2fd5c6852886c702a430820af2a65fbe56841cf2e2c6d8",
+      "source_relpath": "capacitaciones/Tips para ahorrar energía.md"
+    },
+    {
+      "artifact_hashes": [
+        {
+          "byte_size": 1047,
+          "relpath": "capacitaciones/Uso eficiente de la energía.md",
+          "schema_version": "2.0",
+          "sha256": "eec2918b2c42ab650b7d99e05dc6965860f3bb6268afbb0c2e106012df865486"
+        },
+        {
+          "byte_size": 4299,
+          "relpath": "capacitaciones/Uso eficiente de la energía.metadata.json",
+          "schema_version": "2.0",
+          "sha256": "712dfd30c4501ddf40a345b13a92ad7ff2eee258be3cba6a79a304d35700e64d"
+        },
+        {
+          "byte_size": 2264,
+          "relpath": "capacitaciones/Uso eficiente de la energía.pages.json",
+          "schema_version": "2.0",
+          "sha256": "1a41dcf4e6f6db5ad63fc49a953d34f7d45d64df8cd4945b330dd49214fe85d3"
+        },
+        {
+          "byte_size": 427,
+          "relpath": "capacitaciones/Uso eficiente de la energía.ocr.json",
+          "schema_version": "2.0",
+          "sha256": "ce82cad49e9bf67486cc873184219468ec4f1321041d8aba8e1aeeac05a178e4"
+        },
+        {
+          "byte_size": 377,
+          "relpath": "capacitaciones/Uso eficiente de la energía.tables.json",
+          "schema_version": "2.0",
+          "sha256": "a971808f0f34f17c545a726c088a7e7a37c3d87e8f8b7eec1faa9a0bcd6a800a"
+        },
+        {
+          "byte_size": 356,
+          "relpath": "capacitaciones/Uso eficiente de la energía.forms.json",
+          "schema_version": "2.0",
+          "sha256": "55169451d804a234a5f0ecdb9da896bdba379c39c515ba5f912e4a7dc969c662"
+        }
+      ],
+      "document_id": "doc_0510002810bb345b",
+      "document_status": "needs_review",
+      "normalized_base": "capacitaciones/Uso eficiente de la energía",
+      "processing_fingerprint": "1eba6ef3f581be213896fe1f317c9c80cdbd9304a6c4f6733257036e6184914d",
+      "required_artifacts": [
+        "capacitaciones/Uso eficiente de la energía.md",
+        "capacitaciones/Uso eficiente de la energía.metadata.json",
+        "capacitaciones/Uso eficiente de la energía.pages.json",
+        "capacitaciones/Uso eficiente de la energía.ocr.json",
+        "capacitaciones/Uso eficiente de la energía.tables.json",
+        "capacitaciones/Uso eficiente de la energía.forms.json"
+      ],
+      "schema_version": "2.0",
+      "source_hash": "70104faeb0ba721376d4c1cd6143cd8863fe27953e856cb77c9e993682df8265",
+      "source_relpath": "capacitaciones/Uso eficiente de la energía.md"
+    },
+    {
+      "artifact_hashes": [
+        {
+          "byte_size": 65779,
+          "relpath": "planes/1777902715340_syc_Planempresarialdeges.md",
+          "schema_version": "2.0",
+          "sha256": "9b68be7dc0039fae2785e6f41afd4a98e67fda094bb58ad18b948331a5c353f0"
+        },
+        {
+          "byte_size": 18352,
+          "relpath": "planes/1777902715340_syc_Planempresarialdeges.metadata.json",
+          "schema_version": "2.0",
+          "sha256": "0241fb51c1e9455b1c7fd3e195a8dea2b322b03f7311d809340218616f2cf8b6"
+        },
+        {
+          "byte_size": 2553280,
+          "relpath": "planes/1777902715340_syc_Planempresarialdeges.pages.json",
+          "schema_version": "2.0",
+          "sha256": "7a16fc9c4e8fbfb50bc6e2cba7a60343937a5513ebe6ff3f585705d103f10f0c"
+        },
+        {
+          "byte_size": 10312,
+          "relpath": "planes/1777902715340_syc_Planempresarialdeges.ocr.json",
+          "schema_version": "2.0",
+          "sha256": "74c90d34d9b9e6a4a5521e51f32e3ebc135ae6d6e2becf9134379c27191a2090"
+        },
+        {
+          "byte_size": 881183,
+          "relpath": "planes/1777902715340_syc_Planempresarialdeges.tables.json",
+          "schema_version": "2.0",
+          "sha256": "d084010ce9d5d70dcc74a07f07d33e9182a86ca433723b25ec6e8228e05dd604"
+        },
+        {
+          "byte_size": 5453,
+          "relpath": "planes/1777902715340_syc_Planempresarialdeges.forms.json",
+          "schema_version": "2.0",
+          "sha256": "79ea3f54cb8d436790d0df91598a1f9743ea497ffb319266517fb13a66b58a3b"
+        }
+      ],
+      "document_id": "doc_ace51beec98e07b9",
+      "document_status": "needs_review",
+      "normalized_base": "planes/1777902715340_syc_Planempresarialdeges",
+      "processing_fingerprint": "1eba6ef3f581be213896fe1f317c9c80cdbd9304a6c4f6733257036e6184914d",
+      "required_artifacts": [
+        "planes/1777902715340_syc_Planempresarialdeges.md",
+        "planes/1777902715340_syc_Planempresarialdeges.metadata.json",
+        "planes/1777902715340_syc_Planempresarialdeges.pages.json",
+        "planes/1777902715340_syc_Planempresarialdeges.ocr.json",
+        "planes/1777902715340_syc_Planempresarialdeges.tables.json",
+        "planes/1777902715340_syc_Planempresarialdeges.forms.json"
+      ],
+      "schema_version": "2.0",
+      "source_hash": "eb9af5ddc5e91b4b2a1cf5910e0f5169eb2e8011ae47b42d616839fc5d7ce851",
+      "source_relpath": "planes/1777902715340_syc_Planempresarialdeges.pdf"
+    },
+    {
+      "artifact_hashes": [
+        {
+          "byte_size": 65319,
+          "relpath": "planes/1777902724388_syc_Plandegestinintegral.md",
+          "schema_version": "2.0",
+          "sha256": "5656960e39da2759fcc6d2b7801b4201986f9507d48e6d471c05cec3c77e0201"
+        },
+        {
+          "byte_size": 18977,
+          "relpath": "planes/1777902724388_syc_Plandegestinintegral.metadata.json",
+          "schema_version": "2.0",
+          "sha256": "7b6924029f6058928b344831a7a135d55ed16dde41bb2adf508964e11d898458"
+        },
+        {
+          "byte_size": 3140386,
+          "relpath": "planes/1777902724388_syc_Plandegestinintegral.pages.json",
+          "schema_version": "2.0",
+          "sha256": "52083a9173536e5bdb2db0e939f9a38caea07f8ce679e00476ae756ac1bcaf3c"
+        },
+        {
+          "byte_size": 52925,
+          "relpath": "planes/1777902724388_syc_Plandegestinintegral.ocr.json",
+          "schema_version": "2.0",
+          "sha256": "4b437caa82812275373e6754cb9323d386dc8f547e95f6b58d1092f1b5ab80b3"
+        },
+        {
+          "byte_size": 1020024,
+          "relpath": "planes/1777902724388_syc_Plandegestinintegral.tables.json",
+          "schema_version": "2.0",
+          "sha256": "6a2dcfde3c786426fef879e9129226148bf3354f1b0ef015ed3afa11342176a3"
+        },
+        {
+          "byte_size": 5256,
+          "relpath": "planes/1777902724388_syc_Plandegestinintegral.forms.json",
+          "schema_version": "2.0",
+          "sha256": "02d3600362ec9178f66182980ce9c7f3441e92ddab5cd54294906ed83a7e2ccf"
+        }
+      ],
+      "document_id": "doc_bf47bc9038d92f95",
+      "document_status": "processed",
+      "normalized_base": "planes/1777902724388_syc_Plandegestinintegral",
+      "processing_fingerprint": "1eba6ef3f581be213896fe1f317c9c80cdbd9304a6c4f6733257036e6184914d",
+      "required_artifacts": [
+        "planes/1777902724388_syc_Plandegestinintegral.md",
+        "planes/1777902724388_syc_Plandegestinintegral.metadata.json",
+        "planes/1777902724388_syc_Plandegestinintegral.pages.json",
+        "planes/1777902724388_syc_Plandegestinintegral.ocr.json",
+        "planes/1777902724388_syc_Plandegestinintegral.tables.json",
+        "planes/1777902724388_syc_Plandegestinintegral.forms.json"
+      ],
+      "schema_version": "2.0",
+      "source_hash": "9fd90e3bfe77894cc4461569d19e1b3c662612e7a5894abb90ccf6c14c6af84d",
+      "source_relpath": "planes/1777902724388_syc_Plandegestinintegral.pdf"
+    },
+    {
+      "artifact_hashes": [
+        {
+          "byte_size": 2009,
+          "relpath": "planes/Plan de gestión integral de residuos sólidos.md",
+          "schema_version": "2.0",
+          "sha256": "a3e7f09b52027a2619f0d6c2e19aa6af11a86b70288e4e9745817f4778b8dce6"
+        },
+        {
+          "byte_size": 4190,
+          "relpath": "planes/Plan de gestión integral de residuos sólidos.metadata.json",
+          "schema_version": "2.0",
+          "sha256": "5e09c35df54f503beb4f9c805c4fc94bc798155730917e4597556921297a910d"
+        },
+        {
+          "byte_size": 4181,
+          "relpath": "planes/Plan de gestión integral de residuos sólidos.pages.json",
+          "schema_version": "2.0",
+          "sha256": "ff909da711c0b04d9aca9b0fdcf98a3e02d4bb00778f690b5e98d4268de62879"
+        },
+        {
+          "byte_size": 427,
+          "relpath": "planes/Plan de gestión integral de residuos sólidos.ocr.json",
+          "schema_version": "2.0",
+          "sha256": "f16a50f8bfd2af02e5ee6622a7b01e737aa54f6adc5f5e10d535a05ec6c26e21"
+        },
+        {
+          "byte_size": 377,
+          "relpath": "planes/Plan de gestión integral de residuos sólidos.tables.json",
+          "schema_version": "2.0",
+          "sha256": "5fac25e747a72dc93117f35ddc8e9906a1a5c2000c73b04b9c670eba06c1cd79"
+        },
+        {
+          "byte_size": 356,
+          "relpath": "planes/Plan de gestión integral de residuos sólidos.forms.json",
+          "schema_version": "2.0",
+          "sha256": "89343a6b0717153fd0432c5999b8658d9351a2d89b18604721a768c099ed2d4b"
+        }
+      ],
+      "document_id": "doc_8c7832d7681358f7",
+      "document_status": "processed",
+      "normalized_base": "planes/Plan de gestión integral de residuos sólidos",
+      "processing_fingerprint": "1eba6ef3f581be213896fe1f317c9c80cdbd9304a6c4f6733257036e6184914d",
+      "required_artifacts": [
+        "planes/Plan de gestión integral de residuos sólidos.md",
+        "planes/Plan de gestión integral de residuos sólidos.metadata.json",
+        "planes/Plan de gestión integral de residuos sólidos.pages.json",
+        "planes/Plan de gestión integral de residuos sólidos.ocr.json",
+        "planes/Plan de gestión integral de residuos sólidos.tables.json",
+        "planes/Plan de gestión integral de residuos sólidos.forms.json"
+      ],
+      "schema_version": "2.0",
+      "source_hash": "ce6bbcbcbcca7d5bcc2b0cc6364e125748dfc0ba3d75b3f78e0fa2ab46452c2d",
+      "source_relpath": "planes/Plan de gestión integral de residuos sólidos.md"
+    },
+    {
+      "artifact_hashes": [
+        {
+          "byte_size": 2476,
+          "relpath": "planes/Plan empresarial de gestión ambiental.md",
+          "schema_version": "2.0",
+          "sha256": "fff8e4da768a38fba48582a292740900567b761a2bdbe5d4841b5a01db3bac45"
+        },
+        {
+          "byte_size": 4158,
+          "relpath": "planes/Plan empresarial de gestión ambiental.metadata.json",
+          "schema_version": "2.0",
+          "sha256": "2580da0238798dbbad4f9a6927c972c83dc78ac6c7dd53c82f9fbf308893eb5d"
+        },
+        {
+          "byte_size": 5144,
+          "relpath": "planes/Plan empresarial de gestión ambiental.pages.json",
+          "schema_version": "2.0",
+          "sha256": "c84fce25b3ab660dd78644777f50d08a8343cb3c69cf384e0c3edae14ca079e1"
+        },
+        {
+          "byte_size": 427,
+          "relpath": "planes/Plan empresarial de gestión ambiental.ocr.json",
+          "schema_version": "2.0",
+          "sha256": "96939560c832b35c0dd951cb6c766ac0ec55cb23c493b35c23559552a088990f"
+        },
+        {
+          "byte_size": 377,
+          "relpath": "planes/Plan empresarial de gestión ambiental.tables.json",
+          "schema_version": "2.0",
+          "sha256": "f4c0044b59eb3eaf04a2b6e96ae9a3ca8e57e20655f4881aed129ee7d0edcbc0"
+        },
+        {
+          "byte_size": 356,
+          "relpath": "planes/Plan empresarial de gestión ambiental.forms.json",
+          "schema_version": "2.0",
+          "sha256": "787ed6d5626b9629c3ab6a054db8f98935c565ea4da30a67bf2dc765143f6aef"
+        }
+      ],
+      "document_id": "doc_2e4c7a58fcc01140",
+      "document_status": "processed",
+      "normalized_base": "planes/Plan empresarial de gestión ambiental",
+      "processing_fingerprint": "1eba6ef3f581be213896fe1f317c9c80cdbd9304a6c4f6733257036e6184914d",
+      "required_artifacts": [
+        "planes/Plan empresarial de gestión ambiental.md",
+        "planes/Plan empresarial de gestión ambiental.metadata.json",
+        "planes/Plan empresarial de gestión ambiental.pages.json",
+        "planes/Plan empresarial de gestión ambiental.ocr.json",
+        "planes/Plan empresarial de gestión ambiental.tables.json",
+        "planes/Plan empresarial de gestión ambiental.forms.json"
+      ],
+      "schema_version": "2.0",
+      "source_hash": "24eeba608224fcb9256dfc9233bbedd30a7d0a0b5bf221c12c63fc7b047f57db",
+      "source_relpath": "planes/Plan empresarial de gestión ambiental.md"
+    },
+    {
+      "artifact_hashes": [
+        {
+          "byte_size": 7599,
+          "relpath": "politicas/1771356455856_syc_Polticaambiental.md",
+          "schema_version": "2.0",
+          "sha256": "9757b626b401e80af36be2a3055b8f786ba2f18161aa9faf332d61d22cee10aa"
+        },
+        {
+          "byte_size": 6971,
+          "relpath": "politicas/1771356455856_syc_Polticaambiental.metadata.json",
+          "schema_version": "2.0",
+          "sha256": "b65e5a07045aedef8febe0ddbb1c80eb0fbf7ef1099c729a99bd3c4a997a8faf"
+        },
+        {
+          "byte_size": 328914,
+          "relpath": "politicas/1771356455856_syc_Polticaambiental.pages.json",
+          "schema_version": "2.0",
+          "sha256": "bfcbd4f9d524a58a7b50d8a9c510556eb3a6bb48f900eeddb14fdab8c8586ea4"
+        },
+        {
+          "byte_size": 427,
+          "relpath": "politicas/1771356455856_syc_Polticaambiental.ocr.json",
+          "schema_version": "2.0",
+          "sha256": "00673d4e20ce38541cf1b67b7a340a00198f6ae7dd2941df9ea20f9710ecc0e3"
+        },
+        {
+          "byte_size": 57484,
+          "relpath": "politicas/1771356455856_syc_Polticaambiental.tables.json",
+          "schema_version": "2.0",
+          "sha256": "a24ee3b636e8438ce8a4b453a5687da2be44de100605b4bed3ba8646940df1fe"
+        },
+        {
+          "byte_size": 922,
+          "relpath": "politicas/1771356455856_syc_Polticaambiental.forms.json",
+          "schema_version": "2.0",
+          "sha256": "77950b4cbf3f1aeff22931cd2652bc0363c0fe9bd132ba8e600d18e465664558"
+        }
+      ],
+      "document_id": "doc_0f5176bc29b5e037",
+      "document_status": "processed",
+      "normalized_base": "politicas/1771356455856_syc_Polticaambiental",
+      "processing_fingerprint": "1eba6ef3f581be213896fe1f317c9c80cdbd9304a6c4f6733257036e6184914d",
+      "required_artifacts": [
+        "politicas/1771356455856_syc_Polticaambiental.md",
+        "politicas/1771356455856_syc_Polticaambiental.metadata.json",
+        "politicas/1771356455856_syc_Polticaambiental.pages.json",
+        "politicas/1771356455856_syc_Polticaambiental.ocr.json",
+        "politicas/1771356455856_syc_Polticaambiental.tables.json",
+        "politicas/1771356455856_syc_Polticaambiental.forms.json"
+      ],
+      "schema_version": "2.0",
+      "source_hash": "b215195798c28ff0ad9b97f2f8fcbfbac7dbdc37ac450203c82478bf684a580c",
+      "source_relpath": "politicas/1771356455856_syc_Polticaambiental.pdf"
+    },
+    {
+      "artifact_hashes": [
+        {
+          "byte_size": 9916,
+          "relpath": "politicas/1771356568966_syc_Polticadesostenibili.md",
+          "schema_version": "2.0",
+          "sha256": "3043139ff1670a0bcdc54047dc413a8558fd6e4858f82c19ee2d4514e55d4524"
+        },
+        {
+          "byte_size": 7051,
+          "relpath": "politicas/1771356568966_syc_Polticadesostenibili.metadata.json",
+          "schema_version": "2.0",
+          "sha256": "5cd8917d7afcdf1b414b4c9bc7e9d2cbf0db127edfa39e82ca2e41f0bfd3e182"
+        },
+        {
+          "byte_size": 361235,
+          "relpath": "politicas/1771356568966_syc_Polticadesostenibili.pages.json",
+          "schema_version": "2.0",
+          "sha256": "b17f6f488f157300993aadd5f7b5aaf683429e1d855c637a1217db14a489dc11"
+        },
+        {
+          "byte_size": 427,
+          "relpath": "politicas/1771356568966_syc_Polticadesostenibili.ocr.json",
+          "schema_version": "2.0",
+          "sha256": "a367e343bfe06118db3226efdb1593bd7fe7744344130ddbd6616461ce1b7e22"
+        },
+        {
+          "byte_size": 57724,
+          "relpath": "politicas/1771356568966_syc_Polticadesostenibili.tables.json",
+          "schema_version": "2.0",
+          "sha256": "0d42a17630592bc2e5506b6ff0a51698076790df9cca84272bdf3b200b6fd051"
+        },
+        {
+          "byte_size": 922,
+          "relpath": "politicas/1771356568966_syc_Polticadesostenibili.forms.json",
+          "schema_version": "2.0",
+          "sha256": "b6abc995a8b5d2ac00126c0e608b9b6356e61c4165ac3b03317d14a87863d430"
+        }
+      ],
+      "document_id": "doc_45b68b1c2cbaeb13",
+      "document_status": "processed",
+      "normalized_base": "politicas/1771356568966_syc_Polticadesostenibili",
+      "processing_fingerprint": "1eba6ef3f581be213896fe1f317c9c80cdbd9304a6c4f6733257036e6184914d",
+      "required_artifacts": [
+        "politicas/1771356568966_syc_Polticadesostenibili.md",
+        "politicas/1771356568966_syc_Polticadesostenibili.metadata.json",
+        "politicas/1771356568966_syc_Polticadesostenibili.pages.json",
+        "politicas/1771356568966_syc_Polticadesostenibili.ocr.json",
+        "politicas/1771356568966_syc_Polticadesostenibili.tables.json",
+        "politicas/1771356568966_syc_Polticadesostenibili.forms.json"
+      ],
+      "schema_version": "2.0",
+      "source_hash": "d51b0d3fdd4a2582fe4db389accfd7cca1d57a6e05db2d2be7a8de7a5be971b0",
+      "source_relpath": "politicas/1771356568966_syc_Polticadesostenibili.pdf"
+    },
+    {
+      "artifact_hashes": [
+        {
+          "byte_size": 10902,
+          "relpath": "politicas/1771356588537_syc_Polticadeusoracional.md",
+          "schema_version": "2.0",
+          "sha256": "c94980dbfb919523814218bfe0f31c10127e81d6f14792b8791ceb4020892342"
+        },
+        {
+          "byte_size": 7638,
+          "relpath": "politicas/1771356588537_syc_Polticadeusoracional.metadata.json",
+          "schema_version": "2.0",
+          "sha256": "df76290374af9ca4841861355c56210effc876810e9c455dd6ff34c7a26022bb"
+        },
+        {
+          "byte_size": 407381,
+          "relpath": "politicas/1771356588537_syc_Polticadeusoracional.pages.json",
+          "schema_version": "2.0",
+          "sha256": "010735b86c5d3ce319d350c79750035e530d642274664dec999198ec11dabdf0"
+        },
+        {
+          "byte_size": 427,
+          "relpath": "politicas/1771356588537_syc_Polticadeusoracional.ocr.json",
+          "schema_version": "2.0",
+          "sha256": "beb886d763e3c1e77744ddac730cbaa5a5fd55186c270557588f95fad9b057c1"
+        },
+        {
+          "byte_size": 74467,
+          "relpath": "politicas/1771356588537_syc_Polticadeusoracional.tables.json",
+          "schema_version": "2.0",
+          "sha256": "50c73416417dca5de480621ec29228b1d6be86f7398c276ded8e35c2a9ae0ed1"
+        },
+        {
+          "byte_size": 1119,
+          "relpath": "politicas/1771356588537_syc_Polticadeusoracional.forms.json",
+          "schema_version": "2.0",
+          "sha256": "8cb9e6a6ff02629f868bd07fc787c09cbcf88b834e06e8722bf47fa78a90e83f"
+        }
+      ],
+      "document_id": "doc_2d7a784439db3c7b",
+      "document_status": "processed",
+      "normalized_base": "politicas/1771356588537_syc_Polticadeusoracional",
+      "processing_fingerprint": "1eba6ef3f581be213896fe1f317c9c80cdbd9304a6c4f6733257036e6184914d",
+      "required_artifacts": [
+        "politicas/1771356588537_syc_Polticadeusoracional.md",
+        "politicas/1771356588537_syc_Polticadeusoracional.metadata.json",
+        "politicas/1771356588537_syc_Polticadeusoracional.pages.json",
+        "politicas/1771356588537_syc_Polticadeusoracional.ocr.json",
+        "politicas/1771356588537_syc_Polticadeusoracional.tables.json",
+        "politicas/1771356588537_syc_Polticadeusoracional.forms.json"
+      ],
+      "schema_version": "2.0",
+      "source_hash": "206c78f1afb789e8e7b6ce904573d8cbafff631ae7ad1ded00d0d5f34c589e62",
+      "source_relpath": "politicas/1771356588537_syc_Polticadeusoracional.pdf"
+    },
+    {
+      "artifact_hashes": [
+        {
+          "byte_size": 7056,
+          "relpath": "politicas/1771356600063_syc_Polticadecomprassostenibles.md",
+          "schema_version": "2.0",
+          "sha256": "029fe20d8e11f219620fbb85eeaa530ec21224f53b91cab4a97e17704bb64ffb"
+        },
+        {
+          "byte_size": 7170,
+          "relpath": "politicas/1771356600063_syc_Polticadecomprassostenibles.metadata.json",
+          "schema_version": "2.0",
+          "sha256": "742a7e3a673ee4bcf2a8ed08e7861ff9d90da8aaa2f4f6cd4ea3e9b39de2361e"
+        },
+        {
+          "byte_size": 305683,
+          "relpath": "politicas/1771356600063_syc_Polticadecomprassostenibles.pages.json",
+          "schema_version": "2.0",
+          "sha256": "a3acfdff46f2fc8fa5bc919845aeb3688b8a4a85a344a1c9625c6103d77eca83"
+        },
+        {
+          "byte_size": 427,
+          "relpath": "politicas/1771356600063_syc_Polticadecomprassostenibles.ocr.json",
+          "schema_version": "2.0",
+          "sha256": "d8b7384794e281232eae689d44f50be94eef20cda8f0ee8ce98ab5b6c321afc3"
+        },
+        {
+          "byte_size": 57640,
+          "relpath": "politicas/1771356600063_syc_Polticadecomprassostenibles.tables.json",
+          "schema_version": "2.0",
+          "sha256": "90a114716b7f471d38d8055ddc2ce3c25340637fdb3dd420d9ff5626d3d03cb6"
+        },
+        {
+          "byte_size": 922,
+          "relpath": "politicas/1771356600063_syc_Polticadecomprassostenibles.forms.json",
+          "schema_version": "2.0",
+          "sha256": "093b1cda63c0bd105d804a9590f89c15173ae75214333a9e462c629288d4a93e"
+        }
+      ],
+      "document_id": "doc_0386b0d21b0f6c81",
+      "document_status": "processed",
+      "normalized_base": "politicas/1771356600063_syc_Polticadecomprassostenibles",
+      "processing_fingerprint": "1eba6ef3f581be213896fe1f317c9c80cdbd9304a6c4f6733257036e6184914d",
+      "required_artifacts": [
+        "politicas/1771356600063_syc_Polticadecomprassostenibles.md",
+        "politicas/1771356600063_syc_Polticadecomprassostenibles.metadata.json",
+        "politicas/1771356600063_syc_Polticadecomprassostenibles.pages.json",
+        "politicas/1771356600063_syc_Polticadecomprassostenibles.ocr.json",
+        "politicas/1771356600063_syc_Polticadecomprassostenibles.tables.json",
+        "politicas/1771356600063_syc_Polticadecomprassostenibles.forms.json"
+      ],
+      "schema_version": "2.0",
+      "source_hash": "d969f48343a76ce8ce56d6406ada9de6683244f26ad7520bcd8e0a21799c0a74",
+      "source_relpath": "politicas/1771356600063_syc_Polticadecomprassostenibles.pdf"
+    },
+    {
+      "artifact_hashes": [
+        {
+          "byte_size": 705,
+          "relpath": "politicas/Política ambiental.md",
+          "schema_version": "2.0",
+          "sha256": "881c8f4a2e8d845a024e3e859643fa3856c349c47a47c760ec3fcc3647565dfc"
+        },
+        {
+          "byte_size": 4069,
+          "relpath": "politicas/Política ambiental.metadata.json",
+          "schema_version": "2.0",
+          "sha256": "eb962bc2a73d72ca087171d7928d1656d611739a24686ee1f6030b04ccd5b3ba"
+        },
+        {
+          "byte_size": 1589,
+          "relpath": "politicas/Política ambiental.pages.json",
+          "schema_version": "2.0",
+          "sha256": "a5bec063ad3da75e45dae35cf78a3ea1fd312e13b1d8eec5efbb76a6e7bb72af"
+        },
+        {
+          "byte_size": 427,
+          "relpath": "politicas/Política ambiental.ocr.json",
+          "schema_version": "2.0",
+          "sha256": "07a60281af40bf6548d3dda4c7e9cae06076624c9b6daa8f4acbe3d27990354c"
+        },
+        {
+          "byte_size": 377,
+          "relpath": "politicas/Política ambiental.tables.json",
+          "schema_version": "2.0",
+          "sha256": "c459140588332033ef3238aaeb00476bd17f2020433716b2c1e588d28cc3d7ef"
+        },
+        {
+          "byte_size": 356,
+          "relpath": "politicas/Política ambiental.forms.json",
+          "schema_version": "2.0",
+          "sha256": "c91b4c442566e60035feea8ca577ba142e8ecd2dd33ef2dc85c42e3ed8c1fa7b"
+        }
+      ],
+      "document_id": "doc_46ac6f9db922a5a4",
+      "document_status": "processed",
+      "normalized_base": "politicas/Política ambiental",
+      "processing_fingerprint": "1eba6ef3f581be213896fe1f317c9c80cdbd9304a6c4f6733257036e6184914d",
+      "required_artifacts": [
+        "politicas/Política ambiental.md",
+        "politicas/Política ambiental.metadata.json",
+        "politicas/Política ambiental.pages.json",
+        "politicas/Política ambiental.ocr.json",
+        "politicas/Política ambiental.tables.json",
+        "politicas/Política ambiental.forms.json"
+      ],
+      "schema_version": "2.0",
+      "source_hash": "ba5a2e8ecaf9fad90e5d7df63cf52a5516bfe630198a6f0454945454aa93ae8a",
+      "source_relpath": "politicas/Política ambiental.md"
+    },
+    {
+      "artifact_hashes": [
+        {
+          "byte_size": 582,
+          "relpath": "politicas/Política de compras sostenibles.md",
+          "schema_version": "2.0",
+          "sha256": "25f2f8ba5ea81d34411f2ef90d22299f259f859268698985cc23e5b1252f74e2"
+        },
+        {
+          "byte_size": 4127,
+          "relpath": "politicas/Política de compras sostenibles.metadata.json",
+          "schema_version": "2.0",
+          "sha256": "e4dc0cd99da4cb892a62b66eb7a6ccc87edf73bfbd611d886b5003af9dc83d68"
+        },
+        {
+          "byte_size": 1317,
+          "relpath": "politicas/Política de compras sostenibles.pages.json",
+          "schema_version": "2.0",
+          "sha256": "ed6e4c216f6950aa748aef729220fb5d44e3f606bd4e6d965c3bec6ae07eeae6"
+        },
+        {
+          "byte_size": 427,
+          "relpath": "politicas/Política de compras sostenibles.ocr.json",
+          "schema_version": "2.0",
+          "sha256": "16c12188b510f611d4175fcfefedea49c7145d8f27ff7d95015b98ffda6ae964"
+        },
+        {
+          "byte_size": 377,
+          "relpath": "politicas/Política de compras sostenibles.tables.json",
+          "schema_version": "2.0",
+          "sha256": "4beae6a446656c517ea87f3b683ec47ae4fb93f6c32f891ab69cf1c9212ca06c"
+        },
+        {
+          "byte_size": 356,
+          "relpath": "politicas/Política de compras sostenibles.forms.json",
+          "schema_version": "2.0",
+          "sha256": "6537c68e914b318a365f1c01a75eb101a9a8cb53fe3515c66167aa9b11a32250"
+        }
+      ],
+      "document_id": "doc_f3312aabdd639490",
+      "document_status": "processed",
+      "normalized_base": "politicas/Política de compras sostenibles",
+      "processing_fingerprint": "1eba6ef3f581be213896fe1f317c9c80cdbd9304a6c4f6733257036e6184914d",
+      "required_artifacts": [
+        "politicas/Política de compras sostenibles.md",
+        "politicas/Política de compras sostenibles.metadata.json",
+        "politicas/Política de compras sostenibles.pages.json",
+        "politicas/Política de compras sostenibles.ocr.json",
+        "politicas/Política de compras sostenibles.tables.json",
+        "politicas/Política de compras sostenibles.forms.json"
+      ],
+      "schema_version": "2.0",
+      "source_hash": "3a8c587bcb770cfcc696835e648a208edadfa8ef6e70334e13953ce6d601279f",
+      "source_relpath": "politicas/Política de compras sostenibles.md"
+    },
+    {
+      "artifact_hashes": [
+        {
+          "byte_size": 661,
+          "relpath": "politicas/Política de sostenibilidad corporativa.md",
+          "schema_version": "2.0",
+          "sha256": "dd2a6d341b2b0e0bf29f0a69cb391c3a9ca2bdfe280f0d706eb40eaaddbac333"
+        },
+        {
+          "byte_size": 4196,
+          "relpath": "politicas/Política de sostenibilidad corporativa.metadata.json",
+          "schema_version": "2.0",
+          "sha256": "9a0a9104a385813887f8bfbda812b2c7a4e71ea7e621ddd2acdeea5438f2126f"
+        },
+        {
+          "byte_size": 1469,
+          "relpath": "politicas/Política de sostenibilidad corporativa.pages.json",
+          "schema_version": "2.0",
+          "sha256": "ee708142fdf1981cb0351170924e0ba370196f8e3a9c3555d97c919cbad74409"
+        },
+        {
+          "byte_size": 427,
+          "relpath": "politicas/Política de sostenibilidad corporativa.ocr.json",
+          "schema_version": "2.0",
+          "sha256": "ad555be637a59ba77fd5d28f8d09e8153fc987a03a188a225f88f1adf0b0d797"
+        },
+        {
+          "byte_size": 377,
+          "relpath": "politicas/Política de sostenibilidad corporativa.tables.json",
+          "schema_version": "2.0",
+          "sha256": "f289676da714c3c8134e64c4560a10f03f8ceb955534433e0339ddc88ec1bbb5"
+        },
+        {
+          "byte_size": 356,
+          "relpath": "politicas/Política de sostenibilidad corporativa.forms.json",
+          "schema_version": "2.0",
+          "sha256": "f43530ff14856d7239f387ac50a9fa9bdcaeb7a2f0958f79433aafe546ddfa6f"
+        }
+      ],
+      "document_id": "doc_3260d6d61b3bdb58",
+      "document_status": "processed",
+      "normalized_base": "politicas/Política de sostenibilidad corporativa",
+      "processing_fingerprint": "1eba6ef3f581be213896fe1f317c9c80cdbd9304a6c4f6733257036e6184914d",
+      "required_artifacts": [
+        "politicas/Política de sostenibilidad corporativa.md",
+        "politicas/Política de sostenibilidad corporativa.metadata.json",
+        "politicas/Política de sostenibilidad corporativa.pages.json",
+        "politicas/Política de sostenibilidad corporativa.ocr.json",
+        "politicas/Política de sostenibilidad corporativa.tables.json",
+        "politicas/Política de sostenibilidad corporativa.forms.json"
+      ],
+      "schema_version": "2.0",
+      "source_hash": "c45421e1ccc589d41d28c6d54d8e04833dc18961c9f944e38423f946482ea389",
+      "source_relpath": "politicas/Política de sostenibilidad corporativa.md"
+    },
+    {
+      "artifact_hashes": [
+        {
+          "byte_size": 802,
+          "relpath": "politicas/Política de uso racional del papel, digitalización sostenible y transformación hacia procesos digitales.md",
+          "schema_version": "2.0",
+          "sha256": "d86b2e9e770dc8c4668095296598602d6bf4b3ca5e98583c1fd374912ee73439"
+        },
+        {
+          "byte_size": 4457,
+          "relpath": "politicas/Política de uso racional del papel, digitalización sostenible y transformación hacia procesos digitales.metadata.json",
+          "schema_version": "2.0",
+          "sha256": "29aa9fd309a7134cc67e2e0b6854bbb6110851e37d30a8c8388a8cfdcaa44697"
+        },
+        {
+          "byte_size": 1607,
+          "relpath": "politicas/Política de uso racional del papel, digitalización sostenible y transformación hacia procesos digitales.pages.json",
+          "schema_version": "2.0",
+          "sha256": "91ca5b17f4ad24dc3285e33e474fe461fffdab4dec52710b6ce704b4dcc79cc7"
+        },
+        {
+          "byte_size": 427,
+          "relpath": "politicas/Política de uso racional del papel, digitalización sostenible y transformación hacia procesos digitales.ocr.json",
+          "schema_version": "2.0",
+          "sha256": "f2db04bd998f5941c60458b9633de890acc928106d5b92b6a15f1f22a278dce6"
+        },
+        {
+          "byte_size": 377,
+          "relpath": "politicas/Política de uso racional del papel, digitalización sostenible y transformación hacia procesos digitales.tables.json",
+          "schema_version": "2.0",
+          "sha256": "a721dad1d133125f28f2530e22b92c385cc3b250644cea6c929bd41c934197c2"
+        },
+        {
+          "byte_size": 356,
+          "relpath": "politicas/Política de uso racional del papel, digitalización sostenible y transformación hacia procesos digitales.forms.json",
+          "schema_version": "2.0",
+          "sha256": "053017b2a180c096a2b95760a583a66e9a83de47fbc4fb7008ac4252d63ea8d8"
+        }
+      ],
+      "document_id": "doc_af91c2b002c6668d",
+      "document_status": "processed",
+      "normalized_base": "politicas/Política de uso racional del papel, digitalización sostenible y transformación hacia procesos digitales",
+      "processing_fingerprint": "1eba6ef3f581be213896fe1f317c9c80cdbd9304a6c4f6733257036e6184914d",
+      "required_artifacts": [
+        "politicas/Política de uso racional del papel, digitalización sostenible y transformación hacia procesos digitales.md",
+        "politicas/Política de uso racional del papel, digitalización sostenible y transformación hacia procesos digitales.metadata.json",
+        "politicas/Política de uso racional del papel, digitalización sostenible y transformación hacia procesos digitales.pages.json",
+        "politicas/Política de uso racional del papel, digitalización sostenible y transformación hacia procesos digitales.ocr.json",
+        "politicas/Política de uso racional del papel, digitalización sostenible y transformación hacia procesos digitales.tables.json",
+        "politicas/Política de uso racional del papel, digitalización sostenible y transformación hacia procesos digitales.forms.json"
+      ],
+      "schema_version": "2.0",
+      "source_hash": "a93af5697636d806aa13648985e4921a424e82ab41fbc60dd778f1679ea48fd9",
+      "source_relpath": "politicas/Política de uso racional del papel, digitalización sostenible y transformación hacia procesos digitales.md"
+    },
+    {
+      "artifact_hashes": [
+        {
+          "byte_size": 2053,
+          "relpath": "programas/Programa de acompañamiento a la sostenibilidad de terceros.md",
+          "schema_version": "2.0",
+          "sha256": "c95816614896c163a66464a7e50642d4fb3b48030f54616361dd43af5ed897ff"
+        },
+        {
+          "byte_size": 4240,
+          "relpath": "programas/Programa de acompañamiento a la sostenibilidad de terceros.metadata.json",
+          "schema_version": "2.0",
+          "sha256": "72c5b6c2357d53fca8dbf513b10228cfe20ee8bd186ae98158e183f98d023419"
+        },
+        {
+          "byte_size": 4246,
+          "relpath": "programas/Programa de acompañamiento a la sostenibilidad de terceros.pages.json",
+          "schema_version": "2.0",
+          "sha256": "180cca51c3716beae890ac254642384fc9f63de2fab0df7298b0363a20acbcda"
+        },
+        {
+          "byte_size": 427,
+          "relpath": "programas/Programa de acompañamiento a la sostenibilidad de terceros.ocr.json",
+          "schema_version": "2.0",
+          "sha256": "94e008b9cd89139ff509bebae0cc2964e8256ad12987e983f92a6ac95125f5d4"
+        },
+        {
+          "byte_size": 377,
+          "relpath": "programas/Programa de acompañamiento a la sostenibilidad de terceros.tables.json",
+          "schema_version": "2.0",
+          "sha256": "dfc0b4c22f29c98999054dbd55fd7b04b70d942b249fee94b8e0479f571a985b"
+        },
+        {
+          "byte_size": 356,
+          "relpath": "programas/Programa de acompañamiento a la sostenibilidad de terceros.forms.json",
+          "schema_version": "2.0",
+          "sha256": "ff00756fbc8e80eb116315bba44c128ea988dd07c4f66573f71890a282af1332"
+        }
+      ],
+      "document_id": "doc_e52393a39ccd98c4",
+      "document_status": "processed",
+      "normalized_base": "programas/Programa de acompañamiento a la sostenibilidad de terceros",
+      "processing_fingerprint": "1eba6ef3f581be213896fe1f317c9c80cdbd9304a6c4f6733257036e6184914d",
+      "required_artifacts": [
+        "programas/Programa de acompañamiento a la sostenibilidad de terceros.md",
+        "programas/Programa de acompañamiento a la sostenibilidad de terceros.metadata.json",
+        "programas/Programa de acompañamiento a la sostenibilidad de terceros.pages.json",
+        "programas/Programa de acompañamiento a la sostenibilidad de terceros.ocr.json",
+        "programas/Programa de acompañamiento a la sostenibilidad de terceros.tables.json",
+        "programas/Programa de acompañamiento a la sostenibilidad de terceros.forms.json"
+      ],
+      "schema_version": "2.0",
+      "source_hash": "aab5ab5bf7a504ad831ccd98991e1130891bc3ab5f5d785e66c62e05d32a35fd",
+      "source_relpath": "programas/Programa de acompañamiento a la sostenibilidad de terceros.md"
+    },
+    {
+      "artifact_hashes": [
+        {
+          "byte_size": 978,
+          "relpath": "programas/Programa de consumo sostenible.md",
+          "schema_version": "2.0",
+          "sha256": "46caa625089fd6a7cdea43cd9372eb057dcc00ecd17aea6afc5604da9d3e5d7d"
+        },
+        {
+          "byte_size": 4212,
+          "relpath": "programas/Programa de consumo sostenible.metadata.json",
+          "schema_version": "2.0",
+          "sha256": "bd974a9f53fca21f7fec6063d18fb7476878ddb7e33936ff4f6a6a7913802162"
+        },
+        {
+          "byte_size": 2129,
+          "relpath": "programas/Programa de consumo sostenible.pages.json",
+          "schema_version": "2.0",
+          "sha256": "2c797435d602ee62da57def1ad5a0bfb2abd929264c2451af714677c09dc8ea8"
+        },
+        {
+          "byte_size": 427,
+          "relpath": "programas/Programa de consumo sostenible.ocr.json",
+          "schema_version": "2.0",
+          "sha256": "596c7fad9546f81c73211a3cf62f55525901b5daa0e2f610e8567ad66917ea3f"
+        },
+        {
+          "byte_size": 377,
+          "relpath": "programas/Programa de consumo sostenible.tables.json",
+          "schema_version": "2.0",
+          "sha256": "5e43adfcff4d85105ef61aebfba47ebdf9517440bc75aae531c63acb2ec89650"
+        },
+        {
+          "byte_size": 356,
+          "relpath": "programas/Programa de consumo sostenible.forms.json",
+          "schema_version": "2.0",
+          "sha256": "a62623b15a2101e185f05f2134155f37b74106d55539380c3873c2c67c1b49e2"
+        }
+      ],
+      "document_id": "doc_7e9b90f520b6d4cd",
+      "document_status": "processed",
+      "normalized_base": "programas/Programa de consumo sostenible",
+      "processing_fingerprint": "1eba6ef3f581be213896fe1f317c9c80cdbd9304a6c4f6733257036e6184914d",
+      "required_artifacts": [
+        "programas/Programa de consumo sostenible.md",
+        "programas/Programa de consumo sostenible.metadata.json",
+        "programas/Programa de consumo sostenible.pages.json",
+        "programas/Programa de consumo sostenible.ocr.json",
+        "programas/Programa de consumo sostenible.tables.json",
+        "programas/Programa de consumo sostenible.forms.json"
+      ],
+      "schema_version": "2.0",
+      "source_hash": "62550b9a0466fecc1220609236803ad6419d3c9c12ce2a0d0a7777f53a5bdfcf",
+      "source_relpath": "programas/Programa de consumo sostenible.md"
+    },
+    {
+      "artifact_hashes": [
+        {
+          "byte_size": 1116,
+          "relpath": "programas/Programa de gestión de la huella de carbono.md",
+          "schema_version": "2.0",
+          "sha256": "5bdea48fcf423caa375475eef8824d8c33a7a173dcd553e7c1ff9773584ed2a1"
+        },
+        {
+          "byte_size": 4180,
+          "relpath": "programas/Programa de gestión de la huella de carbono.metadata.json",
+          "schema_version": "2.0",
+          "sha256": "52022570f9c0e545ca80583fbd28774fe7966b5dadbc2d0831b612ee055637e2"
+        },
+        {
+          "byte_size": 2371,
+          "relpath": "programas/Programa de gestión de la huella de carbono.pages.json",
+          "schema_version": "2.0",
+          "sha256": "422bb4a7adda346c77997e36f16f56fe68f975f133e185a258f8697082a3ff0e"
+        },
+        {
+          "byte_size": 427,
+          "relpath": "programas/Programa de gestión de la huella de carbono.ocr.json",
+          "schema_version": "2.0",
+          "sha256": "6216efe63c37bd1c8cea12df4092a8da5ba3af6ff499b6ee667691929375fe71"
+        },
+        {
+          "byte_size": 377,
+          "relpath": "programas/Programa de gestión de la huella de carbono.tables.json",
+          "schema_version": "2.0",
+          "sha256": "509f7a021e53e634f90afd9add4408aa09f25233ed194709f50a5420eaaf99a3"
+        },
+        {
+          "byte_size": 356,
+          "relpath": "programas/Programa de gestión de la huella de carbono.forms.json",
+          "schema_version": "2.0",
+          "sha256": "286c5e89712a79d3c1876dfde18006020def223d197dd7b68214e7e229790310"
+        }
+      ],
+      "document_id": "doc_9e5608de0a72a28f",
+      "document_status": "processed",
+      "normalized_base": "programas/Programa de gestión de la huella de carbono",
+      "processing_fingerprint": "1eba6ef3f581be213896fe1f317c9c80cdbd9304a6c4f6733257036e6184914d",
+      "required_artifacts": [
+        "programas/Programa de gestión de la huella de carbono.md",
+        "programas/Programa de gestión de la huella de carbono.metadata.json",
+        "programas/Programa de gestión de la huella de carbono.pages.json",
+        "programas/Programa de gestión de la huella de carbono.ocr.json",
+        "programas/Programa de gestión de la huella de carbono.tables.json",
+        "programas/Programa de gestión de la huella de carbono.forms.json"
+      ],
+      "schema_version": "2.0",
+      "source_hash": "ca33f3ae31ba04c766e464895fa43254bc8062ae87b924426d461acdfbb2d96a",
+      "source_relpath": "programas/Programa de gestión de la huella de carbono.md"
+    },
+    {
+      "artifact_hashes": [
+        {
+          "byte_size": 944,
+          "relpath": "programas/Programa de gestión integral de residuos sólidos.md",
+          "schema_version": "2.0",
+          "sha256": "58ed1abe014fdd984e44f2c0d9f4bf60cab6b74583982295cc5c08e74dcb0ea6"
+        },
+        {
+          "byte_size": 4204,
+          "relpath": "programas/Programa de gestión integral de residuos sólidos.metadata.json",
+          "schema_version": "2.0",
+          "sha256": "3826a994d426062af1efede01c3700088f7ae191058fd639de0114e72c4ef031"
+        },
+        {
+          "byte_size": 2017,
+          "relpath": "programas/Programa de gestión integral de residuos sólidos.pages.json",
+          "schema_version": "2.0",
+          "sha256": "f4c1829147bfe610636b383a500e0e96003d240143afae4306845f88572aff6b"
+        },
+        {
+          "byte_size": 427,
+          "relpath": "programas/Programa de gestión integral de residuos sólidos.ocr.json",
+          "schema_version": "2.0",
+          "sha256": "54c0069d9d05ccb7464146f00733a6efadca7b0d8a1577ba953a770c0dedce31"
+        },
+        {
+          "byte_size": 377,
+          "relpath": "programas/Programa de gestión integral de residuos sólidos.tables.json",
+          "schema_version": "2.0",
+          "sha256": "b8b706e063e89c8c3340790a05b2b9ec351f4738d74817f5e2ea63c4d35e8d98"
+        },
+        {
+          "byte_size": 356,
+          "relpath": "programas/Programa de gestión integral de residuos sólidos.forms.json",
+          "schema_version": "2.0",
+          "sha256": "bf4fc3cc85822557e5e2a5dcdae564305751a7348d000eb57fee00122373c808"
+        }
+      ],
+      "document_id": "doc_057fd61b6d2f82fa",
+      "document_status": "processed",
+      "normalized_base": "programas/Programa de gestión integral de residuos sólidos",
+      "processing_fingerprint": "1eba6ef3f581be213896fe1f317c9c80cdbd9304a6c4f6733257036e6184914d",
+      "required_artifacts": [
+        "programas/Programa de gestión integral de residuos sólidos.md",
+        "programas/Programa de gestión integral de residuos sólidos.metadata.json",
+        "programas/Programa de gestión integral de residuos sólidos.pages.json",
+        "programas/Programa de gestión integral de residuos sólidos.ocr.json",
+        "programas/Programa de gestión integral de residuos sólidos.tables.json",
+        "programas/Programa de gestión integral de residuos sólidos.forms.json"
+      ],
+      "schema_version": "2.0",
+      "source_hash": "b8f27bb6019fb9b663b8213c5ae7ca403e89901c7f24e375e908d39a86f2a4ab",
+      "source_relpath": "programas/Programa de gestión integral de residuos sólidos.md"
+    },
+    {
+      "artifact_hashes": [
+        {
+          "byte_size": 1010,
+          "relpath": "programas/Programa de restauración ecológica y siembra vida empresarial.md",
+          "schema_version": "2.0",
+          "sha256": "ce4dc86aa958a644150174ac65fe1bbb9a4a8cbb66faa4e58f8d4a12210c7cb8"
+        },
+        {
+          "byte_size": 4211,
+          "relpath": "programas/Programa de restauración ecológica y siembra vida empresarial.metadata.json",
+          "schema_version": "2.0",
+          "sha256": "9518a2b2a1f02365b6b8c580a5c19959a11c3ed1a69a695b4c31bd7e8c6dcce7"
+        },
+        {
+          "byte_size": 2139,
+          "relpath": "programas/Programa de restauración ecológica y siembra vida empresarial.pages.json",
+          "schema_version": "2.0",
+          "sha256": "7d64f84f76660854252335115800e3c10db2e548c48f56c45080068cb859cda0"
+        },
+        {
+          "byte_size": 427,
+          "relpath": "programas/Programa de restauración ecológica y siembra vida empresarial.ocr.json",
+          "schema_version": "2.0",
+          "sha256": "34c6ed687bf24477d170099132f1eaeaa9d60488bc2fb0eed1e9a9504a2f1437"
+        },
+        {
+          "byte_size": 377,
+          "relpath": "programas/Programa de restauración ecológica y siembra vida empresarial.tables.json",
+          "schema_version": "2.0",
+          "sha256": "b16539a2c34bb075a0ee495745cf37d0ba23aad1cc7c06a0807a6b84568f376b"
+        },
+        {
+          "byte_size": 356,
+          "relpath": "programas/Programa de restauración ecológica y siembra vida empresarial.forms.json",
+          "schema_version": "2.0",
+          "sha256": "cd8185dcf92bb169332cebf2586ae9bd1acbff0e5d1723fb3ff91526ade5d4ad"
+        }
+      ],
+      "document_id": "doc_ee67cdb615ee8fce",
+      "document_status": "processed",
+      "normalized_base": "programas/Programa de restauración ecológica y siembra vida empresarial",
+      "processing_fingerprint": "1eba6ef3f581be213896fe1f317c9c80cdbd9304a6c4f6733257036e6184914d",
+      "required_artifacts": [
+        "programas/Programa de restauración ecológica y siembra vida empresarial.md",
+        "programas/Programa de restauración ecológica y siembra vida empresarial.metadata.json",
+        "programas/Programa de restauración ecológica y siembra vida empresarial.pages.json",
+        "programas/Programa de restauración ecológica y siembra vida empresarial.ocr.json",
+        "programas/Programa de restauración ecológica y siembra vida empresarial.tables.json",
+        "programas/Programa de restauración ecológica y siembra vida empresarial.forms.json"
+      ],
+      "schema_version": "2.0",
+      "source_hash": "787fb2493e10eda1c88a8772e53184072115b99ea6c270244919a9cdd8acd794",
+      "source_relpath": "programas/Programa de restauración ecológica y siembra vida empresarial.md"
+    },
+    {
+      "artifact_hashes": [
+        {
+          "byte_size": 832,
+          "relpath": "programas/Programa de uso eficiente de la energía.md",
+          "schema_version": "2.0",
+          "sha256": "45f65c4c38e91c0a19948fe2759c051327ad716a78152a61e416b0cfc11e4d94"
+        },
+        {
+          "byte_size": 4198,
+          "relpath": "programas/Programa de uso eficiente de la energía.metadata.json",
+          "schema_version": "2.0",
+          "sha256": "6cdb6a0fa37fe7e6eb303781afeafe94b64fbf18b64c2dadeb59731156d63da2"
+        },
+        {
+          "byte_size": 1795,
+          "relpath": "programas/Programa de uso eficiente de la energía.pages.json",
+          "schema_version": "2.0",
+          "sha256": "eb946c4a968c322cf0fdd6b4e9b234dab40b723b0dacc319691428d72004a042"
+        },
+        {
+          "byte_size": 427,
+          "relpath": "programas/Programa de uso eficiente de la energía.ocr.json",
+          "schema_version": "2.0",
+          "sha256": "37fdc5798d32f56edd1b96c2ad16352fe7725dcb00869e5f74df7fb0ec5958d1"
+        },
+        {
+          "byte_size": 377,
+          "relpath": "programas/Programa de uso eficiente de la energía.tables.json",
+          "schema_version": "2.0",
+          "sha256": "ac7166b7975524d6dfc67cec284ad11f3d5efd8c25990a2b43b83d34967baa27"
+        },
+        {
+          "byte_size": 356,
+          "relpath": "programas/Programa de uso eficiente de la energía.forms.json",
+          "schema_version": "2.0",
+          "sha256": "7625bd876f9cf14d77af0cc0ed259a40fac2f6b6df943883a11f746b8ef9aa3c"
+        }
+      ],
+      "document_id": "doc_21b4d1ec2fddcac2",
+      "document_status": "processed",
+      "normalized_base": "programas/Programa de uso eficiente de la energía",
+      "processing_fingerprint": "1eba6ef3f581be213896fe1f317c9c80cdbd9304a6c4f6733257036e6184914d",
+      "required_artifacts": [
+        "programas/Programa de uso eficiente de la energía.md",
+        "programas/Programa de uso eficiente de la energía.metadata.json",
+        "programas/Programa de uso eficiente de la energía.pages.json",
+        "programas/Programa de uso eficiente de la energía.ocr.json",
+        "programas/Programa de uso eficiente de la energía.tables.json",
+        "programas/Programa de uso eficiente de la energía.forms.json"
+      ],
+      "schema_version": "2.0",
+      "source_hash": "4fdb4fb5d8e8ba8372117ae0aeed5c57e3a37c13ba6c9d3c357537bf9aae1b3a",
+      "source_relpath": "programas/Programa de uso eficiente de la energía.md"
+    },
+    {
+      "artifact_hashes": [
+        {
+          "byte_size": 1132,
+          "relpath": "programas/Programa de uso eficiente del agua.md",
+          "schema_version": "2.0",
+          "sha256": "7b804ae1124d0a1643fcfeb3b4b9aa59b62f4f6a135c5d03a7891b61a386fbbd"
+        },
+        {
+          "byte_size": 4140,
+          "relpath": "programas/Programa de uso eficiente del agua.metadata.json",
+          "schema_version": "2.0",
+          "sha256": "84bd984a5f04f820399c5596110c2ccdcd0649b55246c41b53f422afd2a10ffa"
+        },
+        {
+          "byte_size": 2432,
+          "relpath": "programas/Programa de uso eficiente del agua.pages.json",
+          "schema_version": "2.0",
+          "sha256": "d3d9e3d2d1e1928772c801d2d8f37d3e1becab68af538a8e8f020dffd58d6db1"
+        },
+        {
+          "byte_size": 427,
+          "relpath": "programas/Programa de uso eficiente del agua.ocr.json",
+          "schema_version": "2.0",
+          "sha256": "920273f832f6a1565bd4417022ae95d855b1fd441504bddfc48eee0d8cc8dc97"
+        },
+        {
+          "byte_size": 377,
+          "relpath": "programas/Programa de uso eficiente del agua.tables.json",
+          "schema_version": "2.0",
+          "sha256": "a11d7d9845532ec26fbe8b9c95eb3401f00b511bef09bc60e5c04152be98dc24"
+        },
+        {
+          "byte_size": 356,
+          "relpath": "programas/Programa de uso eficiente del agua.forms.json",
+          "schema_version": "2.0",
+          "sha256": "7ca80c364252aa64ddbe07f52c42a19b70b7b8dd6a0cf00e79efc22a6410d818"
+        }
+      ],
+      "document_id": "doc_aa3a3c43d080a3b4",
+      "document_status": "processed",
+      "normalized_base": "programas/Programa de uso eficiente del agua",
+      "processing_fingerprint": "1eba6ef3f581be213896fe1f317c9c80cdbd9304a6c4f6733257036e6184914d",
+      "required_artifacts": [
+        "programas/Programa de uso eficiente del agua.md",
+        "programas/Programa de uso eficiente del agua.metadata.json",
+        "programas/Programa de uso eficiente del agua.pages.json",
+        "programas/Programa de uso eficiente del agua.ocr.json",
+        "programas/Programa de uso eficiente del agua.tables.json",
+        "programas/Programa de uso eficiente del agua.forms.json"
+      ],
+      "schema_version": "2.0",
+      "source_hash": "395130d0d3f045da5742fb808ccae29bf98c1d19b565118dfe3362c65ec1e4d4",
+      "source_relpath": "programas/Programa de uso eficiente del agua.md"
+    }
+  ],
+  "documents": [
+    {
+      "disposition": "processed",
+      "document_id": "doc_d968c43cfdb70b26",
+      "document_status": "processed",
+      "schema_version": "2.0",
+      "source_relpath": "capacitaciones/1769611726809_syc_PresentacingestinambientalSYC.pdf",
+      "warnings": []
+    },
+    {
+      "disposition": "needs_review",
+      "document_id": "doc_4b31f01c2b690307",
+      "document_status": "needs_review",
+      "schema_version": "2.0",
+      "source_relpath": "capacitaciones/cada gota cuenta.md",
+      "warnings": [
+        "missing_title",
+        "route_only_low_confidence",
+        "ambiguous_classification"
+      ]
+    },
+    {
+      "disposition": "processed",
+      "document_id": "doc_5d68eb2158aca4e2",
+      "document_status": "processed",
+      "schema_version": "2.0",
+      "source_relpath": "capacitaciones/capacitaciones.md",
+      "warnings": [
+        "missing_title"
+      ]
+    },
+    {
+      "disposition": "needs_review",
+      "document_id": "doc_8223597088b8bd18",
+      "document_status": "needs_review",
+      "schema_version": "2.0",
+      "source_relpath": "capacitaciones/Clasificación de residuos sólidos.md",
+      "warnings": [
+        "missing_title",
+        "route_only_low_confidence",
+        "ambiguous_classification"
+      ]
+    },
+    {
+      "disposition": "needs_review",
+      "document_id": "doc_2534b7f4ab5cb313",
+      "document_status": "needs_review",
+      "schema_version": "2.0",
+      "source_relpath": "capacitaciones/Código de colores.md",
+      "warnings": [
+        "missing_title",
+        "route_only_low_confidence",
+        "ambiguous_classification"
+      ]
+    },
+    {
+      "disposition": "needs_review",
+      "document_id": "doc_02ad694c03baf938",
+      "document_status": "needs_review",
+      "schema_version": "2.0",
+      "source_relpath": "capacitaciones/Gestión integral de residuos.md",
+      "warnings": [
+        "missing_title",
+        "route_only_low_confidence",
+        "ambiguous_classification"
+      ]
+    },
+    {
+      "disposition": "processed",
+      "document_id": "doc_514afedd34b3024b",
+      "document_status": "processed",
+      "schema_version": "2.0",
+      "source_relpath": "capacitaciones/Huella de carbono.md",
+      "warnings": [
+        "missing_title",
+        "route_only_low_confidence"
+      ]
+    },
+    {
+      "disposition": "needs_review",
+      "document_id": "doc_b1da76147373fcbc",
+      "document_status": "needs_review",
+      "schema_version": "2.0",
+      "source_relpath": "capacitaciones/Importancia del ahorro y uso eficiente de energía.md",
+      "warnings": [
+        "missing_title",
+        "route_only_low_confidence",
+        "ambiguous_classification"
+      ]
+    },
+    {
+      "disposition": "processed",
+      "document_id": "doc_7a14c601955a5a3c",
+      "document_status": "processed",
+      "schema_version": "2.0",
+      "source_relpath": "capacitaciones/Reciclaje.md",
+      "warnings": [
+        "missing_title"
+      ]
+    },
+    {
+      "disposition": "processed",
+      "document_id": "doc_6917cc0b88b7fcda",
+      "document_status": "processed",
+      "schema_version": "2.0",
+      "source_relpath": "capacitaciones/Residuos de aparatos eléctricos y electrónicos.md",
+      "warnings": [
+        "missing_title",
+        "route_only_low_confidence"
+      ]
+    },
+    {
+      "disposition": "needs_review",
+      "document_id": "doc_97e1bb5aebb37fe8",
+      "document_status": "needs_review",
+      "schema_version": "2.0",
+      "source_relpath": "capacitaciones/Tips para ahorrar energía.md",
+      "warnings": [
+        "missing_title",
+        "route_only_low_confidence",
+        "ambiguous_classification"
+      ]
+    },
+    {
+      "disposition": "needs_review",
+      "document_id": "doc_0510002810bb345b",
+      "document_status": "needs_review",
+      "schema_version": "2.0",
+      "source_relpath": "capacitaciones/Uso eficiente de la energía.md",
+      "warnings": [
+        "missing_title",
+        "route_only_low_confidence",
+        "ambiguous_classification"
+      ]
+    },
+    {
+      "disposition": "needs_review",
+      "document_id": "doc_ace51beec98e07b9",
+      "document_status": "needs_review",
+      "schema_version": "2.0",
+      "source_relpath": "planes/1777902715340_syc_Planempresarialdeges.pdf",
+      "warnings": [
+        "low_ocr_confidence"
+      ]
+    },
+    {
+      "disposition": "processed",
+      "document_id": "doc_bf47bc9038d92f95",
+      "document_status": "processed",
+      "schema_version": "2.0",
+      "source_relpath": "planes/1777902724388_syc_Plandegestinintegral.pdf",
+      "warnings": []
+    },
+    {
+      "disposition": "processed",
+      "document_id": "doc_8c7832d7681358f7",
+      "document_status": "processed",
+      "schema_version": "2.0",
+      "source_relpath": "planes/Plan de gestión integral de residuos sólidos.md",
+      "warnings": [
+        "missing_title"
+      ]
+    },
+    {
+      "disposition": "processed",
+      "document_id": "doc_2e4c7a58fcc01140",
+      "document_status": "processed",
+      "schema_version": "2.0",
+      "source_relpath": "planes/Plan empresarial de gestión ambiental.md",
+      "warnings": [
+        "missing_title"
+      ]
+    },
+    {
+      "disposition": "processed",
+      "document_id": "doc_0f5176bc29b5e037",
+      "document_status": "processed",
+      "schema_version": "2.0",
+      "source_relpath": "politicas/1771356455856_syc_Polticaambiental.pdf",
+      "warnings": []
+    },
+    {
+      "disposition": "processed",
+      "document_id": "doc_45b68b1c2cbaeb13",
+      "document_status": "processed",
+      "schema_version": "2.0",
+      "source_relpath": "politicas/1771356568966_syc_Polticadesostenibili.pdf",
+      "warnings": []
+    },
+    {
+      "disposition": "processed",
+      "document_id": "doc_2d7a784439db3c7b",
+      "document_status": "processed",
+      "schema_version": "2.0",
+      "source_relpath": "politicas/1771356588537_syc_Polticadeusoracional.pdf",
+      "warnings": []
+    },
+    {
+      "disposition": "processed",
+      "document_id": "doc_0386b0d21b0f6c81",
+      "document_status": "processed",
+      "schema_version": "2.0",
+      "source_relpath": "politicas/1771356600063_syc_Polticadecomprassostenibles.pdf",
+      "warnings": []
+    },
+    {
+      "disposition": "processed",
+      "document_id": "doc_46ac6f9db922a5a4",
+      "document_status": "processed",
+      "schema_version": "2.0",
+      "source_relpath": "politicas/Política ambiental.md",
+      "warnings": [
+        "missing_title"
+      ]
+    },
+    {
+      "disposition": "processed",
+      "document_id": "doc_f3312aabdd639490",
+      "document_status": "processed",
+      "schema_version": "2.0",
+      "source_relpath": "politicas/Política de compras sostenibles.md",
+      "warnings": [
+        "missing_title"
+      ]
+    },
+    {
+      "disposition": "processed",
+      "document_id": "doc_3260d6d61b3bdb58",
+      "document_status": "processed",
+      "schema_version": "2.0",
+      "source_relpath": "politicas/Política de sostenibilidad corporativa.md",
+      "warnings": [
+        "missing_title"
+      ]
+    },
+    {
+      "disposition": "processed",
+      "document_id": "doc_af91c2b002c6668d",
+      "document_status": "processed",
+      "schema_version": "2.0",
+      "source_relpath": "politicas/Política de uso racional del papel, digitalización sostenible y transformación hacia procesos digitales.md",
+      "warnings": [
+        "missing_title"
+      ]
+    },
+    {
+      "disposition": "processed",
+      "document_id": "doc_e52393a39ccd98c4",
+      "document_status": "processed",
+      "schema_version": "2.0",
+      "source_relpath": "programas/Programa de acompañamiento a la sostenibilidad de terceros.md",
+      "warnings": [
+        "missing_title"
+      ]
+    },
+    {
+      "disposition": "processed",
+      "document_id": "doc_7e9b90f520b6d4cd",
+      "document_status": "processed",
+      "schema_version": "2.0",
+      "source_relpath": "programas/Programa de consumo sostenible.md",
+      "warnings": [
+        "missing_title"
+      ]
+    },
+    {
+      "disposition": "processed",
+      "document_id": "doc_9e5608de0a72a28f",
+      "document_status": "processed",
+      "schema_version": "2.0",
+      "source_relpath": "programas/Programa de gestión de la huella de carbono.md",
+      "warnings": [
+        "missing_title"
+      ]
+    },
+    {
+      "disposition": "processed",
+      "document_id": "doc_057fd61b6d2f82fa",
+      "document_status": "processed",
+      "schema_version": "2.0",
+      "source_relpath": "programas/Programa de gestión integral de residuos sólidos.md",
+      "warnings": [
+        "missing_title"
+      ]
+    },
+    {
+      "disposition": "processed",
+      "document_id": "doc_ee67cdb615ee8fce",
+      "document_status": "processed",
+      "schema_version": "2.0",
+      "source_relpath": "programas/Programa de restauración ecológica y siembra vida empresarial.md",
+      "warnings": [
+        "missing_title"
+      ]
+    },
+    {
+      "disposition": "processed",
+      "document_id": "doc_21b4d1ec2fddcac2",
+      "document_status": "processed",
+      "schema_version": "2.0",
+      "source_relpath": "programas/Programa de uso eficiente de la energía.md",
+      "warnings": [
+        "missing_title"
+      ]
+    },
+    {
+      "disposition": "processed",
+      "document_id": "doc_aa3a3c43d080a3b4",
+      "document_status": "processed",
+      "schema_version": "2.0",
+      "source_relpath": "programas/Programa de uso eficiente del agua.md",
+      "warnings": [
+        "missing_title"
+      ]
+    }
+  ],
+  "fingerprints": {},
+  "run_id": "run_20260903_120105",
+  "schema_version": "2.0",
+  "summary": {
+    "failed": 0,
+    "needs_review": 8,
+    "processed": 23,
+    "skipped": 0
+  },
+  "timestamp": "2026-09-03T12:02:23.042434-05:00"
+}

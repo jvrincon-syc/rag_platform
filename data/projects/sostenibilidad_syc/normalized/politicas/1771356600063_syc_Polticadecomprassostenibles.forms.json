@@ -1,0 +1,44 @@
+{
+  "document_id": "doc_0386b0d21b0f6c81",
+  "groups": [],
+  "page_observations": [
+    {
+      "engine": null,
+      "engine_version": null,
+      "evidence": [],
+      "method": "vector_geometry",
+      "status": "not_detected",
+      "value": false,
+      "warnings": []
+    },
+    {
+      "engine": null,
+      "engine_version": null,
+      "evidence": [],
+      "method": "vector_geometry",
+      "status": "not_detected",
+      "value": false,
+      "warnings": []
+    },
+    {
+      "engine": null,
+      "engine_version": null,
+      "evidence": [],
+      "method": "vector_geometry",
+      "status": "not_detected",
+      "value": false,
+      "warnings": []
+    },
+    {
+      "engine": null,
+      "engine_version": null,
+      "evidence": [],
+      "method": "vector_geometry",
+      "status": "not_detected",
+      "value": false,
+      "warnings": []
+    }
+  ],
+  "schema_version": "2.0",
+  "warnings": []
+}

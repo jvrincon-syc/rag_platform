@@ -253,7 +253,7 @@ class PostgresNormalizedArtifactRepository:
             ),
             processing_profile_fingerprint=str(row[2]),
             schema_version=str(row[3]),
-            artifact_relpath=None if row[4] is None else str(row[4]),
+            artifact_relpath=None if row[4] is None else str(row[4]).replace("\\", "/"),
         )
 
     def list_normalized_revision_ids(
@@ -289,7 +289,7 @@ class PostgresNormalizedArtifactRepository:
                     artifact.source_document_revision_id.value,
                     artifact.processing_profile_fingerprint,
                     artifact.schema_version,
-                    artifact.artifact_relpath,
+                    artifact.artifact_relpath.replace("\\", "/") if artifact.artifact_relpath else artifact.artifact_relpath,
                 ),
             )
         return artifact

@@ -1,0 +1,103 @@
+{
+  "generated_at": "2026-09-03T12:02:23.042434-05:00",
+  "items": [
+    {
+      "details": [
+        "Revisar advertencias de extracción antes de indexar."
+      ],
+      "document_id": "doc_4b31f01c2b690307",
+      "error": null,
+      "reasons": [
+        "ambiguous_classification"
+      ],
+      "schema_version": "2.0",
+      "source_relpath": "capacitaciones/cada gota cuenta.md"
+    },
+    {
+      "details": [
+        "Revisar advertencias de extracción antes de indexar."
+      ],
+      "document_id": "doc_8223597088b8bd18",
+      "error": null,
+      "reasons": [
+        "ambiguous_classification"
+      ],
+      "schema_version": "2.0",
+      "source_relpath": "capacitaciones/Clasificación de residuos sólidos.md"
+    },
+    {
+      "details": [
+        "Revisar advertencias de extracción antes de indexar."
+      ],
+      "document_id": "doc_2534b7f4ab5cb313",
+      "error": null,
+      "reasons": [
+        "ambiguous_classification"
+      ],
+      "schema_version": "2.0",
+      "source_relpath": "capacitaciones/Código de colores.md"
+    },
+    {
+      "details": [
+        "Revisar advertencias de extracción antes de indexar."
+      ],
+      "document_id": "doc_02ad694c03baf938",
+      "error": null,
+      "reasons": [
+        "ambiguous_classification"
+      ],
+      "schema_version": "2.0",
+      "source_relpath": "capacitaciones/Gestión integral de residuos.md"
+    },
+    {
+      "details": [
+        "Revisar advertencias de extracción antes de indexar."
+      ],
+      "document_id": "doc_b1da76147373fcbc",
+      "error": null,
+      "reasons": [
+        "ambiguous_classification"
+      ],
+      "schema_version": "2.0",
+      "source_relpath": "capacitaciones/Importancia del ahorro y uso eficiente de energía.md"
+    },
+    {
+      "details": [
+        "Revisar advertencias de extracción antes de indexar."
+      ],
+      "document_id": "doc_97e1bb5aebb37fe8",
+      "error": null,
+      "reasons": [
+        "ambiguous_classification"
+      ],
+      "schema_version": "2.0",
+      "source_relpath": "capacitaciones/Tips para ahorrar energía.md"
+    },
+    {
+      "details": [
+        "Revisar advertencias de extracción antes de indexar."
+      ],
+      "document_id": "doc_0510002810bb345b",
+      "error": null,
+      "reasons": [
+        "ambiguous_classification"
+      ],
+      "schema_version": "2.0",
+      "source_relpath": "capacitaciones/Uso eficiente de la energía.md"
+    },
+    {
+      "details": [
+        "Revisar advertencias de extracción antes de indexar."
+      ],
+      "document_id": "doc_ace51beec98e07b9",
+      "error": null,
+      "reasons": [
+        "low_ocr_confidence"
+      ],
+      "schema_version": "2.0",
+      "source_relpath": "planes/1777902715340_syc_Planempresarialdeges.pdf"
+    }
+  ],
+  "run_id": "run_20260903_120105",
+  "schema_version": "2.0"
+}

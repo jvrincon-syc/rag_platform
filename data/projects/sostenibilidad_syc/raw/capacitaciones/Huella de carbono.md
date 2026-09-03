@@ -1,0 +1,1 @@
+Comprender nuestra huella de carbono nos permite reconocer cómo nuestras decisiones diarias impactan el clima y el medio ambiente. Medirla y reducirla es un paso esencial para construir comunidades más responsables, sostenibles y comprometidas con el bienestar del planeta y de las futuras generacione

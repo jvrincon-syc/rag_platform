@@ -206,6 +206,27 @@ def test_resuelve_y_cachea_el_query_engine_remoto_para_bge(
     assert second_engine is first_engine
 
 
+def test_resuelve_y_cachea_el_document_engine_remoto_para_bge(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("EMBEDDING_DOC_EMBED", "remote")
+    registry = DefaultEmbeddingEngineRegistry(environ={}, allow_mock=True)
+    profile = build_profile(
+        profile_id="bge-remote-doc",
+        provider="bge",
+        model="BAAI/bge-m3",
+        dimension=1024,
+        normalization="l2",
+        vector_table="idx_vec_local_bge_m3_v1",
+    )
+
+    first_engine = registry.resolve_document_engine(profile)
+    second_engine = registry.resolve_document_engine(profile)
+
+    assert isinstance(first_engine, RemoteBgeQueryEngine)
+    assert second_engine is first_engine
+
+
 def test_trata_la_normalizacion_unknown_del_bge_m3_legacy_como_compatible() -> None:
     registry = DefaultEmbeddingEngineRegistry(environ={}, allow_mock=True)
     profile = build_profile(

@@ -248,9 +248,29 @@ class DefaultEmbeddingEngineRegistry:
     _cache: dict[str, EmbeddingEngine] = field(default_factory=dict, init=False)
 
     def resolve_document_engine(self, profile: EmbeddingProfile) -> EmbeddingEngine:
-        """Return the engine allowed to embed documents for this profile."""
+        """Return the engine allowed to embed documents for this profile.
 
+        With ``EMBEDDING_DOC_EMBED=remote`` and a bge profile, document embedding is
+        offloaded to the Lightning studio (same BGE-M3 weights, so vectors match the
+        durable profile) instead of loading the model on the local box.
+        """
+
+        if profile.provider == "bge" and os.environ.get("EMBEDDING_DOC_EMBED") == "remote":
+            return self._resolve_remote_document_engine(profile)
         return self._resolve(profile)
+
+    def _resolve_remote_document_engine(self, profile: EmbeddingProfile) -> EmbeddingEngine:
+        cached = self._cache.get("__remote_doc__" + profile.profile_id)
+        if cached is not None:
+            return cached
+        from retrieval.infrastructure.remote_bge import RemoteBgeQueryEngine
+
+        engine = RemoteBgeQueryEngine(
+            model_name=profile.model,
+            dimension=profile.dimension,
+        )
+        self._cache["__remote_doc__" + profile.profile_id] = engine
+        return engine
 
     def resolve_query_engine(self, profile: EmbeddingProfile) -> EmbeddingEngine:
         """Return the engine allowed to embed queries for this profile.

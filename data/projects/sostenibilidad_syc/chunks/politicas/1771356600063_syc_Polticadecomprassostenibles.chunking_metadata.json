@@ -1,0 +1,18 @@
+{
+  "artifact_relpath": "politicas/1771356600063_syc_Polticadecomprassostenibles.chunking_metadata.json",
+  "bundle_fingerprint": "chunk-bundle-50179e3a528f429bb2b664848d161a449dde7ee9feefe229abed02177942ee08",
+  "child_count": 13,
+  "corpus_version": "platform-normalized",
+  "document_id": "doc_0386b0d21b0f6c81",
+  "normalized_document_id": "ndoc_329c9c760908967c9c51c5c0756517e4",
+  "normalized_relpath": "politicas/1771356600063_syc_Polticadecomprassostenibles.md",
+  "parent_count": 11,
+  "profile_fingerprint": "chunking-profile-0fae4cc79888de2f075e148dd3a2f4fc677fbd0f7fc37ca60b5ae82d22f3d5fd",
+  "profile_id": "cp_custom-3665aaf9f77f-sostenibilidad_syc",
+  "project_id": "proj_sostenibilidad_syc",
+  "rag_variant_id": "ragv_local-bge-syc",
+  "semantic_recipe_fingerprint": "bd82bb646dcddaf91a4c9e4bb94e877c937a9c2ab18ed8f296f2a0827c34eece",
+  "source_document_revision_id": "srev_6d7e707825f05c5d6b2825aa9a047c10",
+  "source_hash": "d969f48343a76ce8ce56d6406ada9de6683244f26ad7520bcd8e0a21799c0a74",
+  "source_relpath": "politicas/1771356600063_syc_Polticadecomprassostenibles.pdf"
+}

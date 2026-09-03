@@ -23,7 +23,7 @@ function errorMessage(caught: unknown): string {
 // `/api/retrieval/*` que la lane Legacy, solo para dar contexto de que perfil
 // esta activo hoy sirviendo al chatbot, sin inventar un vinculo release->perfil
 // que el backend no tiene.
-export function useReleaseRetrievalPanel() {
+export function useReleaseRetrievalPanel({ projectId }: { projectId?: string } = {}) {
   const [profiles, setProfiles] = useState<RetrievalProfile[]>([]);
   const [profilesLoading, setProfilesLoading] = useState(true);
   const [profilesError, setProfilesError] = useState<string | null>(null);
@@ -55,7 +55,7 @@ export function useReleaseRetrievalPanel() {
     setProfilesLoading(true);
     setProfilesError(null);
     try {
-      const page = await loadRetrievalProfiles();
+      const page = await loadRetrievalProfiles({ projectId });
       setProfiles(page.items);
       setSelectedProfileId((current) => {
         if (current && page.items.some((profile) => profile.retrievalProfileId === current)) {
@@ -72,7 +72,7 @@ export function useReleaseRetrievalPanel() {
     } finally {
       setProfilesLoading(false);
     }
-  }, []);
+  }, [projectId]);
 
   useEffect(() => {
     void refreshProfiles();

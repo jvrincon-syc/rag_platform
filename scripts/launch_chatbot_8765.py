@@ -25,7 +25,6 @@ env = dict(load_env_file(ROOT / "secrets.env"))
 for key, value in env.items():
     os.environ[key] = value
 os.environ["RAG_PLATFORM_POSTGRES_DSN"] = build_dsn_from_env(env)
-os.environ["SST_POSTGRES_DSN"] = os.environ["RAG_PLATFORM_POSTGRES_DSN"]
 os.environ["SST_PERSISTENCE_MODE"] = "postgres"
 
 # --- Retrieval speed (Fase 0/1, free) ---------------------------------------

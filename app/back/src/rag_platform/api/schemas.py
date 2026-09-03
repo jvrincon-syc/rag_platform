@@ -16,6 +16,8 @@ from __future__ import annotations
 
 from datetime import datetime
 
+from typing import Literal
+
 from ingestion.schemas.common import StrictModel
 from pydantic import Field
 
@@ -289,6 +291,45 @@ class ReleaseBuildReportSchema(StrictModel):
     revisions_built: int
     reused_stages: int
     built_stages: int
+
+
+class ProvisionDefaultVariantRequestSchema(StrictModel):
+    """Cuerpo del auto-provisioning al crear un proyecto: elige el backend de embedding.
+
+    ``local``/``lightning`` = perfil BGE (mismo vector space; el runtime se elige por
+    build). ``voyage`` = perfil Voyage (otro vector space).
+    """
+
+    embedding_backend: Literal["local", "lightning", "voyage"] = "local"
+
+
+class ProvisionCustomChunkingVariantRequestSchema(StrictModel):
+    """Cuerpo para crear una variante con hiperparámetros de chunking a medida.
+
+    Los campos ausentes caen a los defaults canónicos (v1). El backend valida los
+    invariantes (orden min<=target<=max, overlap dentro de rango) antes de persistir.
+    """
+
+    embedding_backend: Literal["local", "lightning", "voyage"] = "local"
+    child_min_tokens: int | None = Field(default=None, ge=1)
+    child_target_tokens: int | None = Field(default=None, ge=1)
+    child_max_tokens: int | None = Field(default=None, ge=1)
+    overlap_min_tokens: int | None = Field(default=None, ge=0)
+    overlap_max_tokens: int | None = Field(default=None, ge=0)
+    overlap_ratio: float | None = Field(default=None, ge=0, le=1)
+    include_section_context: bool = False
+
+
+class ReleaseBuildRequestSchema(StrictModel):
+    """Cuerpo opcional del build: elige el runtime de embedding para esta corrida.
+
+    ``None`` = respeta el runtime global del proceso (``EMBEDDING_DOC_EMBED``).
+    ``local`` fuerza el modelo local; ``remote`` delega el embedding de documentos al
+    Lightning studio. Solo afecta a variantes BGE; otros proveedores (voyage) lo
+    ignoran porque su motor no es conmutable por runtime.
+    """
+
+    embedding_runtime: Literal["local", "remote"] | None = None
 
 
 class ReleaseBuildAcceptedSchema(StrictModel):

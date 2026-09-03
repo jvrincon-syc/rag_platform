@@ -1,0 +1,18 @@
+{
+  "artifact_relpath": "politicas/Pol\u00edtica de sostenibilidad corporativa.chunking_metadata.json",
+  "bundle_fingerprint": "chunk-bundle-7145791c9ade9018444b7a65e117f56d646c45a33e4027e265874bb81deb4cd0",
+  "child_count": 1,
+  "corpus_version": "platform-normalized",
+  "document_id": "doc_3260d6d61b3bdb58",
+  "normalized_document_id": "ndoc_ae93e27f31bda6b7440446f8179ea382",
+  "normalized_relpath": "politicas/Pol\u00edtica de sostenibilidad corporativa.md",
+  "parent_count": 1,
+  "profile_fingerprint": "chunking-profile-0fae4cc79888de2f075e148dd3a2f4fc677fbd0f7fc37ca60b5ae82d22f3d5fd",
+  "profile_id": "cp_custom-3665aaf9f77f-sostenibilidad_syc",
+  "project_id": "proj_sostenibilidad_syc",
+  "rag_variant_id": "ragv_local-bge-syc",
+  "semantic_recipe_fingerprint": "bd82bb646dcddaf91a4c9e4bb94e877c937a9c2ab18ed8f296f2a0827c34eece",
+  "source_document_revision_id": "srev_3e4ec220041434193774ead91e80a1de",
+  "source_hash": "c45421e1ccc589d41d28c6d54d8e04833dc18961c9f944e38423f946482ea389",
+  "source_relpath": "politicas/Pol\u00edtica de sostenibilidad corporativa.md"
+}

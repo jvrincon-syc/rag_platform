@@ -1,0 +1,18 @@
+{
+  "artifact_relpath": "planes/1777902724388_syc_Plandegestinintegral.chunking_metadata.json",
+  "bundle_fingerprint": "chunk-bundle-5898afd37d56a5158c052f3cebda9a7a797350c8210a4464fc6df1ef864e6313",
+  "child_count": 91,
+  "corpus_version": "platform-normalized",
+  "document_id": "doc_bf47bc9038d92f95",
+  "normalized_document_id": "ndoc_453eebe2002494ff0ea319e5d3dee35b",
+  "normalized_relpath": "planes/1777902724388_syc_Plandegestinintegral.md",
+  "parent_count": 63,
+  "profile_fingerprint": "chunking-profile-0fae4cc79888de2f075e148dd3a2f4fc677fbd0f7fc37ca60b5ae82d22f3d5fd",
+  "profile_id": "cp_custom-3665aaf9f77f-sostenibilidad_syc",
+  "project_id": "proj_sostenibilidad_syc",
+  "rag_variant_id": "ragv_local-bge-syc",
+  "semantic_recipe_fingerprint": "bd82bb646dcddaf91a4c9e4bb94e877c937a9c2ab18ed8f296f2a0827c34eece",
+  "source_document_revision_id": "srev_2c4f9b2dd958109d323ab93752908b12",
+  "source_hash": "9fd90e3bfe77894cc4461569d19e1b3c662612e7a5894abb90ccf6c14c6af84d",
+  "source_relpath": "planes/1777902724388_syc_Plandegestinintegral.pdf"
+}

@@ -286,60 +286,132 @@ export function LlamaStatusPanel({
 
 export function UploadPanel({
   categories,
+  existingFolders,
   form,
   busy,
   onChange,
   onSubmit,
 }: {
   categories: string[];
+  existingFolders: string[];
   form: DashboardUploadForm;
   busy: boolean;
   onChange: (value: DashboardUploadForm) => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }) {
+  const isTextMode = form.mode === "text";
+  const folderValue = form.folder;
+
   return (
     <section className="panel upload-panel">
       <div className="panel-heading">
         <h2>Nuevo documento</h2>
       </div>
       <form onSubmit={onSubmit}>
-        <label className="drop-zone">
-          <UploadCloud size={32} />
-          <span>{form.file ? form.file.name : "Selecciona PDF o Markdown"}</span>
-          <small>Formatos .pdf, .md, .markdown</small>
+        <div className="upload-mode-toggle">
+          <button
+            type="button"
+            className={!isTextMode ? "active" : ""}
+            onClick={() => onChange({ ...form, mode: "file", file: null, textContent: "" })}
+          >
+            <UploadCloud size={14} /> Archivo
+          </button>
+          <button
+            type="button"
+            className={isTextMode ? "active" : ""}
+            onClick={() => onChange({ ...form, mode: "text", file: null })}
+          >
+            <FileText size={14} /> Texto
+          </button>
+        </div>
+
+        <label>
+          Nombre del documento
           <input
-            type="file"
-            accept=".pdf,.md,.markdown"
-            onChange={(event) =>
-              onChange({ ...form, file: event.currentTarget.files?.[0] ?? null })
-            }
+            value={form.documentName}
+            placeholder={isTextMode ? "ej. politica-de-vacaciones" : ""}
+            onChange={(event) => onChange({ ...form, documentName: event.target.value })}
           />
         </label>
-        <label>
-          Categoría
-          <select
-            value={form.category}
-            onChange={(event) => onChange({ ...form, category: event.target.value })}
-          >
-            {categories.length === 0 ? <option value="general_sst">general_sst</option> : null}
-            {categories.map((category) => (
-              <option value={category} key={category}>
-                {category}
-              </option>
-            ))}
-          </select>
-        </label>
+
         <label>
           Carpeta destino
-          <input
-            value={form.folder}
-            placeholder="manuales/politica"
-            onChange={(event) => onChange({ ...form, folder: event.target.value })}
-          />
+          <select
+            value={existingFolders.includes(folderValue) ? folderValue : "__new__"}
+            onChange={(event) => {
+              if (event.target.value !== "__new__") {
+                onChange({ ...form, folder: event.target.value });
+              }
+            }}
+          >
+            {existingFolders.map((folder) => (
+              <option value={folder} key={folder}>
+                {folder}
+              </option>
+            ))}
+            <option value="__new__">+ Nueva carpeta...</option>
+          </select>
+          {(!existingFolders.includes(folderValue) || folderValue === "") && (
+            <input
+              value={folderValue}
+              placeholder="Nombre de la carpeta (vacío = raíz)"
+              onChange={(event) => onChange({ ...form, folder: event.target.value })}
+            />
+          )}
         </label>
-        <button className="primary-button" type="submit" disabled={busy}>
+
+        {isTextMode ? (
+          <label className="text-entry-area">
+            Contenido
+            <textarea
+              value={form.textContent}
+              placeholder="Escribe o pega el contenido del documento en Markdown..."
+              rows={12}
+              onChange={(event) => onChange({ ...form, textContent: event.target.value })}
+            />
+          </label>
+        ) : (
+          <label className="drop-zone">
+            <UploadCloud size={32} />
+            <span>{form.file ? form.file.name : "Selecciona PDF o Markdown"}</span>
+            <small>Formatos .pdf, .md, .markdown</small>
+            <input
+              type="file"
+              accept=".pdf,.md,.markdown"
+              onChange={(event) => {
+                const selected = event.currentTarget.files?.[0] ?? null;
+                const autoName = selected
+                  ? selected.name.replace(/\.[^.]+$/, "")
+                  : form.documentName;
+                onChange({ ...form, file: selected, documentName: autoName });
+              }}
+            />
+          </label>
+        )}
+
+        {categories.length > 0 ? (
+          <label>
+            Categoría
+            <select
+              value={form.category}
+              onChange={(event) => onChange({ ...form, category: event.target.value })}
+            >
+              {categories.map((category) => (
+                <option value={category} key={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
+
+        <button
+          className="primary-button"
+          type="submit"
+          disabled={busy || !form.documentName.trim() || (isTextMode ? !form.textContent.trim() : !form.file)}
+        >
           {busy ? <Loader2 className="spin" size={16} /> : <UploadCloud size={16} />}
-          Subir documento
+          {isTextMode ? "Crear entrada" : "Subir documento"}
         </button>
       </form>
     </section>

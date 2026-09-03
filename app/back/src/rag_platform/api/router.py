@@ -51,7 +51,10 @@ from rag_platform.api.schemas import (
     ProjectDocumentRevisionSchema,
     ProjectNormalizeReportSchema,
     ProjectSchema,
+    ProvisionCustomChunkingVariantRequestSchema,
+    ProvisionDefaultVariantRequestSchema,
     ReleaseBuildAcceptedSchema,
+    ReleaseBuildRequestSchema,
     ReleaseBuildStatusSchema,
     ReleaseSchema,
     RetireReleaseRequestSchema,
@@ -181,6 +184,68 @@ def create_project(
     )
     project = services.create_project.execute(request, actor=actor)
     return project_to_schema(project)
+
+
+@router.post("/projects/{project_id}/provision-default-variant")
+def provision_default_variant_endpoint(
+    project_id: str,
+    payload: ProvisionDefaultVariantRequestSchema,
+    actor: PlatformActor = Depends(get_actor),
+) -> dict:
+    # Auto-provision del setup RAG por defecto (allowlist + binding + processing +
+    # chunking + variante) para que un proyecto recien creado por la UI ingiera de una.
+    # Idempotente y transaccional; `actor` (Depends) exige sesion autenticada.
+    from rag_platform.infrastructure.default_provisioning import (
+        provision_default_variant,
+    )
+
+    pid = _parse_id(IdentityKind.PROJECT, project_id)
+    slug = pid.value[len("proj_") :] if pid.value.startswith("proj_") else pid.value
+    try:
+        return provision_default_variant(
+            project_slug=slug, embedding_backend=payload.embedding_backend
+        )
+    except ValueError as error:
+        raise http_error(
+            status_code=422, code="PROVISION_DEFAULT_VARIANT_FAILED", message=str(error)
+        )
+
+
+@router.post("/projects/{project_id}/provision-custom-chunking-variant")
+def provision_custom_chunking_variant_endpoint(
+    project_id: str,
+    payload: ProvisionCustomChunkingVariantRequestSchema,
+    actor: PlatformActor = Depends(get_actor),
+) -> dict:
+    # Crea una variante con hiperparámetros de chunking a medida (child tokens +
+    # overlap). Valida invariantes con el motor real antes de persistir; idempotente
+    # (misma receta -> mismo perfil). `actor` (Depends) exige sesion autenticada.
+    from rag_platform.infrastructure.default_provisioning import (
+        provision_custom_chunking_variant,
+    )
+
+    pid = _parse_id(IdentityKind.PROJECT, project_id)
+    slug = pid.value[len("proj_") :] if pid.value.startswith("proj_") else pid.value
+    try:
+        return provision_custom_chunking_variant(
+            project_slug=slug,
+            embedding_backend=payload.embedding_backend,
+            chunking_params={
+                "child_min_tokens": payload.child_min_tokens,
+                "child_target_tokens": payload.child_target_tokens,
+                "child_max_tokens": payload.child_max_tokens,
+                "overlap_min_tokens": payload.overlap_min_tokens,
+                "overlap_max_tokens": payload.overlap_max_tokens,
+                "overlap_ratio": payload.overlap_ratio,
+                "include_section_context": payload.include_section_context,
+            },
+        )
+    except ValueError as error:
+        raise http_error(
+            status_code=422,
+            code="PROVISION_CUSTOM_CHUNKING_FAILED",
+            message=str(error),
+        )
 
 
 @router.get("/projects/{project_id}", response_model=ProjectSchema)
@@ -598,6 +663,7 @@ def _run_idempotent(
 def build_release(
     rag_release_id: str,
     idempotency_key: IdempotencyKey,
+    payload: ReleaseBuildRequestSchema | None = None,
     services: RagPlatformServices = Depends(get_platform_services),
     actor: PlatformActor = Depends(get_actor),
     store: IdempotencyStore = Depends(get_idempotency_store),
@@ -607,6 +673,8 @@ def build_release(
     # corre fuera con su propia conexión; la GUI observa el estado por polling. El
     # guard de idempotencia asegura que un replay devuelve el MISMO job sin re-encolar.
     release_id = _parse_id(IdentityKind.RAG_RELEASE, rag_release_id)
+    # `None` = respeta el runtime global; `local`/`remote` lo elige esta corrida.
+    embedding_runtime = payload.embedding_runtime if payload is not None else None
 
     def _operation() -> dict:
         build_job_id = f"bjob_{uuid.uuid4().hex}"
@@ -616,13 +684,22 @@ def build_release(
             actor=actor,
             now=datetime.now(timezone.utc),
         )
-        services.submit_release_build(build_job_id, release_id, actor)
+        services.submit_release_build(
+            build_job_id, release_id, actor, embedding_runtime
+        )
         return {
             "build_job_id": build_job_id,
             "rag_release_id": rag_release_id,
             "state": "queued",
         }
 
+    # Un runtime distinto es una intención de build distinta: entra al fingerprint de
+    # idempotencia. Omitirlo (None) preserva el fingerprint histórico del build simple.
+    request_fields = (
+        {"embedding_runtime": embedding_runtime}
+        if embedding_runtime is not None
+        else None
+    )
     return _run_idempotent(
         store=store,
         idempotency_key=idempotency_key,
@@ -630,6 +707,7 @@ def build_release(
         release_id=release_id,
         actor=actor,
         operation=_operation,
+        request_fields=request_fields,
     )
 
 
@@ -648,6 +726,22 @@ def get_release_build_status(
         rag_release_id=_parse_id(IdentityKind.RAG_RELEASE, rag_release_id), actor=actor
     )
     return None if job is None else build_job_to_status_schema(job).model_dump(mode="json")
+
+
+@router.post("/releases/{rag_release_id}/activate")
+def activate_release(
+    rag_release_id: str,
+    services: RagPlatformServices = Depends(get_platform_services),
+    actor: PlatformActor = Depends(get_actor),
+) -> dict:
+    # Activación EXPLÍCITA (paso separado de publish, ver publication_service): pone
+    # los vectores de la release en vivo (is_active=true) y crea el retrieval profile
+    # release-scoped que el chatbot consulta. Idempotente. Los errores de dominio
+    # (RagReleaseNotActivatable / IncompatibleTargetBinding / PlatformAccessDenied) los
+    # traduce el handler global al envelope HTTP.
+    return services.activate_release(
+        _parse_id(IdentityKind.RAG_RELEASE, rag_release_id), actor
+    )
 
 
 @router.post(

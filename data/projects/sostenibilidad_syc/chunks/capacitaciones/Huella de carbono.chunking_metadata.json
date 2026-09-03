@@ -1,0 +1,18 @@
+{
+  "artifact_relpath": "capacitaciones/Huella de carbono.chunking_metadata.json",
+  "bundle_fingerprint": "chunk-bundle-ba6773bcf0655e6b7add3a14c4f7f8445daeada5ef0e89d7094999f621309723",
+  "child_count": 1,
+  "corpus_version": "platform-normalized",
+  "document_id": "doc_514afedd34b3024b",
+  "normalized_document_id": "ndoc_f17da4169c27d68349384adc2d499280",
+  "normalized_relpath": "capacitaciones/Huella de carbono.md",
+  "parent_count": 1,
+  "profile_fingerprint": "chunking-profile-0fae4cc79888de2f075e148dd3a2f4fc677fbd0f7fc37ca60b5ae82d22f3d5fd",
+  "profile_id": "cp_custom-3665aaf9f77f-sostenibilidad_syc",
+  "project_id": "proj_sostenibilidad_syc",
+  "rag_variant_id": "ragv_local-bge-syc",
+  "semantic_recipe_fingerprint": "bd82bb646dcddaf91a4c9e4bb94e877c937a9c2ab18ed8f296f2a0827c34eece",
+  "source_document_revision_id": "srev_e4a59152c4baba771213a537a21d86b4",
+  "source_hash": "6ea1895ec27ea3096cd2e85bc2abd324544819d025dd1cad0522cb258951517b",
+  "source_relpath": "capacitaciones/Huella de carbono.md"
+}

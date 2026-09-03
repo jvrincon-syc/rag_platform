@@ -163,6 +163,51 @@ def test_rechaza_child_cuyo_total_incluido_overlap_supera_el_maximo() -> None:
         )
 
 
+def test_permite_child_atomico_de_tabla_aunque_supere_el_maximo() -> None:
+    # Una tabla/formulario es indivisible: el builder la emite completa aunque
+    # supere child_max_tokens (marcada TABLE_OR_FORM_BOUNDARY). El invariante debe
+    # aceptar ese caso atómico; el texto continuo sí sigue siendo error (test de
+    # arriba). Regresión: build de release fallaba con ChunkInvariantError ante
+    # PDFs con tablas anchas.
+    profile = _profile()
+    child = _child(
+        token_count=451,
+        zero_overlap_reasons=frozenset(
+            {
+                ZeroOverlapReason.DOCUMENT_START,
+                ZeroOverlapReason.SECTION_BOUNDARY,
+                ZeroOverlapReason.TABLE_OR_FORM_BOUNDARY,
+            }
+        ),
+    )
+
+    bundle = ChunkBundle(
+        document_id="doc-1",
+        profile=profile,
+        parents=(_parent(),),
+        children=(child,),
+    )
+
+    assert bundle.children[0].token_count == 451
+
+
+def test_permite_child_indivisible_marcado_aunque_supere_el_maximo() -> None:
+    # Texto continuo con una "oración"/línea indivisible que sola excede el máximo:
+    # el builder no puede partirla y la marca (warnings). El invariante la acepta
+    # aunque NO sea tabla/form. Regresión: build fallaba con PDFs de párrafo largo.
+    profile = _profile()
+    child = _child(token_count=451, warnings=("CHILD_EXCEEDS_MAX_TOKENS",))
+
+    bundle = ChunkBundle(
+        document_id="doc-1",
+        profile=profile,
+        parents=(_parent(),),
+        children=(child,),
+    )
+
+    assert bundle.children[0].token_count == 451
+
+
 def test_rechaza_perfil_cuando_minimo_objetivo_y_maximo_son_incoherentes() -> None:
     with pytest.raises(ChunkingProfileError, match="child_min_tokens"):
         _profile(child_min_tokens=351)

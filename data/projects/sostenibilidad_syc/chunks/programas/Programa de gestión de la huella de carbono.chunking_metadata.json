@@ -1,0 +1,18 @@
+{
+  "artifact_relpath": "programas/Programa de gesti\u00f3n de la huella de carbono.chunking_metadata.json",
+  "bundle_fingerprint": "chunk-bundle-5d19f3948593a1404f20806c3def72b1692c0945feeaed461187570c55b0f0e0",
+  "child_count": 1,
+  "corpus_version": "platform-normalized",
+  "document_id": "doc_9e5608de0a72a28f",
+  "normalized_document_id": "ndoc_4b5ca252d45869535748a9123787068c",
+  "normalized_relpath": "programas/Programa de gesti\u00f3n de la huella de carbono.md",
+  "parent_count": 1,
+  "profile_fingerprint": "chunking-profile-0fae4cc79888de2f075e148dd3a2f4fc677fbd0f7fc37ca60b5ae82d22f3d5fd",
+  "profile_id": "cp_custom-3665aaf9f77f-sostenibilidad_syc",
+  "project_id": "proj_sostenibilidad_syc",
+  "rag_variant_id": "ragv_local-bge-syc",
+  "semantic_recipe_fingerprint": "bd82bb646dcddaf91a4c9e4bb94e877c937a9c2ab18ed8f296f2a0827c34eece",
+  "source_document_revision_id": "srev_2c426282d14d3d28d7e1b87bf955180e",
+  "source_hash": "ca33f3ae31ba04c766e464895fa43254bc8062ae87b924426d461acdfbb2d96a",
+  "source_relpath": "programas/Programa de gesti\u00f3n de la huella de carbono.md"
+}

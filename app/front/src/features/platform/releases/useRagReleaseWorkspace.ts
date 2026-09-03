@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
+  activateRelease,
   buildRelease,
+  provisionCustomChunkingVariant,
+  type CustomChunkingParams,
   createReleaseDraft,
   getConfiguration,
   getRelease,
@@ -98,6 +101,11 @@ export function useRagReleaseWorkspace() {
   const [seededStatus, setSeededStatus] = useState<ReleaseBuildStatus | null>(null);
   const [notice, setNotice] = useState<ReleaseWorkspaceNotice>(null);
   const [creating, setCreating] = useState(false);
+  // Activación explícita en vuelo (pone los vectores en vivo). Independiente de
+  // busyAction: no es una transición de estado de la release, es un paso aparte.
+  const [activating, setActivating] = useState(false);
+  // Alta de variante con chunking a medida en vuelo (#2).
+  const [creatingChunkingVariant, setCreatingChunkingVariant] = useState(false);
   // Intención de mutación en vuelo sobre la release seleccionada (deshabilita las
   // acciones y evita doble envío). null = ninguna.
   const [busyAction, setBusyAction] = useState<null | "build" | "validate" | "publish" | "retire">(
@@ -109,6 +117,11 @@ export function useRagReleaseWorkspace() {
   const [draftVariantId, setDraftVariantId] = useState<string | null>(null);
   const [draftSnapshotId, setDraftSnapshotId] = useState<string | null>(null);
   const [draftBindingKey, setDraftBindingKey] = useState<string | null>(null);
+  // Runtime de embedding elegido para el próximo build: `null` = runtime global del
+  // servidor; `local`/`remote` lo fuerza por corrida (solo relevante para BGE).
+  const [buildEmbeddingRuntime, setBuildEmbeddingRuntime] = useState<
+    "local" | "remote" | null
+  >(null);
 
   // Un único AbortController vivo: cambiar de proyecto o refrescar abortan la carga
   // en vuelo para evitar condiciones de carrera entre proyectos.
@@ -352,8 +365,12 @@ export function useRagReleaseWorkspace() {
     try {
       // El build ya no bloquea: encola el job (ADR-010). Un reintento de la MISMA
       // intención reusa la Idempotency-Key (replay server-side, mismo build_job_id).
-      const accepted = await idempotent.run(`build:${releaseId}`, (options) =>
-        buildRelease(releaseId, options),
+      // El runtime entra en la clave: un runtime distinto es una intención de build
+      // distinta (coincide con el fingerprint de idempotencia del backend).
+      const runtime = buildEmbeddingRuntime;
+      const accepted = await idempotent.run(
+        `build:${releaseId}:${runtime ?? "global"}`,
+        (options) => buildRelease(releaseId, runtime, options),
       );
       setNotice({
         tone: "info",
@@ -368,7 +385,7 @@ export function useRagReleaseWorkspace() {
       await handleMutationError(error, releaseId);
       setBusyAction(null);
     }
-  }, [selectedRelease, busyAction, idempotent, handleMutationError]);
+  }, [selectedRelease, busyAction, idempotent, handleMutationError, buildEmbeddingRuntime]);
 
   // Reacción al estado terminal del polling: libera la acción, surfacea el
   // resultado (éxito/fallo/timeout) y, al éxito, resincroniza la release. Nunca
@@ -537,6 +554,64 @@ export function useRagReleaseWorkspace() {
     [selectedRelease, busyAction, idempotent, applyRelease, handleMutationError],
   );
 
+  // Activación explícita: pone los vectores de la release en vivo y crea el
+  // retrieval profile release-scoped (publish NO lo hace). Fail-closed: un error
+  // (release sin build, sin run, no autorizado) se surfacea sin fingir éxito.
+  const activate = useCallback(async (): Promise<boolean> => {
+    if (!selectedRelease || activating) {
+      return false;
+    }
+    const releaseId = selectedRelease.rag_release_id;
+    setActivating(true);
+    setNotice(null);
+    try {
+      const result = await activateRelease(releaseId);
+      const rows = typeof result.activated_rows === "number" ? result.activated_rows : 0;
+      const bundles =
+        typeof result.activated_bundles === "number" ? result.activated_bundles : 0;
+      setNotice({
+        tone: "success",
+        message: `Release activada: ${rows} fila(s) de vectores en vivo en ${bundles} bundle(s). El chatbot ya puede recuperar con este rag_release_id.`,
+      });
+      return true;
+    } catch (error) {
+      setNotice({ tone: "danger", message: messageFromError(error) });
+      return false;
+    } finally {
+      setActivating(false);
+    }
+  }, [selectedRelease, activating]);
+
+  // Crea una variante con hiperparámetros de chunking a medida (#2) y recarga el
+  // catálogo para que aparezca en el selector del draft. El backend valida los
+  // invariantes; un error (receta incoherente) se surfacea fail-closed.
+  const createCustomChunkingVariant = useCallback(
+    async (params: CustomChunkingParams): Promise<boolean> => {
+      if (!projectId || creatingChunkingVariant) {
+        return false;
+      }
+      setCreatingChunkingVariant(true);
+      setNotice(null);
+      try {
+        const result = await provisionCustomChunkingVariant(projectId, params);
+        const variantId =
+          typeof result.rag_variant_id === "string" ? result.rag_variant_id : "";
+        setNotice({
+          tone: "success",
+          message: `Variante con chunking a medida lista${variantId ? ` (${variantId})` : ""}. Elígela en el draft.`,
+        });
+        runLoad(projectId);
+        return true;
+      } catch (error) {
+        setNotice({ tone: "danger", message: messageFromError(error) });
+        return false;
+      } finally {
+        setCreatingChunkingVariant(false);
+      }
+    },
+    [projectId, creatingChunkingVariant, runLoad],
+  );
+
   const selectRelease = useCallback(
     (releaseId: string) => {
       setSelectedRagRelease(releaseId);
@@ -579,11 +654,17 @@ export function useRagReleaseWorkspace() {
     setDraftVariantId,
     setDraftSnapshotId,
     setDraftBindingKey,
+    buildEmbeddingRuntime,
+    setBuildEmbeddingRuntime,
     createDraft,
     build,
     validate,
     publish,
     retire,
+    activate,
+    activating,
+    createCustomChunkingVariant,
+    creatingChunkingVariant,
     selectRelease,
     refresh,
   };

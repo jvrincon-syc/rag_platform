@@ -224,11 +224,11 @@ class Classification(StrictModel):
 # Patrones de identidad de plataforma (ADR-006). Se validan como localizadores
 # tipados; la autoridad de identidad es ``rag_platform.domain.identity``, que NO
 # se importa aquí para no acoplar la lane legacy de ingestion al módulo nuevo.
-_PLATFORM_PROJECT_ID_PATTERN = r"^proj_[a-z0-9][a-z0-9-]{0,127}$"
-_PLATFORM_SOURCE_DOCUMENT_ID_PATTERN = r"^sdoc_[a-z0-9][a-z0-9-]{0,127}$"
-_PLATFORM_REVISION_ID_PATTERN = r"^srev_[a-z0-9][a-z0-9-]{0,127}$"
-_PLATFORM_PROCESSING_PROFILE_ID_PATTERN = r"^pp_[a-z0-9][a-z0-9-]{0,127}$"
-_PLATFORM_RAG_VARIANT_ID_PATTERN = r"^ragv_[a-z0-9][a-z0-9-]{0,127}$"
+_PLATFORM_PROJECT_ID_PATTERN = r"^proj_[a-z0-9][a-z0-9_-]{0,127}$"
+_PLATFORM_SOURCE_DOCUMENT_ID_PATTERN = r"^sdoc_[a-z0-9][a-z0-9_-]{0,127}$"
+_PLATFORM_REVISION_ID_PATTERN = r"^srev_[a-z0-9][a-z0-9_-]{0,127}$"
+_PLATFORM_PROCESSING_PROFILE_ID_PATTERN = r"^pp_[a-z0-9][a-z0-9_-]{0,127}$"
+_PLATFORM_RAG_VARIANT_ID_PATTERN = r"^ragv_[a-z0-9][a-z0-9_-]{0,127}$"
 _PLATFORM_FINGERPRINT_PATTERN = r"^[0-9a-f]{64}$"
 
 

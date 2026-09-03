@@ -9,9 +9,10 @@ export type OperatorSurfaceDefinition = {
   title: string;
 };
 
+// "Pipeline de ingesta" (superficie legacy) se retira de la barra: todo el flujo
+// vive en Platform. El tipo conserva "legacy" para compatibilidad de rutas/tests.
 export const OPERATOR_SURFACES: readonly OperatorSurfaceDefinition[] = [
   { surface: "platform", label: "Platform", title: "RAG Platform" },
-  { surface: "legacy", label: "Pipeline de ingesta", title: "Pipeline de ingesta" },
 ];
 
 const OPERATOR_SURFACE_SET = new Set<OperatorSurface>(

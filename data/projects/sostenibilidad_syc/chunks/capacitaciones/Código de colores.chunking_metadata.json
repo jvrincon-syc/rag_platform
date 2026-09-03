@@ -1,0 +1,18 @@
+{
+  "artifact_relpath": "capacitaciones/C\u00f3digo de colores.chunking_metadata.json",
+  "bundle_fingerprint": "chunk-bundle-783444bfd6a6772eccd4734633ea2152a11da8087ebc84fa7fcbfd1ef517aa3d",
+  "child_count": 1,
+  "corpus_version": "platform-normalized",
+  "document_id": "doc_2534b7f4ab5cb313",
+  "normalized_document_id": "ndoc_53d3cb0d0923e71c750f273953e20673",
+  "normalized_relpath": "capacitaciones/C\u00f3digo de colores.md",
+  "parent_count": 1,
+  "profile_fingerprint": "chunking-profile-0fae4cc79888de2f075e148dd3a2f4fc677fbd0f7fc37ca60b5ae82d22f3d5fd",
+  "profile_id": "cp_custom-3665aaf9f77f-sostenibilidad_syc",
+  "project_id": "proj_sostenibilidad_syc",
+  "rag_variant_id": "ragv_local-bge-syc",
+  "semantic_recipe_fingerprint": "bd82bb646dcddaf91a4c9e4bb94e877c937a9c2ab18ed8f296f2a0827c34eece",
+  "source_document_revision_id": "srev_703cbd32cfb134a4c9fedb83f39225d3",
+  "source_hash": "0569a8189a3cd587a176ef9c4f6d8235f4c154de6f10e652b101469d3443e51c",
+  "source_relpath": "capacitaciones/C\u00f3digo de colores.md"
+}

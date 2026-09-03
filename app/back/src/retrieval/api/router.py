@@ -160,6 +160,7 @@ def list_profiles(
     request: Request,
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=DEFAULT_PAGE_SIZE, ge=1, le=MAX_PAGE_SIZE),
+    project_id: str | None = Query(default=None),
     profiles: RetrievalProfileRepository = Depends(get_profiles),
 ) -> dict:
     principal = get_authenticated_principal(request)
@@ -167,6 +168,7 @@ def list_profiles(
         _profile_payload(profile)
         for profile in profiles.list_profiles()
         if project_in_scope(principal, profile.project_id)
+        and (project_id is None or profile.project_id == project_id)
     ]
     return paginate(items, page=page, page_size=page_size)
 

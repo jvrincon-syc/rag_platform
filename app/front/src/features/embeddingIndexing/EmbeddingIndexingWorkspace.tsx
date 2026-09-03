@@ -30,6 +30,7 @@ type EmbeddingIndexingWorkspaceProps = {
   // `api` es opcional (default = cliente Legacy global). Platform puede inyectar
   // un cliente project-aware sin duplicar esta pantalla ni sus paneles.
   api?: EmbeddingIndexingApiClient;
+  projectId?: string;
 };
 
 // Unified workspace for the bundle-first pipeline. It composes the feature
@@ -41,11 +42,13 @@ export function EmbeddingIndexingWorkspace({
   onStageChange,
   onEmbeddingIndexingStateChange,
   api,
+  projectId,
 }: EmbeddingIndexingWorkspaceProps) {
   const pipeline = useEmbeddingIndexingPipeline({
     persistedState: embeddingIndexingState,
     onPersistedStateChange: onEmbeddingIndexingStateChange,
     api,
+    projectId,
   });
   const { embedding, indexing, activation, retrieval } = pipeline;
 

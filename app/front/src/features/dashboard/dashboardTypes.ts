@@ -137,10 +137,15 @@ export type ActionResult = {
   statusPayload?: StatusPayload;
 };
 
+export type DashboardUploadFormMode = "file" | "text";
+
 export type DashboardUploadForm = {
+  mode: DashboardUploadFormMode;
+  documentName: string;
   category: string;
   folder: string;
   file: File | null;
+  textContent: string;
 };
 
 export type DashboardPreferences = {

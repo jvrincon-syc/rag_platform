@@ -78,6 +78,52 @@
   width: 1px;
 }
 
+.upload-mode-toggle {
+  display: flex;
+  gap: 4px;
+  background: var(--surface, #f0f2f5);
+  border-radius: 8px;
+  padding: 3px;
+}
+
+.upload-mode-toggle button {
+  align-items: center;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--muted, #6b7785);
+  cursor: pointer;
+  display: flex;
+  font-size: 12px;
+  font-weight: 600;
+  gap: 5px;
+  padding: 7px 12px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.upload-mode-toggle button:hover {
+  color: var(--text, #2e3a45);
+}
+
+.upload-mode-toggle button.active {
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  color: var(--text, #2e3a45);
+}
+
+.text-entry-area textarea {
+  border: 1px solid var(--accent-line);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: "JetBrains Mono", "Fira Code", monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  min-height: 180px;
+  padding: 10px;
+  resize: vertical;
+  width: 100%;
+}
+
 @media (max-width: 1180px) {
   .primary-grid {
     grid-template-columns: 1fr;

@@ -428,15 +428,16 @@ describe("RagReleaseWorkspace", () => {
     await screen.findByText("Revisiones construidas");
 
     await waitFor(() => expect(api.buildRelease).toHaveBeenCalledTimes(2));
-    const key1 = api.buildRelease.mock.calls[0][1]?.idempotencyKey;
-    const key2 = api.buildRelease.mock.calls[1][1]?.idempotencyKey;
+    // buildRelease(releaseId, embeddingRuntime, options): la clave va en el 3er arg.
+    const key1 = api.buildRelease.mock.calls[0][2]?.idempotencyKey;
+    const key2 = api.buildRelease.mock.calls[1][2]?.idempotencyKey;
     expect(key1).toBeTruthy();
     expect(key2).toBe(key1); // reintento reusa la clave
 
     // Nueva intención tras respuesta terminal (éxito) → clave distinta.
     await user.click(buildButton);
     await waitFor(() => expect(api.buildRelease).toHaveBeenCalledTimes(3));
-    const key3 = api.buildRelease.mock.calls[2][1]?.idempotencyKey;
+    const key3 = api.buildRelease.mock.calls[2][2]?.idempotencyKey;
     expect(key3).toBeTruthy();
     expect(key3).not.toBe(key2);
   });

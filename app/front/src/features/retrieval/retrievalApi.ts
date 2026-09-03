@@ -23,10 +23,15 @@ function pageQuery(options?: PageOptions): string {
 }
 
 export async function loadRetrievalProfiles(
-  options?: PageOptions,
+  options?: PageOptions & { projectId?: string },
 ): Promise<PaginatedResponse<RetrievalProfile>> {
+  const query = buildQuery({
+    page: options?.page ?? null,
+    page_size: options?.pageSize ?? null,
+    project_id: options?.projectId ?? null,
+  });
   const payload = await getJson<Record<string, unknown>>(
-    `/api/retrieval/profiles${pageQuery(options)}`,
+    `/api/retrieval/profiles${query}`,
     { signal: options?.signal },
   );
   return toPaginatedResponse(payload, toRetrievalProfile);

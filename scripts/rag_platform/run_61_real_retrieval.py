@@ -45,7 +45,9 @@ _SYSTEM = (
     "For specific questions about emails, names, dates, deadlines, locations, or phone numbers, "
     "give the exact data first instead of a general summary. "
     "If the evidence is insufficient, say so clearly. Use plain text only, answer in the user's "
-    "language, and do not include a Fuentes/Sources section because the UI shows citations separately."
+    "language, and include a direct document reference in the answer text using this pattern: "
+    "'En el documento {documento} se estipula ...'. Do not include a Fuentes/Sources section "
+    "because the UI shows citations separately."
 )
 
 QUESTIONS = [
@@ -122,10 +124,18 @@ def _doc_name(evidence) -> str:
     return evidence.document_id
 
 
+def _answer_reference_phrase(document_name: str) -> str:
+    return f"En el documento {document_name} se estipula"
+
+
 def _build_messages(question: str, evidence) -> list[dict]:
     sb = [f"QUESTION:\n{question}\n\nEVIDENCE:\n"]
     for i, e in enumerate(evidence, 1):
-        head = f"\n[SOURCE {i}] Document: {_doc_name(e)}"
+        document_name = _doc_name(e)
+        head = (
+            f"\n[SOURCE {i}] Document: {document_name}"
+            f" | Direct reference phrase: {_answer_reference_phrase(document_name)}"
+        )
         if e.page_start is not None:
             head += f" | Page: {e.page_start}"
         if e.section_title:
@@ -202,7 +212,6 @@ def main() -> int:
 
     dsn = build_dsn_from_env(dict(load_env_file(_REPO_ROOT / "secrets.env")))
     os.environ["RAG_PLATFORM_POSTGRES_DSN"] = dsn
-    os.environ["SST_POSTGRES_DSN"] = dsn
     os.environ["SST_PERSISTENCE_MODE"] = "postgres"
     os.environ["SST_FEATURE_RAG_PLATFORM_V1"] = "true"
 

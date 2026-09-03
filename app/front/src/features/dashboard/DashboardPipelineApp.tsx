@@ -67,9 +67,12 @@ export function DashboardPipelineApp({
   const [reviewNotes, setReviewNotes] = useState<Record<string, string>>({});
   const [lastResult, setLastResult] = useState<ActionResult | null>(null);
   const [uploadForm, setUploadForm] = useState<DashboardUploadForm>({
-    category: "general_sst",
-    folder: "manuales",
+    mode: "file",
+    documentName: "",
+    category: "",
+    folder: "",
     file: null,
+    textContent: "",
   });
 
   const {
@@ -129,6 +132,17 @@ export function DashboardPipelineApp({
     ).sort() as string[];
   }, [documents]);
 
+  const existingFolders = useMemo(() => {
+    const folders = new Set<string>();
+    for (const doc of documents) {
+      const parts = doc.sourceRelpath.split("/");
+      if (parts.length > 1) {
+        folders.add(parts.slice(0, -1).join("/"));
+      }
+    }
+    return Array.from(folders).sort();
+  }, [documents]);
+
   const ingestionMethodOptions = useMemo(() => {
     return Array.from(
       new Map(
@@ -172,16 +186,34 @@ export function DashboardPipelineApp({
 
   const handleUpload = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!uploadForm.file) {
-      setNotice({ tone: "warning", message: "Selecciona un archivo .pdf o .md." });
+    const name = uploadForm.documentName.trim();
+    if (!name) {
+      setNotice({ tone: "warning", message: "Ingresa un nombre para el documento." });
       return;
     }
 
+    let fileToSend: File;
+    if (uploadForm.mode === "text") {
+      if (!uploadForm.textContent.trim()) {
+        setNotice({ tone: "warning", message: "Escribe o pega el contenido del documento." });
+        return;
+      }
+      fileToSend = new File([uploadForm.textContent], `${name}.md`, { type: "text/markdown" });
+    } else {
+      if (!uploadForm.file) {
+        setNotice({ tone: "warning", message: "Selecciona un archivo .pdf o .md." });
+        return;
+      }
+      fileToSend = uploadForm.file;
+    }
+
+    const formWithFile = { ...uploadForm, file: fileToSend };
+
     setBusyAction("upload");
     try {
-      const payload = await dataSource.uploadDocument(uploadForm);
+      const payload = await dataSource.uploadDocument(formWithFile);
       setLastResult(payload);
-      setUploadForm((current) => ({ ...current, file: null }));
+      setUploadForm((current) => ({ ...current, file: null, textContent: "", documentName: "" }));
       setNotice({
         tone: "success",
         message: `Documento cargado: ${payload.sourceRelpath ?? "sin ruta"}`,
@@ -406,6 +438,7 @@ export function DashboardPipelineApp({
             <section className="primary-grid">
               <UploadPanel
                 categories={categories}
+                existingFolders={existingFolders}
                 form={uploadForm}
                 busy={busyAction === "upload"}
                 onChange={setUploadForm}

@@ -1,0 +1,18 @@
+{
+  "artifact_relpath": "politicas/Pol\u00edtica de uso racional del papel, digitalizaci\u00f3n sostenible y transformaci\u00f3n hacia procesos digitales.chunking_metadata.json",
+  "bundle_fingerprint": "chunk-bundle-e09c0cd562c8b646aeae36f7a39932e3ded3ea359b37291e7f725b2591acef57",
+  "child_count": 1,
+  "corpus_version": "platform-normalized",
+  "document_id": "doc_af91c2b002c6668d",
+  "normalized_document_id": "ndoc_978625a1184db72747aa0be3fe8d0ac2",
+  "normalized_relpath": "politicas/Pol\u00edtica de uso racional del papel, digitalizaci\u00f3n sostenible y transformaci\u00f3n hacia procesos digitales.md",
+  "parent_count": 1,
+  "profile_fingerprint": "chunking-profile-0fae4cc79888de2f075e148dd3a2f4fc677fbd0f7fc37ca60b5ae82d22f3d5fd",
+  "profile_id": "cp_custom-3665aaf9f77f-sostenibilidad_syc",
+  "project_id": "proj_sostenibilidad_syc",
+  "rag_variant_id": "ragv_local-bge-syc",
+  "semantic_recipe_fingerprint": "bd82bb646dcddaf91a4c9e4bb94e877c937a9c2ab18ed8f296f2a0827c34eece",
+  "source_document_revision_id": "srev_e6bf00343238a86d598d9c7eee79b11e",
+  "source_hash": "a93af5697636d806aa13648985e4921a424e82ab41fbc60dd778f1679ea48fd9",
+  "source_relpath": "politicas/Pol\u00edtica de uso racional del papel, digitalizaci\u00f3n sostenible y transformaci\u00f3n hacia procesos digitales.md"
+}

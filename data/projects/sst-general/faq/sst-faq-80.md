@@ -20,6 +20,7 @@ Para `insufficient_evidence` o `conflicting_evidence`, debe devolver `answer` si
 question: Que establece la politica de seguridad y salud en el trabajo?
 answer: La organización establece una política de SST con participación del COPASST, orientada a prevenir y controlar los riesgos, asignar recursos, mejorar continuamente y cumplir los requisitos aplicables.
 status: supported
+source_url: /api/documents/raw/general_sst/manuales/politica/politica.md
 references:
   - normalized_path: general_sst/manuales/politica/politica.md
     document_title: POLITICA DE SEGURIDAD Y SALUD EN EL TRABAJO
@@ -32,6 +33,7 @@ references:
 question: Cuales son los objetivos del SG-SST?
 answer: Los objetivos incluyen mantener la accidentalidad y la morbilidad, fortalecer las competencias, cerrar eficazmente las acciones y mejorar continuamente la gestión de SST.
 status: supported
+source_url: /api/documents/raw/general_sst/manuales/planificacion/planificacion_info.md
 references:
   - normalized_path: general_sst/manuales/planificacion/planificacion_info.md
     pages: [1]
@@ -43,6 +45,7 @@ references:
 question: Como identifica la empresa los peligros y valora los riesgos?
 answer: La identificación de peligros es continua e incluye la evaluación y el control de riesgos, la participación de los trabajadores y la priorización mediante la jerarquía de controles.
 status: supported
+source_url: /api/documents/raw/general_sst/manuales/planificacion/planificacion_info.md
 references:
   - normalized_path: general_sst/manuales/planificacion/planificacion_info.md
     pages: [1]
@@ -54,6 +57,7 @@ references:
 question: Que programas conforman la planificacion del SG-SST?
 answer: La planificación contempla los programas de medicina preventiva y del trabajo, higiene industrial y seguridad industrial, integrados a un plan anual con seguimiento y medición.
 status: supported
+source_url: /api/documents/raw/general_sst/manuales/planificacion/planificacion_info.md
 references:
   - normalized_path: general_sst/manuales/planificacion/planificacion_info.md
     pages: [1]
@@ -65,6 +69,7 @@ references:
 question: Como se gestionan los requisitos legales en SST?
 answer: La organización mantiene una matriz actualizada de requisitos legales y otros requisitos aplicables, mediante un procedimiento de identificación y análisis oportuno.
 status: supported
+source_url: /api/documents/raw/general_sst/manuales/planificacion/planificacion_info.md
 references:
   - normalized_path: general_sst/manuales/planificacion/planificacion_info.md
     pages: [1]
@@ -76,6 +81,7 @@ references:
 question: Que contempla la gestion del cambio en seguridad y salud?
 answer: Antes de aplicar cambios internos o externos, la organización evalúa su impacto sobre la seguridad y salud en el trabajo.
 status: supported
+source_url: /api/documents/raw/general_sst/manuales/aplicacion/aplicacion_info.md
 references:
   - normalized_path: general_sst/manuales/aplicacion/aplicacion_info.md
     document_title: GESTION DEL CAMBIO
@@ -88,6 +94,7 @@ references:
 question: Como se prepara la empresa para emergencias?
 answer: La organización previene, prepara y responde ante emergencias mediante análisis de amenazas, brigada, capacitación, inspecciones y simulacros.
 status: supported
+source_url: /api/documents/raw/general_sst/manuales/aplicacion/aplicacion_info.md
 references:
   - normalized_path: general_sst/manuales/aplicacion/aplicacion_info.md
     pages: [1]
@@ -99,6 +106,7 @@ references:
 question: Que lineamientos aplican a proveedores y contratistas en SST?
 answer: Los proveedores y contratistas son seleccionados, informados y verificados en requisitos de SST, seguridad social, competencia y reporte de presuntos eventos laborales.
 status: supported
+source_url: /api/documents/raw/general_sst/manuales/aplicacion/aplicacion_info.md
 references:
   - normalized_path: general_sst/manuales/aplicacion/aplicacion_info.md
     pages: [1]
@@ -110,6 +118,7 @@ references:
 question: Como se hacen auditorias internas del SG-SST?
 answer: Se realizan auditorías internas anuales para determinar la eficacia del SG-SST, conforme al procedimiento documentado PR MC-03.
 status: supported
+source_url: /api/documents/raw/general_sst/manuales/auditoria/auditoria_info.md
 references:
   - normalized_path: general_sst/manuales/auditoria/auditoria_info.md
     document_title: AUDITORIA INTERNA
@@ -122,6 +131,7 @@ references:
 question: Como se revisa el SG-SST por la alta direccion?
 answer: La alta dirección revisa anualmente el SG-SST, sus resultados, recursos, objetivos, cambios y oportunidades de mejora; documenta y comunica las conclusiones.
 status: supported
+source_url: /api/documents/raw/general_sst/manuales/auditoria/auditoria_info.md
 references:
   - normalized_path: general_sst/manuales/auditoria/auditoria_info.md
     document_title: AUDITORIA INTERNA
@@ -134,6 +144,7 @@ references:
 question: Que fuentes se usan para identificar oportunidades de mejora continua?
 answer: La mejora continua se apoya en cambios legales, objetivos, riesgos, auditorías, investigaciones, recomendaciones y revisión por la dirección.
 status: supported
+source_url: /api/documents/raw/general_sst/manuales/mejora/mejora_info.md
 references:
   - normalized_path: general_sst/manuales/mejora/mejora_info.md
     pages: [1]
@@ -145,6 +156,7 @@ references:
 question: Como se gestionan las acciones correctivas y preventivas?
 answer: Las acciones correctivas y preventivas analizan las causas de no conformidades y requieren planificación, aplicación, verificación de eficacia y documentación.
 status: supported
+source_url: /api/documents/raw/general_sst/manuales/mejora/mejora_info.md
 references:
   - normalized_path: general_sst/manuales/mejora/mejora_info.md
     document_title: ACCIONES CORRECTIVAS Y PREVENTIVAS
@@ -157,6 +169,7 @@ references:
 question: Como se investigan incidentes accidentes y enfermedades laborales?
 answer: Se investigan incidentes, presuntos accidentes y enfermedades relacionadas con el trabajo para identificar deficiencias y definir medidas de prevención, corrección o mejora.
 status: supported
+source_url: /api/documents/raw/general_sst/manuales/verificacion/verificacion_info.md
 references:
   - normalized_path: general_sst/manuales/verificacion/verificacion_info.md
     document_title: INVESTIGACION DE INCIDENTES, ACCIDENTES Y ENFERMEDADES RELACIONADAS CON EL TRABAJO
@@ -169,6 +182,7 @@ references:
 question: Que debe comunicarse al COPASST sobre investigaciones de accidentes?
 answer: Deben comunicarse las conclusiones principales de las investigaciones a los representantes del COPASST y atenderse sus observaciones y recomendaciones.
 status: supported
+source_url: /api/documents/raw/general_sst/manuales/verificacion/verificacion_info.md
 references:
   - normalized_path: general_sst/manuales/verificacion/verificacion_info.md
     document_title: INVESTIGACION DE INCIDENTES, ACCIDENTES Y ENFERMEDADES RELACIONADAS CON EL TRABAJO
@@ -181,6 +195,7 @@ references:
 question: Que responsabilidades tiene la ARL en seguridad y salud en el trabajo?
 answer: La evidencia disponible no identifica de forma explícita las responsabilidades de la ARL. El material relacionado menciona capacitación y asesoría técnica, pero no permite atribuirlas de manera verificable a la ARL.
 status: insufficient_evidence
+source_url: /api/documents/raw/general_sst/manuales/organizacion/arl/funciones_responsabilidades.md
 references:
   - normalized_path: general_sst/manuales/organizacion/arl/funciones_responsabilidades.md
     pages: [1]
@@ -192,6 +207,7 @@ references:
 question: Que responsabilidades de SST tiene la organizacion?
 answer: La organización es responsable de proteger la seguridad y salud de sus trabajadores y asigna responsabilidades de SST específicas a cada cargo.
 status: supported
+source_url: /api/documents/raw/general_sst/manuales/organizacion/organizacion.md
 references:
   - normalized_path: general_sst/manuales/organizacion/organizacion.md
     pages: [1]
@@ -203,6 +219,7 @@ references:
 question: Como funciona la induccion y capacitacion anual en SST?
 answer: Todo trabajador recibe inducción en SST al ingresar. Además, existe un programa anual que identifica necesidades, actualiza contenidos y evalúa resultados con participación del COPASST.
 status: supported
+source_url: /api/documents/raw/general_sst/manuales/organizacion/organizacion.md
 references:
   - normalized_path: general_sst/manuales/organizacion/organizacion.md
     pages: [1]
@@ -214,6 +231,7 @@ references:
 question: Cuales son las funciones del COPASST?
 answer: El COPASST recibe información y resultados del SG-SST, rinde cuentas, emite recomendaciones, participa en capacitación, auditorías e investigaciones, y apoya la prevención, el control y la gestión del cambio.
 status: supported
+source_url: /api/documents/raw/copasst/funciones_copasst.md
 references:
   - normalized_path: copasst/funciones_copasst.md
     pages: [1]
@@ -225,6 +243,7 @@ references:
 question: Que funciones tiene el presidente del COPASST?
 answer: La presidencia representa al empleador, convoca y preside reuniones, coordina el plan anual, hace seguimiento a decisiones, eleva recomendaciones, apoya medidas preventivas y promueve la participación.
 status: supported
+source_url: /api/documents/raw/copasst/funciones_presidente_copasst.md
 references:
   - normalized_path: copasst/funciones_presidente_copasst.md
     pages: [1]
@@ -236,6 +255,7 @@ references:
 question: Que funciones tiene la secretaria del COPASST?
 answer: La secretaría custodia actas, controla asistencia y quórum, mantiene la documentación, apoya las reuniones, distribuye comunicaciones y hace seguimiento a compromisos y al plan de trabajo.
 status: supported
+source_url: /api/documents/raw/copasst/funciones_secretario_copasst.md
 references:
   - normalized_path: copasst/funciones_secretario_copasst.md
     document_title: Funciones de la Secretaria del COPASST
@@ -248,6 +268,7 @@ references:
 question: Como se puede comunicar un trabajador con el COPASST?
 answer: Puede comunicarse con el COPASST por copasst@syc.com.co, Seguridadysalud@syc.com.co o por llamadas y WhatsApp al 3176451139.
 status: supported
+source_url: /api/documents/raw/copasst/comunicacion.md
 references:
   - normalized_path: copasst/comunicacion.md
     pages: [1]
@@ -259,6 +280,7 @@ references:
 question: Quienes son los miembros principales y suplentes del COPASST 2025 a 2027?
 answer: Por los trabajadores, los principales son Juan Camilo Palacios Pedraza, Leidy Salamanca Manrique, Angie Daniela Cardenas Alvarado y Ronal Estiven Barbosa Alquichire; los suplentes son Elvia Carolina Rocha Majey, Diego Fernando Porras Lizarazo, Jose David Corpas Tobias y Danilson Reyes Tovar. Por el empleador, los principales son Joan Mauricio Arenas Clavijo, Francis Daniel Vera Cordero, Diana Patricia Florez Rueda y Sergio Ivan Serrano Solano; los suplentes son Jose Fernando Herrera Ortiz, Adriana Marcela Bernal Garcia, Luz Stella Celis Rios y Luz Fernelly Pinzon Sosa.
 status: supported
+source_url: /api/documents/raw/copasst/miembros_copasst_2025_2027.md
 references:
   - normalized_path: copasst/miembros_copasst_2025_2027.md
     document_title: REPRESENTANTES DE LOS TRABAJADORES
@@ -271,6 +293,7 @@ references:
 question: Quien fue nombrado presidente y secretaria del COPASST?
 answer: Para el periodo identificado como 2025-2027, Jose Fernando Herrera Ortiz fue nombrado presidente y Adriana Marcela Bernal Garcia fue elegida secretaria por unanimidad.
 status: supported
+source_url: /api/documents/raw/copasst/miembros_copasst_2025_2027.md
 references:
   - normalized_path: copasst/miembros_copasst_2025_2027.md
     pages: [1]
@@ -601,6 +624,7 @@ references:
 question: Que recomendaciones de seguridad vial aparecen en el corpus?
 answer: Use cinturón de seguridad, señalice, evite distracciones, descanse, conserve distancia, respete las normas y a los peatones, modere la velocidad y mantenga el vehículo.
 status: supported
+source_url: /api/documents/raw/general_sst/capacitaciones/politica_seguridad_trabajo/seguridad_vial/prevencion_vial.md
 references:
   - normalized_path: general_sst/capacitaciones/politica_seguridad_trabajo/seguridad_vial/prevencion_vial.md
     pages: [1]
@@ -612,6 +636,7 @@ references:
 question: Que compromisos tiene el PESV o plan estrategico de seguridad vial?
 answer: El PESV compromete recursos para planear, implementar, seguir y mejorar la prevención vial, junto con gestión de riesgos, cumplimiento normativo y mantenimiento vehicular.
 status: supported
+source_url: /api/documents/raw/general_sst/capacitaciones/politica_seguridad_trabajo/seguridad_vial/seguridad_vial_info.md
 references:
   - normalized_path: general_sst/capacitaciones/politica_seguridad_trabajo/seguridad_vial/seguridad_vial_info.md
     document_title: POLITICA DE SEGURIDAD VIAL
@@ -624,6 +649,7 @@ references:
 question: Que significa cero tolerancia frente a alcohol y sustancias en seguridad vial?
 answer: El PESV contempla un programa de cero tolerancia a la conducción bajo efectos de alcohol y sustancias psicoactivas.
 status: supported
+source_url: /api/documents/raw/general_sst/capacitaciones/politica_seguridad_trabajo/seguridad_vial/seguridad_vial_info.md
 references:
   - normalized_path: general_sst/capacitaciones/politica_seguridad_trabajo/seguridad_vial/seguridad_vial_info.md
     document_title: POLITICA DE SEGURIDAD VIAL
@@ -696,6 +722,7 @@ references:
 question: Por que la seguridad vial es una responsabilidad compartida?
 answer: La seguridad vial es una responsabilidad compartida y la prevención comienza con cada decisión al conducir.
 status: supported
+source_url: /api/documents/raw/general_sst/capacitaciones/politica_seguridad_trabajo/seguridad_vial/prevencion_vial.md
 references:
   - normalized_path: general_sst/capacitaciones/politica_seguridad_trabajo/seguridad_vial/prevencion_vial.md
     pages: [1]
@@ -707,6 +734,7 @@ references:
 question: Que programa incluye el PESV para proteger actores viales vulnerables?
 answer: El PESV incluye un programa para proteger a los actores viales vulnerables.
 status: supported
+source_url: /api/documents/raw/general_sst/capacitaciones/politica_seguridad_trabajo/seguridad_vial/seguridad_vial_info.md
 references:
   - normalized_path: general_sst/capacitaciones/politica_seguridad_trabajo/seguridad_vial/seguridad_vial_info.md
     document_title: POLITICA DE SEGURIDAD VIAL
@@ -719,6 +747,7 @@ references:
 question: Que metodologia debe adoptar la empresa para mejorar continuamente la prevencion del riesgo vial?
 answer: Debe adoptar una metodología para mantener y garantizar la mejora continua de las estrategias de prevención del riesgo vial.
 status: supported
+source_url: /api/documents/raw/general_sst/capacitaciones/politica_seguridad_trabajo/seguridad_vial/seguridad_vial_info.md
 references:
   - normalized_path: general_sst/capacitaciones/politica_seguridad_trabajo/seguridad_vial/seguridad_vial_info.md
     document_title: POLITICA DE SEGURIDAD VIAL
@@ -743,6 +772,7 @@ references:
 question: "A quien aplica la politica de Seguridad y Salud en el Trabajo?"
 answer: "La política aplica a todos los centros de trabajo y es de cumplimiento para trabajadores, contratistas, subcontratistas y demás partes interesadas, sin importar su forma de vinculación."
 status: supported
+source_url: /api/documents/raw/general_sst/manuales/politica/politica.md
 references:
   - normalized_path: general_sst/manuales/politica/politica.md
     document_title: POLITICA DE SEGURIDAD Y SALUD EN EL TRABAJO
@@ -755,6 +785,7 @@ references:
 question: "Como se priorizan las medidas para controlar peligros y riesgos?"
 answer: "Las medidas se priorizan en este orden: eliminación, sustitución, controles de ingeniería, controles administrativos y, por último, equipos de protección personal."
 status: supported
+source_url: /api/documents/raw/general_sst/manuales/planificacion/planificacion_info.md
 references:
   - normalized_path: general_sst/manuales/planificacion/planificacion_info.md
     pages: [1]
@@ -766,6 +797,7 @@ references:
 question: "Cual es la finalidad del Programa de Medicina Preventiva y del Trabajo?"
 answer: "Busca promover, prevenir y controlar la salud de la persona trabajadora frente a riesgos ocupacionales, favoreciendo una ubicación acorde con sus condiciones psicofisiológicas."
 status: supported
+source_url: /api/documents/raw/general_sst/manuales/planificacion/planificacion_info.md
 references:
   - normalized_path: general_sst/manuales/planificacion/planificacion_info.md
     document_title: PROGRAMA DE MEDICINA PREVENTIVA Y DEL TRABAJO
@@ -778,6 +810,7 @@ references:
 question: "Que preparacion reciben los trabajadores frente a una emergencia?"
 answer: "La organización contempla entrenamiento para actuar antes, durante y después de emergencias, además de brigada, inspecciones de equipos y simulacros planificados y evaluados."
 status: supported
+source_url: /api/documents/raw/general_sst/manuales/aplicacion/aplicacion_info.md
 references:
   - normalized_path: general_sst/manuales/aplicacion/aplicacion_info.md
     pages: [1]
@@ -789,6 +822,7 @@ references:
 question: "Que deben informar los contratistas sobre accidentes o enfermedades relacionadas con su trabajo?"
 answer: "Deben informar a Sistemas y Computadores los presuntos accidentes y enfermedades profesionales ocurridos durante el objeto contractual, para activar las acciones de prevención y control correspondientes."
 status: supported
+source_url: /api/documents/raw/general_sst/manuales/aplicacion/aplicacion_info.md
 references:
   - normalized_path: general_sst/manuales/aplicacion/aplicacion_info.md
     pages: [1]
@@ -800,6 +834,7 @@ references:
 question: "Que situaciones cubre la supervision reactiva del SG-SST?"
 answer: "Incluye identificar, notificar e investigar incidentes, accidentes, enfermedades laborales, ausentismo asociado a SST, daños relacionados y fallas de gestión."
 status: supported
+source_url: /api/documents/raw/general_sst/manuales/verificacion/verificacion_info.md
 references:
   - normalized_path: general_sst/manuales/verificacion/verificacion_info.md
     pages: [1]
@@ -811,6 +846,7 @@ references:
 question: "Que responsabilidad tienen quienes usan vehiculos para actividades de la empresa?"
 answer: "Los trabajadores y contratistas que usen vehículos propios o de terceros para actividades contratadas deben participar en las actividades de seguridad vial para reducir la probabilidad de siniestros."
 status: supported
+source_url: /api/documents/raw/general_sst/capacitaciones/politica_seguridad_trabajo/seguridad_vial/seguridad_vial_info.md
 references:
   - normalized_path: general_sst/capacitaciones/politica_seguridad_trabajo/seguridad_vial/seguridad_vial_info.md
     document_title: POLITICA DE SEGURIDAD VIAL
@@ -955,6 +991,7 @@ references:
 question: "Si se usa un vehiculo propio o de terceros para trabajar se debe participar en seguridad vial?"
 answer: "Sí. Los trabajadores y contratistas que usen esos vehículos para actividades contratadas deben participar en las actividades de prevención vial."
 status: supported
+source_url: /api/documents/raw/general_sst/capacitaciones/politica_seguridad_trabajo/seguridad_vial/seguridad_vial_info.md
 references:
   - normalized_path: general_sst/capacitaciones/politica_seguridad_trabajo/seguridad_vial/seguridad_vial_info.md
     document_title: POLITICA DE SEGURIDAD VIAL
@@ -1072,6 +1109,7 @@ status: supported
 question: "Quien es el presidente del comite de convivencia laboral?"
 answer: "El presidente del Comité de Convivencia Laboral es Joan Mauricio Arenas Clavijo, representante del empleador (Administración, Floridablanca)."
 status: supported
+source_url: /api/documents/raw/convivencia_laboral/reglamento_comite/conformacion_comite.md
 references:
   - normalized_path: convivencia_laboral/reglamento_comite/conformacion_comite.md
     document_title: CONFORMACION DEL COMITE DE CONVIVENCIA LABORAL
@@ -1083,6 +1121,7 @@ references:
 question: "Quien es la secretaria del comite de convivencia laboral?"
 answer: "La secretaria del Comité de Convivencia Laboral es Dayana Yuliza Méndez Caballero, representante del empleador."
 status: supported
+source_url: /api/documents/raw/convivencia_laboral/reglamento_comite/conformacion_comite.md
 references:
   - normalized_path: convivencia_laboral/reglamento_comite/conformacion_comite.md
     document_title: CONFORMACION DEL COMITE DE CONVIVENCIA LABORAL
@@ -1094,6 +1133,7 @@ references:
 question: "Quienes son los miembros del comite de convivencia laboral?"
 answer: "El Comité de Convivencia Laboral está conformado por representantes del empleador —Joan Mauricio Arenas Clavijo (presidente), Dayana Yuliza Méndez Caballero (secretaria), Diana Patricia Flórez Rueda y Luz Marina Grimaldos Rojas (suplentes)— y representantes de los trabajadores —Jenny Carolina Velandia Arévalo y Sharik Arianna Caicedo Hernández (principales), Iván Orlando Díaz Ortiz y Luz Adriana Hernández Basto (suplentes)."
 status: supported
+source_url: /api/documents/raw/convivencia_laboral/reglamento_comite/conformacion_comite.md
 references:
   - normalized_path: convivencia_laboral/reglamento_comite/conformacion_comite.md
     document_title: CONFORMACION DEL COMITE DE CONVIVENCIA LABORAL
@@ -1106,4 +1146,196 @@ references:
 question: "Que es SST?"
 answer: "SST corresponde a las siglas de Salud y Seguridad en el trabajo. Tienes alguna otra pregunta?"
 status: supported
+```
+
+## FAQ-100
+```yaml
+question: "Que Decreto establece las funciones del COPASST?"
+answer: "El Decreto 1072 de 2015 establece las funciones del COPASST al compilar del Decreto 1443 de 2014."
+status: supported
+source_url: /api/documents/raw/general_sst/manuales/organizacion/copasst/Funciones_Responsabilidades.md
+references:
+  - normalized_path: general_sst/manuales/organizacion/copasst/Funciones_Responsabilidades.md
+    pages: [1]
+    chunk_ids: [child-91d967f28e01006d0ad1b421ab4140330926748715647372decccf7a8c649a6d]
+```
+
+## FAQ-101
+```yaml
+question: "Que debe recibir el COPASST del empleador segun el Decreto 1072?"
+answer: "El COPASST debe recibir del empleador información sobre el desarrollo de todas las etapas del Sistema de Gestión de Seguridad y Salud en el Trabajo (SG-SST)."
+status: supported
+source_url: /api/documents/raw/general_sst/manuales/organizacion/copasst/Funciones_Responsabilidades.md
+references:
+  - normalized_path: general_sst/manuales/organizacion/copasst/Funciones_Responsabilidades.md
+    pages: [1]
+    chunk_ids: [child-91d967f28e01006d0ad1b421ab4140330926748715647372decccf7a8c649a6d]
+```
+
+## FAQ-102
+```yaml
+question: "Que rol tiene el COPASST en las auditorias del SG-SST?"
+answer: "El COPASST participa en la planificación de las auditorías y tiene conocimiento de los resultados de la revisión de la alta dirección."
+status: supported
+source_url: /api/documents/raw/general_sst/manuales/organizacion/copasst/Funciones_Responsabilidades.md
+references:
+  - normalized_path: general_sst/manuales/organizacion/copasst/Funciones_Responsabilidades.md
+    pages: [1]
+    chunk_ids: [child-91d967f28e01006d0ad1b421ab4140330926748715647372decccf7a8c649a6d]
+```
+
+## FAQ-103
+```yaml
+question: "El COPASST participa en investigaciones de accidentes?"
+answer: "Sí, el COPASST forma parte del equipo investigador de incidentes, accidentes de trabajo y enfermedades laborales."
+status: supported
+source_url: /api/documents/raw/general_sst/manuales/organizacion/copasst/Funciones_Responsabilidades.md
+references:
+  - normalized_path: general_sst/manuales/organizacion/copasst/Funciones_Responsabilidades.md
+    pages: [1]
+    chunk_ids: [child-91d967f28e01006d0ad1b421ab4140330926748715647372decccf7a8c649a6d]
+```
+
+## FAQ-104
+```yaml
+question: "Que marco legal regula el COPASST?"
+answer: "El COPASST da cumplimiento a la Resolución 2013 de 1986 y el Decreto 1295 de 1994."
+status: supported
+source_url: /api/documents/raw/general_sst/manuales/organizacion/copasst/Aspectos_juridicos_laborales.md
+references:
+  - normalized_path: general_sst/manuales/organizacion/copasst/Aspectos_juridicos_laborales.md
+    pages: [1]
+    chunk_ids: [child-91d967f28e01006d0ad1b421ab4140330926748715647372decccf7a8c649a6d]
+```
+
+## FAQ-105
+```yaml
+question: "Cuales son las obligaciones de los miembros del comite de convivencia?"
+answer: "Los miembros deben asistir puntualmente o excusarse con 48 horas de anticipación, mantener confidencialidad, contribuir a consensos, asumir compromisos de capacitación y llevar a cabo tareas encomendadas."
+status: supported
+source_url: /api/documents/raw/convivencia_laboral/reglamento_comite/conformacion_comite.md
+references:
+  - normalized_path: convivencia_laboral/reglamento_comite/conformacion_comite.md
+    document_title: CONFORMACION DEL COMITE DE CONVIVENCIA LABORAL
+    pages: [1]
+```
+
+## FAQ-106
+```yaml
+question: "Cuanto dura el periodo del comite de convivencia laboral?"
+answer: "El periodo del Comité es de dos años, contados a partir de la fecha de su conformación."
+status: supported
+source_url: /api/documents/raw/convivencia_laboral/reglamento_comite/conformacion_comite.md
+references:
+  - normalized_path: convivencia_laboral/reglamento_comite/conformacion_comite.md
+    document_title: CONFORMACION DEL COMITE DE CONVIVENCIA LABORAL
+    pages: [1]
+```
+
+## FAQ-107
+```yaml
+question: "Que pasa si un miembro del comite de convivencia recibe sancion disciplinaria?"
+answer: "Haber sido sujeto de imposición de sanción disciplinaria por falta grave es causal de retiro del Comité de Convivencia Laboral."
+status: supported
+source_url: /api/documents/raw/convivencia_laboral/reglamento_comite/conformacion_comite.md
+references:
+  - normalized_path: convivencia_laboral/reglamento_comite/conformacion_comite.md
+    document_title: CONFORMACION DEL COMITE DE CONVIVENCIA LABORAL
+    pages: [1]
+```
+
+## FAQ-108
+```yaml
+question: "Que occur si hay empate en la votacion del comite de convivencia?"
+answer: "Si hay empate, se realiza una nueva votación exclusivamente entre las personas que hayan obtenido la misma cantidad de votos, en un plazo de cinco días hábiles."
+status: supported
+source_url: /api/documents/raw/convivencia_laboral/reglamento_comite/conformacion_comite.md
+references:
+  - normalized_path: convivencia_laboral/reglamento_comite/conformacion_comite.md
+    document_title: CONFORMACION DEL COMITE DE CONVIVENCIA LABORAL
+    pages: [1]
+```
+
+## FAQ-109
+```yaml
+question: "Que debe hacer un miembro del comite si tiene un conflicto de interes?"
+answer: "Si un miembro considera que existe un factor que impide su actuación con autonomía e imparcialidad, debe manifestarlo a los demás miembros para que se pronuncien."
+status: supported
+source_url: /api/documents/raw/convivencia_laboral/reglamento_comite/conformacion_comite.md
+references:
+  - normalized_path: convivencia_laboral/reglamento_comite/conformacion_comite.md
+    document_title: CONFORMACION DEL COMITE DE CONVIVENCIA LABORAL
+    pages: [1]
+```
+
+## FAQ-110
+```yaml
+question: "Que informe debe presentar el comite de convivencia a la alta direccion?"
+answer: "El Comité debe realizar informes trimestrales sobre su gestión, incluyendo estadísticas de quejas, seguimiento de casos y recomendaciones."
+status: supported
+source_url: /api/documents/raw/general_sst/manuales/organizacion/comite_convivencia_laboral/funciones_responsabilidades.md
+references:
+  - normalized_path: general_sst/manuales/organizacion/comite_convivencia_laboral/funciones_responsabilidades.md
+    pages: [1]
+    chunk_ids: [child-d5270117a7fc41b41989a8665dd573d602dba0ea6c4901bf14c0a6c7301e3b0b]
+```
+
+## FAQ-111
+```yaml
+question: "Que pasa si no se logra un acuerdo en el comite de convivencia?"
+answer: "Si no se llega a un acuerdo, no se cumplen las recomendaciones o la conducta persiste, el Comité informa a la alta dirección, cierra el caso y el trabajador puede presentar queja ante el Inspector de Trabajo."
+status: supported
+source_url: /api/documents/raw/general_sst/manuales/organizacion/comite_convivencia_laboral/funciones_responsabilidades.md
+references:
+  - normalized_path: general_sst/manuales/organizacion/comite_convivencia_laboral/funciones_responsabilidades.md
+    pages: [1]
+    chunk_ids: [child-d5270117a7fc41b41989a8665dd573d602dba0ea6c4901bf14c0a6c7301e3b0b]
+```
+
+## FAQ-112
+```yaml
+question: "Que funciones tiene el COPASST en capacitaciones?"
+answer: "El COPASST participa en las capacitaciones que realice la ARL y revisa el programa de capacitación en Seguridad y Salud en el Trabajo."
+status: supported
+source_url: /api/documents/raw/general_sst/manuales/organizacion/copasst/Funciones_Responsabilidades.md
+references:
+  - normalized_path: general_sst/manuales/organizacion/copasst/Funciones_Responsabilidades.md
+    pages: [1]
+    chunk_ids: [child-91d967f28e01006d0ad1b421ab4140330926748715647372decccf7a8c649a6d]
+```
+
+## FAQ-113
+```yaml
+question: "Que debe recibir el COPASST sobre ambientes de trabajo?"
+answer: "El COPASST recibe los resultados de las evaluaciones de los ambientes de trabajo y emite recomendaciones."
+status: supported
+source_url: /api/documents/raw/general_sst/manuales/organizacion/copasst/Funciones_Responsabilidades.md
+references:
+  - normalized_path: general_sst/manuales/organizacion/copasst/Funciones_Responsabilidades.md
+    pages: [1]
+    chunk_ids: [child-91d967f28e01006d0ad1b421ab4140330926748715647372decccf7a8c649a6d]
+```
+
+## FAQ-114
+```yaml
+question: "Que debe hacer el COPASST frente a la gestion del cambio?"
+answer: "El COPASST apoya la adopción de las medidas de prevención y control derivadas de la gestión del cambio."
+status: supported
+source_url: /api/documents/raw/general_sst/manuales/organizacion/copasst/Funciones_Responsabilidades.md
+references:
+  - normalized_path: general_sst/manuales/organizacion/copasst/Funciones_Responsabilidades.md
+    pages: [1]
+    chunk_ids: [child-91d967f28e01006d0ad1b421ab4140330926748715647372decccf7a8c649a6d]
+```
+
+## FAQ-115
+```yaml
+question: "Que obligaciones tienen los miembros del comite de convivencia ademas de asistir a reuniones?"
+answer: "Además de asistir, los miembros deben mantener confidencialidad estricta, contribuir al logro de consensos, asumir compromisos de capacitación y llevar a cabo las tareas encomendadas por el Comité."
+status: supported
+source_url: /api/documents/raw/convivencia_laboral/reglamento_comite/conformacion_comite.md
+references:
+  - normalized_path: convivencia_laboral/reglamento_comite/conformacion_comite.md
+    document_title: CONFORMACION DEL COMITE DE CONVIVENCIA LABORAL
+    pages: [1]
 ```

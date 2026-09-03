@@ -1,0 +1,18 @@
+{
+  "artifact_relpath": "planes/Plan empresarial de gesti\u00f3n ambiental.chunking_metadata.json",
+  "bundle_fingerprint": "chunk-bundle-63422d41a497f43a2ad6c9932978e8c3230ffe1bc0a164ad8c2c20e207e158b9",
+  "child_count": 2,
+  "corpus_version": "platform-normalized",
+  "document_id": "doc_2e4c7a58fcc01140",
+  "normalized_document_id": "ndoc_7424a3d4a3632e2ce3c806f77a2d4545",
+  "normalized_relpath": "planes/Plan empresarial de gesti\u00f3n ambiental.md",
+  "parent_count": 1,
+  "profile_fingerprint": "chunking-profile-0fae4cc79888de2f075e148dd3a2f4fc677fbd0f7fc37ca60b5ae82d22f3d5fd",
+  "profile_id": "cp_custom-3665aaf9f77f-sostenibilidad_syc",
+  "project_id": "proj_sostenibilidad_syc",
+  "rag_variant_id": "ragv_local-bge-syc",
+  "semantic_recipe_fingerprint": "bd82bb646dcddaf91a4c9e4bb94e877c937a9c2ab18ed8f296f2a0827c34eece",
+  "source_document_revision_id": "srev_ad9c3f734712c131a6cf81fc6487d259",
+  "source_hash": "24eeba608224fcb9256dfc9233bbedd30a7d0a0b5bf221c12c63fc7b047f57db",
+  "source_relpath": "planes/Plan empresarial de gesti\u00f3n ambiental.md"
+}

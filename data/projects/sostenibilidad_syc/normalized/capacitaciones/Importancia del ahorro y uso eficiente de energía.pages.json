@@ -1,0 +1,30 @@
+{
+  "document_id": "doc_b1da76147373fcbc",
+  "page_count": 1,
+  "pages": [
+    {
+      "blocks": [],
+      "extraction_method": "markdown",
+      "normalization_actions": [],
+      "ocr_confidence": {
+        "engine": null,
+        "engine_version": null,
+        "kind": "unavailable",
+        "method": null,
+        "provenance": null,
+        "sample_size": null,
+        "unit": null,
+        "value": null,
+        "warnings": []
+      },
+      "page_number": 1,
+      "removed_spans": [],
+      "text_normalized": "1. Sostenibilidad ambiental: Reducir el consumo disminuye las emisiones de gases de efecto invernadero, contribuyendo a mitigar el cambio climático y sus efectos.\n\n2. Preservación de recursos: Gran parte de la energía proviene de fuentes no renovables como el petróleo, gas y carbón. Ahorrar energía ayuda a prolongar la disponibilidad de estos recursos.\n\n3. Ahorro económico: Consumir menos energía reduce los costos para hogares, empresas e industrias, generando beneficios a largo plazo.\n\n4. Impulso a la innovación: La necesidad de ahorrar energía promueve el desarrollo de tecnologías más eficientes y sostenibles.\n\n5. Menor dependencia energética: Al reducir la demanda, disminuye la necesidad de importar energía, fortaleciendo la seguridad energética del país.",
+      "text_raw": "1. Sostenibilidad ambiental: Reducir el consumo disminuye las emisiones de gases de efecto invernadero, contribuyendo a mitigar el cambio climático y sus efectos.\n\n\n\n2. Preservación de recursos: Gran parte de la energía proviene de fuentes no renovables como el petróleo, gas y carbón. Ahorrar energía ayuda a prolongar la disponibilidad de estos recursos.\n\n\n\n3. Ahorro económico: Consumir menos energía reduce los costos para hogares, empresas e industrias, generando beneficios a largo plazo.\n\n\n\n4. Impulso a la innovación: La necesidad de ahorrar energía promueve el desarrollo de tecnologías más eficientes y sostenibles.\n\n\n\n5. Menor dependencia energética: Al reducir la demanda, disminuye la necesidad de importar energía, fortaleciendo la seguridad energética del país.",
+      "warnings": [
+        "missing_title"
+      ]
+    }
+  ],
+  "schema_version": "2.0"
+}

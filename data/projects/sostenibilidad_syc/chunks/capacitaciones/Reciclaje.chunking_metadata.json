@@ -1,0 +1,18 @@
+{
+  "artifact_relpath": "capacitaciones/Reciclaje.chunking_metadata.json",
+  "bundle_fingerprint": "chunk-bundle-8f88cc154643ddcec1fe21e37fa4f369d95d5b4b9d21e37800cd0b577764f051",
+  "child_count": 2,
+  "corpus_version": "platform-normalized",
+  "document_id": "doc_7a14c601955a5a3c",
+  "normalized_document_id": "ndoc_c3096719e4b8994d52b8db0b27baa373",
+  "normalized_relpath": "capacitaciones/Reciclaje.md",
+  "parent_count": 1,
+  "profile_fingerprint": "chunking-profile-0fae4cc79888de2f075e148dd3a2f4fc677fbd0f7fc37ca60b5ae82d22f3d5fd",
+  "profile_id": "cp_custom-3665aaf9f77f-sostenibilidad_syc",
+  "project_id": "proj_sostenibilidad_syc",
+  "rag_variant_id": "ragv_local-bge-syc",
+  "semantic_recipe_fingerprint": "bd82bb646dcddaf91a4c9e4bb94e877c937a9c2ab18ed8f296f2a0827c34eece",
+  "source_document_revision_id": "srev_095ad3947ef80c625176c4c3d735e818",
+  "source_hash": "6a569d111f7cce6f46b9ba7b0bcc53f50e5bc6f6e9fedf396e868f91404a7408",
+  "source_relpath": "capacitaciones/Reciclaje.md"
+}

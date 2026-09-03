@@ -1,0 +1,30 @@
+{
+  "document_id": "doc_af91c2b002c6668d",
+  "page_count": 1,
+  "pages": [
+    {
+      "blocks": [],
+      "extraction_method": "markdown",
+      "normalization_actions": [],
+      "ocr_confidence": {
+        "engine": null,
+        "engine_version": null,
+        "kind": "unavailable",
+        "method": null,
+        "provenance": null,
+        "sample_size": null,
+        "unit": null,
+        "value": null,
+        "warnings": []
+      },
+      "page_number": 1,
+      "removed_spans": [],
+      "text_normalized": "Establece el compromiso de SYC S.A. con la reducción del consumo de papel, la optimización de los recursos y la implementación de prácticas responsables de gestión documental. A través de este lineamiento, la organización promueve la digitalización de procesos, el uso eficiente de herramientas tecnológicas y la adopción de soluciones digitales que contribuyan a la disminución de impactos ambientales, el fortalecimiento de la eficiencia operativa y la mejora continua.",
+      "text_raw": "Establece el compromiso de SYC S.A. con la reducción del consumo de papel, la optimización de los recursos y la implementación de prácticas responsables de gestión documental. A través de este lineamiento, la organización promueve la digitalización de procesos, el uso eficiente de herramientas tecnológicas y la adopción de soluciones digitales que contribuyan a la disminución de impactos ambientales, el fortalecimiento de la eficiencia operativa y la mejora continua.\n\n",
+      "warnings": [
+        "missing_title"
+      ]
+    }
+  ],
+  "schema_version": "2.0"
+}

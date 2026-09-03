@@ -1,0 +1,18 @@
+{
+  "artifact_relpath": "capacitaciones/cada gota cuenta.chunking_metadata.json",
+  "bundle_fingerprint": "chunk-bundle-95d37b6199c07ce38ee2cb0b92733ad6c8583af035f0b3032d4ff9c7295f57c2",
+  "child_count": 1,
+  "corpus_version": "platform-normalized",
+  "document_id": "doc_4b31f01c2b690307",
+  "normalized_document_id": "ndoc_10c088a20619b656a70713f140663404",
+  "normalized_relpath": "capacitaciones/cada gota cuenta.md",
+  "parent_count": 1,
+  "profile_fingerprint": "chunking-profile-0fae4cc79888de2f075e148dd3a2f4fc677fbd0f7fc37ca60b5ae82d22f3d5fd",
+  "profile_id": "cp_custom-3665aaf9f77f-sostenibilidad_syc",
+  "project_id": "proj_sostenibilidad_syc",
+  "rag_variant_id": "ragv_local-bge-syc",
+  "semantic_recipe_fingerprint": "bd82bb646dcddaf91a4c9e4bb94e877c937a9c2ab18ed8f296f2a0827c34eece",
+  "source_document_revision_id": "srev_a9c53abc82b13b38596ebcad85ea874f",
+  "source_hash": "7ca771d88cb23e07ae0dc446edece66ef331ec6c34dea2ff48680c732f223968",
+  "source_relpath": "capacitaciones/cada gota cuenta.md"
+}

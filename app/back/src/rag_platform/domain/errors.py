@@ -478,3 +478,28 @@ class IdempotencyOperationInProgress(RagPlatformError):
 
     code = "IDEMPOTENCY_OPERATION_IN_PROGRESS"
     http_status = 409
+
+
+class RagReleaseNotActivatable(RagPlatformError):
+    """La release no se puede activar: sin bundles construidos o falta su run.
+
+    Activar (poner los vectores en vivo) exige que la release ya esté construida.
+    Si no hay membresías/bundles o falta el ``indexing_run`` de alguno, se falla
+    cerrado pidiendo (re)construir antes de activar.
+    """
+
+    code = "RAG_RELEASE_NOT_ACTIVATABLE"
+    http_status = 409
+
+
+class RagReleaseMembershipDrift(RagPlatformError):
+    """Un re-build encontró una membresía existente que NO coincide con la resuelta.
+
+    El build es incremental durable (commit por revisión), así que un reintento
+    debe REUSAR las membresías idénticas ya persistidas. Si la existente difiere
+    (distintos artefactos para el mismo ``ordinal``), es *drift*: se falla cerrado
+    en vez de sobrescribir silenciosamente la procedencia de la release.
+    """
+
+    code = "RAG_RELEASE_MEMBERSHIP_DRIFT"
+    http_status = 409

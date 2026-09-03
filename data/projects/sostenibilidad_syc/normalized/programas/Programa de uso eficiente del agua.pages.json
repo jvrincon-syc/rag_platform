@@ -1,0 +1,30 @@
+{
+  "document_id": "doc_aa3a3c43d080a3b4",
+  "page_count": 1,
+  "pages": [
+    {
+      "blocks": [],
+      "extraction_method": "markdown",
+      "normalization_actions": [],
+      "ocr_confidence": {
+        "engine": null,
+        "engine_version": null,
+        "kind": "unavailable",
+        "method": null,
+        "provenance": null,
+        "sample_size": null,
+        "unit": null,
+        "value": null,
+        "warnings": []
+      },
+      "page_number": 1,
+      "removed_spans": [],
+      "text_normalized": "Objetivo:\n\nFomentar el uso eficiente del agua en SYC S.A. mediante estrategias que impulsen hábitos responsables de consumo y conservación del recurso.\n\nObjetivos específicos:\n\n1. Reducir el impacto ambiental asociado al uso ineficiente del recurso hídrico en las operaciones de SYC S.A.\n\n2. Disminuir el consumo de agua mediante la implementación de buenas prácticas y tecnologías orientadas al uso responsable del recurso.\n\n\"El agua es vida para nosotros y para cada ser que habita la Tierra. Ríos, mares y océanos sostienen una biodiversidad invaluable que depende de nuestro cuidado. Proteger el agua es proteger nuestro hogar y a todas las formas de vida que lo comparten. Cuidémosla con responsabilidad: es un tesoro que debemos preservar con conciencia y respeto.\"\n\nMETA\nReducir en un 10% el consumo promedio del recurso hídrico durante la vigencia del PEGA.",
+      "text_raw": "Objetivo:\n\n\n\nFomentar el uso eficiente del agua en SYC S.A. mediante estrategias que impulsen hábitos responsables de consumo y conservación del recurso.\n\n\nObjetivos específicos:\n\n\n\n1. Reducir el impacto ambiental asociado al uso ineficiente del recurso hídrico en las operaciones de SYC S.A.\n\n2. Disminuir el consumo de agua mediante la implementación de buenas prácticas y tecnologías orientadas al uso responsable del recurso.\n\n\"El agua es vida para nosotros y para cada ser que habita la Tierra. Ríos, mares y océanos sostienen una biodiversidad invaluable que depende de nuestro cuidado. Proteger el agua es proteger nuestro hogar y a todas las formas de vida que lo comparten. Cuidémosla con responsabilidad: es un tesoro que debemos preservar con conciencia y respeto.\"\n\nMETA\nReducir en un 10% el consumo promedio del recurso hídrico durante la vigencia del PEGA. ",
+      "warnings": [
+        "missing_title"
+      ]
+    }
+  ],
+  "schema_version": "2.0"
+}

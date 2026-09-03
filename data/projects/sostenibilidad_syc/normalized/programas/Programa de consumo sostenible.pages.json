@@ -1,0 +1,30 @@
+{
+  "document_id": "doc_7e9b90f520b6d4cd",
+  "page_count": 1,
+  "pages": [
+    {
+      "blocks": [],
+      "extraction_method": "markdown",
+      "normalization_actions": [],
+      "ocr_confidence": {
+        "engine": null,
+        "engine_version": null,
+        "kind": "unavailable",
+        "method": null,
+        "provenance": null,
+        "sample_size": null,
+        "unit": null,
+        "value": null,
+        "warnings": []
+      },
+      "page_number": 1,
+      "removed_spans": [],
+      "text_normalized": "Objetivo:\n\nImplementar medidas operativas y educativas para promover el consumo sostenible en SYC S.A.\n\nObjetivos específicos:\n\n1. Reducir la adquisición de materiales nuevos y productos de un solo uso, mediante la implementación de estrategias efectivas de reutilización dentro de la organización.\n\n2. Fomentar una cultura organizacional orientada a la reutilización de materiales a través de campañas de sensibilización y educación ambiental.\n\n3. Incrementar el índice de reutilización de mobiliario, equipos y materiales de oficina mediante acciones de gestión responsable de recursos internos.\n\nMeta:\nEjecutar el 100% de las actividades propuestas en el programa, que promuevan el hábito de consumo sostenible.",
+      "text_raw": "Objetivo:\n\n\n\nImplementar medidas operativas y educativas para promover el consumo sostenible en SYC S.A.\n\n\nObjetivos específicos:\n\n\n1. Reducir la adquisición de materiales nuevos y productos de un solo uso, mediante la implementación de estrategias efectivas de reutilización dentro de la organización.\n\n2. Fomentar una cultura organizacional orientada a la reutilización de materiales a través de campañas de sensibilización y educación ambiental.\n\n3. Incrementar el índice de reutilización de mobiliario, equipos y materiales de oficina mediante acciones de gestión responsable de recursos internos.\n\nMeta:\nEjecutar el 100% de las actividades propuestas en el programa, que promuevan el hábito de consumo sostenible.",
+      "warnings": [
+        "missing_title"
+      ]
+    }
+  ],
+  "schema_version": "2.0"
+}

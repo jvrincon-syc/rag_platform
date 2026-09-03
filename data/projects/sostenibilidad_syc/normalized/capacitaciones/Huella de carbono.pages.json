@@ -1,0 +1,30 @@
+{
+  "document_id": "doc_514afedd34b3024b",
+  "page_count": 1,
+  "pages": [
+    {
+      "blocks": [],
+      "extraction_method": "markdown",
+      "normalization_actions": [],
+      "ocr_confidence": {
+        "engine": null,
+        "engine_version": null,
+        "kind": "unavailable",
+        "method": null,
+        "provenance": null,
+        "sample_size": null,
+        "unit": null,
+        "value": null,
+        "warnings": []
+      },
+      "page_number": 1,
+      "removed_spans": [],
+      "text_normalized": "Comprender nuestra huella de carbono nos permite reconocer cómo nuestras decisiones diarias impactan el clima y el medio ambiente. Medirla y reducirla es un paso esencial para construir comunidades más responsables, sostenibles y comprometidas con el bienestar del planeta y de las futuras generacione",
+      "text_raw": "Comprender nuestra huella de carbono nos permite reconocer cómo nuestras decisiones diarias impactan el clima y el medio ambiente. Medirla y reducirla es un paso esencial para construir comunidades más responsables, sostenibles y comprometidas con el bienestar del planeta y de las futuras generacione",
+      "warnings": [
+        "missing_title"
+      ]
+    }
+  ],
+  "schema_version": "2.0"
+}

@@ -1,0 +1,18 @@
+{
+  "artifact_relpath": "politicas/1771356455856_syc_Polticaambiental.chunking_metadata.json",
+  "bundle_fingerprint": "chunk-bundle-97c336135b8db3ae23d160c4a74f3b3d0403fdef30a2e4bc33a5030722ce1c95",
+  "child_count": 8,
+  "corpus_version": "platform-normalized",
+  "document_id": "doc_0f5176bc29b5e037",
+  "normalized_document_id": "ndoc_a81beef0bc7431c902d7b86d03c16076",
+  "normalized_relpath": "politicas/1771356455856_syc_Polticaambiental.md",
+  "parent_count": 5,
+  "profile_fingerprint": "chunking-profile-0fae4cc79888de2f075e148dd3a2f4fc677fbd0f7fc37ca60b5ae82d22f3d5fd",
+  "profile_id": "cp_custom-3665aaf9f77f-sostenibilidad_syc",
+  "project_id": "proj_sostenibilidad_syc",
+  "rag_variant_id": "ragv_local-bge-syc",
+  "semantic_recipe_fingerprint": "bd82bb646dcddaf91a4c9e4bb94e877c937a9c2ab18ed8f296f2a0827c34eece",
+  "source_document_revision_id": "srev_466dd50466739cc0c17bfcdc293776f2",
+  "source_hash": "b215195798c28ff0ad9b97f2f8fcbfbac7dbdc37ac450203c82478bf684a580c",
+  "source_relpath": "politicas/1771356455856_syc_Polticaambiental.pdf"
+}

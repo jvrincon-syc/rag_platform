@@ -1,0 +1,3 @@
+
+Residuos sólidos
+La correcta clasificación de los residuos es fundamental para gestionar de manera eficiente los desechos que generamos. Este proceso consiste en separar los residuos en categorías específicas como aprovechables, no aprovechables y orgánicos aprovechables para garantizar su tratamiento adecuado. Al hacerlo, se facilita el reciclaje y la reutilización de materiales, se reduce la contaminación y se contribuye significativamente a la protección del medio ambiente.

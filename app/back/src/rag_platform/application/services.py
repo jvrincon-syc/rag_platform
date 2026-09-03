@@ -122,6 +122,15 @@ class RagPlatformServices:
     # propia en Postgres) para no colgar el socket ni bloquear lecturas.
     enqueue_release_build: EnqueueReleaseBuildUseCase
     get_release_build_status: GetReleaseBuildStatusUseCase
-    submit_release_build: Callable[[str, PlatformId, PlatformActor], None]
+    # Cuarto arg: ``embedding_runtime`` (``"local"``/``"remote"``/``None``) elegido por
+    # corrida; ``None`` respeta el runtime global del proceso. Solo aplica a BGE.
+    submit_release_build: Callable[
+        [str, PlatformId, PlatformActor, "str | None"], None
+    ]
     # Repo durable del job; expuesto para que el worker (bundle fresco) escriba estado.
     release_build_jobs: "ReleaseBuildJobRepository"
+    # Activación explícita de una release construida: pone sus vectores en vivo
+    # (is_active=true) y crea el retrieval profile release-scoped. Publicar NO activa
+    # (ver publication_service); esto es el paso separado de operador. Devuelve un
+    # resumen (bundles/filas/profiles activados). Postgres-only.
+    activate_release: Callable[[PlatformId, PlatformActor], dict]

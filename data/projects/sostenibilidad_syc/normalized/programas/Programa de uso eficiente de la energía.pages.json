@@ -1,0 +1,30 @@
+{
+  "document_id": "doc_21b4d1ec2fddcac2",
+  "page_count": 1,
+  "pages": [
+    {
+      "blocks": [],
+      "extraction_method": "markdown",
+      "normalization_actions": [],
+      "ocr_confidence": {
+        "engine": null,
+        "engine_version": null,
+        "kind": "unavailable",
+        "method": null,
+        "provenance": null,
+        "sample_size": null,
+        "unit": null,
+        "value": null,
+        "warnings": []
+      },
+      "page_number": 1,
+      "removed_spans": [],
+      "text_normalized": "Objetivo:\nEstablecer acciones que permitan brindar un manejo adecuado del consumo del recurso energético en SYC S.A.\n\nObjetivos específicos:\n\n1. Fomentar la responsabilidad y compromiso en el uso eficiente del consumo de energía para las sedes de la empresa.\n\n2. Optimizar el consumo de energía en el uso de las tecnologías empleadas y desarrolladas por SYC S.A.\n\n3. Implementar el reemplazo progresivo de equipos y dispositivos por alternativas tecnológicamente más eficientes.\n\nMETA: Mejorar en un 10% la eficiencia energética de las operaciones de SYC S.A.",
+      "text_raw": "Objetivo:\nEstablecer acciones que permitan brindar un manejo adecuado del consumo del recurso energético en SYC S.A.\n\nObjetivos específicos:\n\n1. Fomentar la responsabilidad y compromiso en el uso eficiente del consumo de energía para las sedes de la empresa.\n\n2. Optimizar el consumo de energía en el uso de las tecnologías empleadas y desarrolladas por SYC S.A.\n\n3. Implementar el reemplazo progresivo de equipos y dispositivos por alternativas tecnológicamente más eficientes.\n\nMETA: Mejorar en un 10% la eficiencia energética de las operaciones de SYC S.A.",
+      "warnings": [
+        "missing_title"
+      ]
+    }
+  ],
+  "schema_version": "2.0"
+}

@@ -110,6 +110,7 @@ describe("PlatformWorkspace", () => {
       {
         file_size: 2048,
         logical_document_id: "sdoc_manual",
+        raw_registered: true,
         normalized_registered: false,
         processing_status: "needs_review",
         review_state: "needs_review",

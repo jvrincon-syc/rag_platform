@@ -1,0 +1,18 @@
+{
+  "artifact_relpath": "politicas/Pol\u00edtica ambiental.chunking_metadata.json",
+  "bundle_fingerprint": "chunk-bundle-0e0ea91881c436f26c1fe2c09f64fb1892f6420653c0131ce39e6df84dadb4ac",
+  "child_count": 1,
+  "corpus_version": "platform-normalized",
+  "document_id": "doc_46ac6f9db922a5a4",
+  "normalized_document_id": "ndoc_ee3968772a021fd62e2a4b98bb821aac",
+  "normalized_relpath": "politicas/Pol\u00edtica ambiental.md",
+  "parent_count": 1,
+  "profile_fingerprint": "chunking-profile-0fae4cc79888de2f075e148dd3a2f4fc677fbd0f7fc37ca60b5ae82d22f3d5fd",
+  "profile_id": "cp_custom-3665aaf9f77f-sostenibilidad_syc",
+  "project_id": "proj_sostenibilidad_syc",
+  "rag_variant_id": "ragv_local-bge-syc",
+  "semantic_recipe_fingerprint": "bd82bb646dcddaf91a4c9e4bb94e877c937a9c2ab18ed8f296f2a0827c34eece",
+  "source_document_revision_id": "srev_83ab37ee878117e1e2c3d6115329b5c6",
+  "source_hash": "ba5a2e8ecaf9fad90e5d7df63cf52a5516bfe630198a6f0454945454aa93ae8a",
+  "source_relpath": "politicas/Pol\u00edtica ambiental.md"
+}

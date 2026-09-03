@@ -19,6 +19,11 @@ from chunking.infrastructure.canonical_tokenizer import CanonicalTokenizer
 
 logger = logging.getLogger(__name__)
 _TABLE_WARNING = "TABLE_CHILD_EXCEEDS_MAX_TOKENS"
+# Unidad INDIVISIBLE de texto (una "oración"/línea sin frontera interna) que sola
+# supera child_max_tokens: el builder no puede partirla más, así que emite el child
+# completo y lo marca. El invariante de dominio permite el sobre-máximo SOLO si el
+# child viene flagged (el builder es la autoridad de "no se pudo partir").
+_OVERSIZED_WARNING = "CHILD_EXCEEDS_MAX_TOKENS"
 _SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+|\n{2,}")
 
 
@@ -219,6 +224,10 @@ class ChildChunkBuilder:
         reasons = {ZeroOverlapReason.DOCUMENT_START, ZeroOverlapReason.SECTION_BOUNDARY}
         if any(block.kind in {StructuralBlockKind.TABLE, StructuralBlockKind.FORM} for block in blocks):
             reasons.add(ZeroOverlapReason.TABLE_OR_FORM_BOUNDARY)
+        token_count = self._tokenizer.count_tokens(parent.text)
+        # Bloque atómico (p. ej. form, o parent que no se parte) que supera el máximo:
+        # se marca para que el invariante lo acepte como indivisible.
+        warnings = (_OVERSIZED_WARNING,) if token_count > profile.child_max_tokens else ()
         return ChildChunk.create(
             document_id=parent.document_id,
             profile_id=profile.profile_id,
@@ -227,12 +236,13 @@ class ChildChunkBuilder:
             text=parent.text,
             source_span=parent.source_span,
             token_start=0,
-            token_end=self._tokenizer.count_tokens(parent.text),
-            token_count=self._tokenizer.count_tokens(parent.text),
+            token_end=token_count,
+            token_count=token_count,
             overlap_previous_tokens=0,
             overlap_next_tokens=0,
             context_prefix=self._section_prefix(parent=parent, profile=profile),
             zero_overlap_reasons=frozenset(reasons),
+            warnings=warnings,
             section_title=parent.section_title,
             section_path=parent.section_path,
         )
@@ -281,6 +291,12 @@ class ChildChunkBuilder:
                 zero_overlap_reasons.add(ZeroOverlapReason.DOCUMENT_START)
             if next_overlap_tokens == 0:
                 zero_overlap_reasons.add(ZeroOverlapReason.SECTION_BOUNDARY)
+            # Una unidad indivisible (oración/línea sin frontera) puede exceder el
+            # máximo por sí sola; el partidor no puede reducirla más. Se marca para
+            # que el invariante la acepte (no es un bug de particionado).
+            warnings = (
+                (_OVERSIZED_WARNING,) if token_count > profile.child_max_tokens else ()
+            )
             children.append(
                 ChildChunk.create(
                     document_id=parent.document_id,
@@ -288,6 +304,7 @@ class ChildChunkBuilder:
                     parent_id=parent.chunk_id,
                     ordinal=ordinal,
                     text=text,
+                    warnings=warnings,
                     source_span=SourceSpan(
                         page_start=parent.source_span.page_start,
                         page_end=parent.source_span.page_end,

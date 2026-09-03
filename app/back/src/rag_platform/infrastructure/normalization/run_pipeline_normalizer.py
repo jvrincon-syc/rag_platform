@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import os
 import shutil
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Callable
 
 from ingestion.application.platform_metadata import (
@@ -214,10 +214,15 @@ class RunPipelineProjectNormalizer:
         if self._normalized_artifacts is None:
             return
         for revision in revisions:
+            # Normaliza separadores Windows a POSIX: en intérprete POSIX `Path` no
+            # parte por `\`, así un source_relpath Windows quedaría como un único
+            # componente con backslash (ni el artifact_relpath ni el existencial
+            # coincidirían con el archivo real en disco).
+            source_posix = revision.source_relpath.replace("\\", "/")
             artifact_relpath = (
-                f"normalized/{Path(revision.source_relpath).with_suffix('.md').as_posix()}"
+                f"normalized/{PurePosixPath(source_posix).with_suffix('.md').as_posix()}"
             )
-            if not (normalized_root / Path(revision.source_relpath).with_suffix(".md")).exists():
+            if not (normalized_root / PurePosixPath(source_posix).with_suffix(".md")).exists():
                 continue
             self._normalized_artifacts.add(
                 NormalizedDocumentArtifact(

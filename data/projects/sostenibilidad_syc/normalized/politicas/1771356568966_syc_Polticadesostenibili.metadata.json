@@ -1,0 +1,250 @@
+{
+  "classification": {
+    "conflict_status": "none",
+    "conflicts": [],
+    "content_prediction": "programa",
+    "document_type": "politica",
+    "document_type_confidence": {
+      "engine": null,
+      "engine_version": null,
+      "kind": "estimated",
+      "method": "evidence_precedence",
+      "provenance": null,
+      "sample_size": null,
+      "unit": null,
+      "value": 0.95,
+      "warnings": []
+    },
+    "route_prior": "politica",
+    "signals": [
+      "politica:politica:title_control",
+      "politica:politica:content",
+      "politica:politica:route",
+      "Auditoria:auditoria:content"
+    ],
+    "subtopic": null,
+    "topic": "Auditoria",
+    "topic_confidence": {
+      "engine": null,
+      "engine_version": null,
+      "kind": "estimated",
+      "method": "evidence_precedence",
+      "provenance": null,
+      "sample_size": null,
+      "unit": null,
+      "value": 0.78,
+      "warnings": []
+    },
+    "warnings": []
+  },
+  "corpus_version": "platform-normalized",
+  "document_control": {
+    "change_history": [],
+    "code": {
+      "evidence": [
+        {
+          "bbox": null,
+          "page_number": 1,
+          "pattern": null,
+          "region": null,
+          "source": "pdf_digital",
+          "text": "Código PL.GA-03 Versión 0.1 Fecha 29/12/2025 USO INTERNO (NC2)",
+          "warnings": []
+        },
+        {
+          "bbox": null,
+          "page_number": 2,
+          "pattern": null,
+          "region": null,
+          "source": "pdf_digital",
+          "text": "Código PL.GA-03 Versión 0.1 Fecha 29/12/2025 USO INTERNO (NC2)",
+          "warnings": []
+        },
+        {
+          "bbox": null,
+          "page_number": 3,
+          "pattern": null,
+          "region": null,
+          "source": "pdf_digital",
+          "text": "Código PL.GA-03 Versión 0.1 Fecha 29/12/2025 USO INTERNO (NC2)",
+          "warnings": []
+        },
+        {
+          "bbox": null,
+          "page_number": 4,
+          "pattern": null,
+          "region": null,
+          "source": "pdf_digital",
+          "text": "Código PL.GA-03 Versión 0.1 Fecha 29/12/2025 USO INTERNO (NC2)",
+          "warnings": []
+        }
+      ],
+      "status": "extracted",
+      "value": "PL.GA-03",
+      "value_raw": "PL.GA-03",
+      "warnings": []
+    },
+    "effective_date": {
+      "evidence": [],
+      "status": "not_found",
+      "value": null,
+      "value_raw": null,
+      "warnings": []
+    },
+    "publication_date": {
+      "evidence": [],
+      "status": "not_found",
+      "value": null,
+      "value_raw": null,
+      "warnings": []
+    },
+    "title": {
+      "evidence": [
+        {
+          "bbox": null,
+          "page_number": 1,
+          "pattern": null,
+          "region": null,
+          "source": "pdf_digital",
+          "text": "POLÍTICA DE SOSTENIBILIDAD CORPORATIVA",
+          "warnings": []
+        }
+      ],
+      "status": "extracted",
+      "value": "POLÍTICA DE SOSTENIBILIDAD CORPORATIVA",
+      "value_raw": "POLÍTICA DE SOSTENIBILIDAD CORPORATIVA",
+      "warnings": []
+    },
+    "version": {
+      "evidence": [
+        {
+          "bbox": null,
+          "page_number": 1,
+          "pattern": null,
+          "region": null,
+          "source": "pdf_digital",
+          "text": "Código PL.GA-03 Versión 0.1 Fecha 29/12/2025 USO INTERNO (NC2)",
+          "warnings": []
+        },
+        {
+          "bbox": null,
+          "page_number": 2,
+          "pattern": null,
+          "region": null,
+          "source": "pdf_digital",
+          "text": "Código PL.GA-03 Versión 0.1 Fecha 29/12/2025 USO INTERNO (NC2)",
+          "warnings": []
+        },
+        {
+          "bbox": null,
+          "page_number": 3,
+          "pattern": null,
+          "region": null,
+          "source": "pdf_digital",
+          "text": "Código PL.GA-03 Versión 0.1 Fecha 29/12/2025 USO INTERNO (NC2)",
+          "warnings": []
+        },
+        {
+          "bbox": null,
+          "page_number": 4,
+          "pattern": null,
+          "region": null,
+          "source": "pdf_digital",
+          "text": "Código PL.GA-03 Versión 0.1 Fecha 29/12/2025 USO INTERNO (NC2)",
+          "warnings": []
+        }
+      ],
+      "status": "extracted",
+      "value": "0.1",
+      "value_raw": "0.1",
+      "warnings": []
+    },
+    "warnings": []
+  },
+  "document_id": "doc_45b68b1c2cbaeb13",
+  "document_name": "1771356568966_syc_Polticadesostenibili.pdf",
+  "extraction_method": "pdf_digital",
+  "feature_observations": {},
+  "forms": {
+    "engine": null,
+    "engine_version": null,
+    "evidence": [],
+    "method": "vector_geometry",
+    "status": "not_detected",
+    "value": false,
+    "warnings": []
+  },
+  "handwriting": {
+    "engine": null,
+    "engine_version": null,
+    "evidence": [],
+    "method": "opencv_signature_stroke",
+    "status": "not_detected",
+    "value": false,
+    "warnings": []
+  },
+  "language": "es",
+  "legacy_normalized_path": "C:\\Users\\jvrincon\\Documents\\rag_platform\\rag_platform\\data\\projects\\sostenibilidad_syc\\.normalized.staging\\politicas\\1771356568966_syc_Polticadesostenibili.md",
+  "legacy_path": null,
+  "legacy_source_path": null,
+  "llama_cloud": null,
+  "normalized_relpath": "politicas/1771356568966_syc_Polticadesostenibili.md",
+  "ocr_confidence": {
+    "engine": null,
+    "engine_version": null,
+    "kind": "unavailable",
+    "method": null,
+    "provenance": null,
+    "sample_size": null,
+    "unit": null,
+    "value": null,
+    "warnings": []
+  },
+  "page_count": 4,
+  "pipeline_version": "2.0.0",
+  "platform_identity": {
+    "normalized_document_id": "ndoc_3cbbf57d8e4ee1724094e4940a63066c",
+    "processing_profile_fingerprint": "69a6eacf2959f2b76a02711d7fd33dc8cb8ce14a2a8523da433781c4a212dfdb",
+    "processing_profile_id": "pp_local-syc",
+    "project_id": "proj_sostenibilidad_syc",
+    "provenance": {
+      "rag_variant_id": null,
+      "semantic_recipe_fingerprint": null
+    },
+    "schema_version": "2.0",
+    "source_document_id": "sdoc_8ae7b6a2122d563891d69dec986340b9",
+    "source_document_revision_id": "srev_4837283cc7112bc072970fedab694fff"
+  },
+  "platform_provenance": {
+    "rag_variant_id": "ragv_local-bge-syc",
+    "semantic_recipe_fingerprint": "bd82bb646dcddaf91a4c9e4bb94e877c937a9c2ab18ed8f296f2a0827c34eece"
+  },
+  "processed_at": "2026-09-03T12:02:18.275442-05:00",
+  "processing_status": "processed",
+  "review_reasons": [],
+  "schema_version": "2.0",
+  "source_hash": "d51b0d3fdd4a2582fe4db389accfd7cca1d57a6e05db2d2be7a8de7a5be971b0",
+  "source_relpath": "politicas/1771356568966_syc_Polticadesostenibili.pdf",
+  "tables": {
+    "engine": null,
+    "engine_version": null,
+    "evidence": [
+      {
+        "bbox": null,
+        "page_number": null,
+        "pattern": null,
+        "region": null,
+        "source": "tables_artifact",
+        "text": null,
+        "warnings": []
+      }
+    ],
+    "method": "reader_tables",
+    "status": "detected",
+    "value": true,
+    "warnings": [
+      "table_evidence_available_in_tables_artifact"
+    ]
+  },
+  "warnings": []
+}

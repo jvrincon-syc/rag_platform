@@ -1033,43 +1033,96 @@ def _build_rag_platform_services(
         releases=releases, jobs=release_build_jobs, access_policy=access_policy
     )
 
+    def _run_with_embedding_runtime(embedding_runtime, run):
+        # El runtime de embedding de documentos (local vs Lightning) se elige por
+        # corrida: `resolve_document_engine` lee EMBEDDING_DOC_EMBED en cada llamada,
+        # así que basta con fijarlo alrededor del build y restaurarlo al terminar.
+        # `None` = respeta el runtime global del proceso (no toca el env).
+        # ponytail: os.environ es global -> asume un build a la vez; si algún día hay
+        # builds concurrentes con runtimes distintos, mover a un contextvar + engine
+        # por-build en vez del env compartido.
+        if embedding_runtime is None:
+            run()
+            return
+        previous = os.environ.get("EMBEDDING_DOC_EMBED")
+        if embedding_runtime == "remote":
+            os.environ["EMBEDDING_DOC_EMBED"] = "remote"
+        else:
+            os.environ.pop("EMBEDDING_DOC_EMBED", None)
+        try:
+            run()
+        finally:
+            if previous is None:
+                os.environ.pop("EMBEDDING_DOC_EMBED", None)
+            else:
+                os.environ["EMBEDDING_DOC_EMBED"] = previous
+
     if build_services_factory is not None:
 
-        def _execute_build(build_job_id, rag_release_id, actor):
+        def _execute_build(build_job_id, rag_release_id, actor, embedding_runtime=None):
             # Postgres: bundle fresco = conexión PROPIA (no comparte la del request,
             # que no es thread-safe); el estado va a la misma tabla durable.
-            fresh = build_services_factory()
-            try:
-                platform = fresh.rag_platform
+            def _run():
+                fresh = build_services_factory()
+                try:
+                    platform = fresh.rag_platform
+                    run_one_build(
+                        jobs=platform.release_build_jobs,
+                        build_release=platform.build_release,
+                        build_job_id=build_job_id,
+                        rag_release_id=rag_release_id,
+                        actor=actor,
+                    )
+                finally:
+                    fresh.close()
+
+            _run_with_embedding_runtime(embedding_runtime, _run)
+
+    else:
+
+        def _execute_build(build_job_id, rag_release_id, actor, embedding_runtime=None):
+            # Memoria (o sin factory): repos compartidos, thread-safe por lock.
+            # ponytail: sin factory en Postgres el build correría sobre la conexión
+            # compartida; `build_pipeline_services_from_env` siempre provee factory.
+            def _run():
                 run_one_build(
-                    jobs=platform.release_build_jobs,
-                    build_release=platform.build_release,
+                    jobs=release_build_jobs,
+                    build_release=build_release,
                     build_job_id=build_job_id,
                     rag_release_id=rag_release_id,
                     actor=actor,
                 )
-            finally:
-                fresh.close()
 
-    else:
-
-        def _execute_build(build_job_id, rag_release_id, actor):
-            # Memoria (o sin factory): repos compartidos, thread-safe por lock.
-            # ponytail: sin factory en Postgres el build correría sobre la conexión
-            # compartida; `build_pipeline_services_from_env` siempre provee factory.
-            run_one_build(
-                jobs=release_build_jobs,
-                build_release=build_release,
-                build_job_id=build_job_id,
-                rag_release_id=rag_release_id,
-                actor=actor,
-            )
+            _run_with_embedding_runtime(embedding_runtime, _run)
 
     _release_build_runner = ReleaseBuildRunner(execute_build=_execute_build)
 
-    def _submit_release_build(build_job_id, rag_release_id, actor):
+    def _submit_release_build(build_job_id, rag_release_id, actor, embedding_runtime=None):
         _release_build_runner.submit(
-            build_job_id=build_job_id, rag_release_id=rag_release_id, actor=actor
+            build_job_id=build_job_id,
+            rag_release_id=rag_release_id,
+            actor=actor,
+            embedding_runtime=embedding_runtime,
+        )
+
+    def _activate_release(rag_release_id, actor):
+        # Activación explícita (pone los vectores en vivo + crea el retrieval profile).
+        # Corre en el hilo del request (una transacción corta), así que reusa la
+        # conexión del request sin necesidad de bundle fresco. Postgres-only: el
+        # storage/artefactos y los repos de indexing exigen persistencia real.
+        from rag_platform.domain.errors import RagReleaseNotActivatable
+        from rag_platform.infrastructure.release_activation import activate_rag_release
+
+        if connection is None:
+            raise RagReleaseNotActivatable(
+                "activation requires the postgres persistence mode"
+            )
+        return activate_rag_release(
+            connection=connection,
+            storage_roots=storage_roots,
+            rag_release_id=rag_release_id,
+            actor=actor,
+            access_policy=access_policy,
         )
 
     return RagPlatformServices(
@@ -1139,6 +1192,7 @@ def _build_rag_platform_services(
         get_release_build_status=get_release_build_status,
         submit_release_build=_submit_release_build,
         release_build_jobs=release_build_jobs,
+        activate_release=_activate_release,
     )
 
 

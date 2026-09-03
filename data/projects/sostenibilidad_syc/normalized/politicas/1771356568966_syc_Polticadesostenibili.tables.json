@@ -1,0 +1,2162 @@
+{
+  "document_id": "doc_45b68b1c2cbaeb13",
+  "page_observations": [
+    {
+      "engine": null,
+      "engine_version": null,
+      "evidence": [
+        {
+          "bbox": {
+            "bottom": 92.65999999999997,
+            "coordinate_system": "pdf_points",
+            "top": 49.43999999999994,
+            "x0": 191.45,
+            "x1": 525.0200066666666
+          },
+          "page_number": 1,
+          "pattern": null,
+          "region": null,
+          "source": "pdfplumber",
+          "text": null,
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "page_number": 1,
+          "pattern": null,
+          "region": null,
+          "source": "pdfplumber",
+          "text": null,
+          "warnings": []
+        }
+      ],
+      "method": "pdfplumber",
+      "status": "detected",
+      "value": true,
+      "warnings": []
+    },
+    {
+      "engine": null,
+      "engine_version": null,
+      "evidence": [
+        {
+          "bbox": {
+            "bottom": 92.65999999999997,
+            "coordinate_system": "pdf_points",
+            "top": 49.43999999999994,
+            "x0": 191.45,
+            "x1": 525.0200066666666
+          },
+          "page_number": 2,
+          "pattern": null,
+          "region": null,
+          "source": "pdfplumber",
+          "text": null,
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "page_number": 2,
+          "pattern": null,
+          "region": null,
+          "source": "pdfplumber",
+          "text": null,
+          "warnings": []
+        }
+      ],
+      "method": "pdfplumber",
+      "status": "detected",
+      "value": true,
+      "warnings": []
+    },
+    {
+      "engine": null,
+      "engine_version": null,
+      "evidence": [
+        {
+          "bbox": {
+            "bottom": 92.65999999999997,
+            "coordinate_system": "pdf_points",
+            "top": 49.43999999999994,
+            "x0": 191.45,
+            "x1": 525.0200066666666
+          },
+          "page_number": 3,
+          "pattern": null,
+          "region": null,
+          "source": "pdfplumber",
+          "text": null,
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "page_number": 3,
+          "pattern": null,
+          "region": null,
+          "source": "pdfplumber",
+          "text": null,
+          "warnings": []
+        }
+      ],
+      "method": "pdfplumber",
+      "status": "detected",
+      "value": true,
+      "warnings": []
+    },
+    {
+      "engine": null,
+      "engine_version": null,
+      "evidence": [
+        {
+          "bbox": {
+            "bottom": 92.65999999999997,
+            "coordinate_system": "pdf_points",
+            "top": 49.43999999999994,
+            "x0": 191.45,
+            "x1": 525.0200066666666
+          },
+          "page_number": 4,
+          "pattern": null,
+          "region": null,
+          "source": "pdfplumber",
+          "text": null,
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "page_number": 4,
+          "pattern": null,
+          "region": null,
+          "source": "pdfplumber",
+          "text": null,
+          "warnings": []
+        }
+      ],
+      "method": "pdfplumber",
+      "status": "detected",
+      "value": true,
+      "warnings": []
+    }
+  ],
+  "schema_version": "2.0",
+  "table_count": 8,
+  "tables": [
+    {
+      "bbox": {
+        "bottom": 92.65999999999997,
+        "coordinate_system": "pdf_points",
+        "top": 49.43999999999994,
+        "x0": 191.45,
+        "x1": 525.0200066666666
+      },
+      "caption": null,
+      "cells": [
+        {
+          "bbox": {
+            "bottom": 92.65999999999997,
+            "coordinate_system": "pdf_points",
+            "top": 49.43999999999994,
+            "x0": 191.45,
+            "x1": 525.0200066666666
+          },
+          "column_index": 0,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "SISTEMAS DE GESTIÓN",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 92.65999999999997,
+            "coordinate_system": "pdf_points",
+            "top": 49.43999999999994,
+            "x0": 191.45,
+            "x1": 525.0200066666666
+          },
+          "column_index": 0,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "POLÍTICA DE SOSTENIBILIDAD CORPORATIVA",
+          "warnings": []
+        }
+      ],
+      "extractor": "pdfplumber",
+      "headers": [
+        "SISTEMAS DE GESTIÓN"
+      ],
+      "markdown_representation": "| SISTEMAS DE GESTIÓN |\n| --- |\n| POLÍTICA DE SOSTENIBILIDAD CORPORATIVA |",
+      "page_number": 1,
+      "quality": {
+        "engine": null,
+        "engine_version": null,
+        "kind": "unavailable",
+        "method": null,
+        "provenance": null,
+        "sample_size": null,
+        "unit": null,
+        "value": null,
+        "warnings": []
+      },
+      "rows": [
+        [
+          "SISTEMAS DE GESTIÓN"
+        ],
+        [
+          "POLÍTICA DE SOSTENIBILIDAD CORPORATIVA"
+        ]
+      ],
+      "table_id": "page_1_table_1",
+      "warnings": []
+    },
+    {
+      "bbox": {
+        "bottom": 742.5083146153846,
+        "coordinate_system": "pdf_points",
+        "top": 721.4067761538462,
+        "x0": 85.42399999999999,
+        "x1": 525.0200066666666
+      },
+      "caption": null,
+      "cells": [
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 0,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "Código",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 1,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "PL.GA-03",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 2,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "Versión",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 3,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "0.1",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 4,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "Fecha",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 5,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "29/12/2025",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 6,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 7,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "Nivel de Etiquetado y",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 8,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 9,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "USO INTERNO (NC2)",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 10,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 11,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "Página",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 0,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 1,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 2,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 3,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 4,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 5,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 6,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 7,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "Clasificación",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 8,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 9,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 10,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 11,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "1 de 4",
+          "warnings": []
+        }
+      ],
+      "extractor": "pdfplumber",
+      "headers": [
+        "Código",
+        "PL.GA-03",
+        "Versión",
+        "0.1",
+        "Fecha",
+        "29/12/2025",
+        "Nivel de Etiquetado y",
+        "USO INTERNO (NC2)",
+        "Página"
+      ],
+      "markdown_representation": "| Código | PL.GA-03 | Versión | 0.1 | Fecha | 29/12/2025 |  | Nivel de Etiquetado y |  | USO INTERNO (NC2) |  | Página |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n|  |  |  |  |  |  |  | Clasificación |  |  |  | 1 de 4 |",
+      "page_number": 1,
+      "quality": {
+        "engine": null,
+        "engine_version": null,
+        "kind": "unavailable",
+        "method": null,
+        "provenance": null,
+        "sample_size": null,
+        "unit": null,
+        "value": null,
+        "warnings": []
+      },
+      "rows": [
+        [
+          "Código",
+          "PL.GA-03",
+          "Versión",
+          "0.1",
+          "Fecha",
+          "29/12/2025",
+          "",
+          "Nivel de Etiquetado y",
+          "",
+          "USO INTERNO (NC2)",
+          "",
+          "Página"
+        ],
+        [
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "Clasificación",
+          "",
+          "",
+          "",
+          "1 de 4"
+        ]
+      ],
+      "table_id": "page_1_table_2",
+      "warnings": []
+    },
+    {
+      "bbox": {
+        "bottom": 92.65999999999997,
+        "coordinate_system": "pdf_points",
+        "top": 49.43999999999994,
+        "x0": 191.45,
+        "x1": 525.0200066666666
+      },
+      "caption": null,
+      "cells": [
+        {
+          "bbox": {
+            "bottom": 92.65999999999997,
+            "coordinate_system": "pdf_points",
+            "top": 49.43999999999994,
+            "x0": 191.45,
+            "x1": 525.0200066666666
+          },
+          "column_index": 0,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "SISTEMAS DE GESTIÓN",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 92.65999999999997,
+            "coordinate_system": "pdf_points",
+            "top": 49.43999999999994,
+            "x0": 191.45,
+            "x1": 525.0200066666666
+          },
+          "column_index": 0,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "POLÍTICA DE SOSTENIBILIDAD CORPORATIVA",
+          "warnings": []
+        }
+      ],
+      "extractor": "pdfplumber",
+      "headers": [
+        "SISTEMAS DE GESTIÓN"
+      ],
+      "markdown_representation": "| SISTEMAS DE GESTIÓN |\n| --- |\n| POLÍTICA DE SOSTENIBILIDAD CORPORATIVA |",
+      "page_number": 2,
+      "quality": {
+        "engine": null,
+        "engine_version": null,
+        "kind": "unavailable",
+        "method": null,
+        "provenance": null,
+        "sample_size": null,
+        "unit": null,
+        "value": null,
+        "warnings": []
+      },
+      "rows": [
+        [
+          "SISTEMAS DE GESTIÓN"
+        ],
+        [
+          "POLÍTICA DE SOSTENIBILIDAD CORPORATIVA"
+        ]
+      ],
+      "table_id": "page_2_table_1",
+      "warnings": []
+    },
+    {
+      "bbox": {
+        "bottom": 742.5083146153846,
+        "coordinate_system": "pdf_points",
+        "top": 721.4067761538462,
+        "x0": 85.42399999999999,
+        "x1": 525.0200066666666
+      },
+      "caption": null,
+      "cells": [
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 0,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "Código",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 1,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "PL.GA-03",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 2,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "Versión",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 3,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "0.1",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 4,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "Fecha",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 5,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "29/12/2025",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 6,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 7,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "Nivel de Etiquetado y",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 8,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 9,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "USO INTERNO (NC2)",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 10,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 11,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "Página",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 0,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 1,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 2,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 3,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 4,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 5,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 6,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 7,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "Clasificación",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 8,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 9,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 10,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 11,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "2 de 4",
+          "warnings": []
+        }
+      ],
+      "extractor": "pdfplumber",
+      "headers": [
+        "Código",
+        "PL.GA-03",
+        "Versión",
+        "0.1",
+        "Fecha",
+        "29/12/2025",
+        "Nivel de Etiquetado y",
+        "USO INTERNO (NC2)",
+        "Página"
+      ],
+      "markdown_representation": "| Código | PL.GA-03 | Versión | 0.1 | Fecha | 29/12/2025 |  | Nivel de Etiquetado y |  | USO INTERNO (NC2) |  | Página |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n|  |  |  |  |  |  |  | Clasificación |  |  |  | 2 de 4 |",
+      "page_number": 2,
+      "quality": {
+        "engine": null,
+        "engine_version": null,
+        "kind": "unavailable",
+        "method": null,
+        "provenance": null,
+        "sample_size": null,
+        "unit": null,
+        "value": null,
+        "warnings": []
+      },
+      "rows": [
+        [
+          "Código",
+          "PL.GA-03",
+          "Versión",
+          "0.1",
+          "Fecha",
+          "29/12/2025",
+          "",
+          "Nivel de Etiquetado y",
+          "",
+          "USO INTERNO (NC2)",
+          "",
+          "Página"
+        ],
+        [
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "Clasificación",
+          "",
+          "",
+          "",
+          "2 de 4"
+        ]
+      ],
+      "table_id": "page_2_table_2",
+      "warnings": []
+    },
+    {
+      "bbox": {
+        "bottom": 92.65999999999997,
+        "coordinate_system": "pdf_points",
+        "top": 49.43999999999994,
+        "x0": 191.45,
+        "x1": 525.0200066666666
+      },
+      "caption": null,
+      "cells": [
+        {
+          "bbox": {
+            "bottom": 92.65999999999997,
+            "coordinate_system": "pdf_points",
+            "top": 49.43999999999994,
+            "x0": 191.45,
+            "x1": 525.0200066666666
+          },
+          "column_index": 0,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "SISTEMAS DE GESTIÓN",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 92.65999999999997,
+            "coordinate_system": "pdf_points",
+            "top": 49.43999999999994,
+            "x0": 191.45,
+            "x1": 525.0200066666666
+          },
+          "column_index": 0,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "POLÍTICA DE SOSTENIBILIDAD CORPORATIVA",
+          "warnings": []
+        }
+      ],
+      "extractor": "pdfplumber",
+      "headers": [
+        "SISTEMAS DE GESTIÓN"
+      ],
+      "markdown_representation": "| SISTEMAS DE GESTIÓN |\n| --- |\n| POLÍTICA DE SOSTENIBILIDAD CORPORATIVA |",
+      "page_number": 3,
+      "quality": {
+        "engine": null,
+        "engine_version": null,
+        "kind": "unavailable",
+        "method": null,
+        "provenance": null,
+        "sample_size": null,
+        "unit": null,
+        "value": null,
+        "warnings": []
+      },
+      "rows": [
+        [
+          "SISTEMAS DE GESTIÓN"
+        ],
+        [
+          "POLÍTICA DE SOSTENIBILIDAD CORPORATIVA"
+        ]
+      ],
+      "table_id": "page_3_table_1",
+      "warnings": []
+    },
+    {
+      "bbox": {
+        "bottom": 742.5083146153846,
+        "coordinate_system": "pdf_points",
+        "top": 721.4067761538462,
+        "x0": 85.42399999999999,
+        "x1": 525.0200066666666
+      },
+      "caption": null,
+      "cells": [
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 0,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "Código",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 1,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "PL.GA-03",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 2,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "Versión",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 3,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "0.1",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 4,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "Fecha",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 5,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "29/12/2025",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 6,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 7,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "Nivel de Etiquetado y",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 8,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 9,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "USO INTERNO (NC2)",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 10,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 11,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "Página",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 0,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 1,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 2,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 3,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 4,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 5,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 6,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 7,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "Clasificación",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 8,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 9,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 10,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 11,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "3 de 4",
+          "warnings": []
+        }
+      ],
+      "extractor": "pdfplumber",
+      "headers": [
+        "Código",
+        "PL.GA-03",
+        "Versión",
+        "0.1",
+        "Fecha",
+        "29/12/2025",
+        "Nivel de Etiquetado y",
+        "USO INTERNO (NC2)",
+        "Página"
+      ],
+      "markdown_representation": "| Código | PL.GA-03 | Versión | 0.1 | Fecha | 29/12/2025 |  | Nivel de Etiquetado y |  | USO INTERNO (NC2) |  | Página |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n|  |  |  |  |  |  |  | Clasificación |  |  |  | 3 de 4 |",
+      "page_number": 3,
+      "quality": {
+        "engine": null,
+        "engine_version": null,
+        "kind": "unavailable",
+        "method": null,
+        "provenance": null,
+        "sample_size": null,
+        "unit": null,
+        "value": null,
+        "warnings": []
+      },
+      "rows": [
+        [
+          "Código",
+          "PL.GA-03",
+          "Versión",
+          "0.1",
+          "Fecha",
+          "29/12/2025",
+          "",
+          "Nivel de Etiquetado y",
+          "",
+          "USO INTERNO (NC2)",
+          "",
+          "Página"
+        ],
+        [
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "Clasificación",
+          "",
+          "",
+          "",
+          "3 de 4"
+        ]
+      ],
+      "table_id": "page_3_table_2",
+      "warnings": []
+    },
+    {
+      "bbox": {
+        "bottom": 92.65999999999997,
+        "coordinate_system": "pdf_points",
+        "top": 49.43999999999994,
+        "x0": 191.45,
+        "x1": 525.0200066666666
+      },
+      "caption": null,
+      "cells": [
+        {
+          "bbox": {
+            "bottom": 92.65999999999997,
+            "coordinate_system": "pdf_points",
+            "top": 49.43999999999994,
+            "x0": 191.45,
+            "x1": 525.0200066666666
+          },
+          "column_index": 0,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "SISTEMAS DE GESTIÓN",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 92.65999999999997,
+            "coordinate_system": "pdf_points",
+            "top": 49.43999999999994,
+            "x0": 191.45,
+            "x1": 525.0200066666666
+          },
+          "column_index": 0,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "POLÍTICA DE SOSTENIBILIDAD CORPORATIVA",
+          "warnings": []
+        }
+      ],
+      "extractor": "pdfplumber",
+      "headers": [
+        "SISTEMAS DE GESTIÓN"
+      ],
+      "markdown_representation": "| SISTEMAS DE GESTIÓN |\n| --- |\n| POLÍTICA DE SOSTENIBILIDAD CORPORATIVA |",
+      "page_number": 4,
+      "quality": {
+        "engine": null,
+        "engine_version": null,
+        "kind": "unavailable",
+        "method": null,
+        "provenance": null,
+        "sample_size": null,
+        "unit": null,
+        "value": null,
+        "warnings": []
+      },
+      "rows": [
+        [
+          "SISTEMAS DE GESTIÓN"
+        ],
+        [
+          "POLÍTICA DE SOSTENIBILIDAD CORPORATIVA"
+        ]
+      ],
+      "table_id": "page_4_table_1",
+      "warnings": []
+    },
+    {
+      "bbox": {
+        "bottom": 742.5083146153846,
+        "coordinate_system": "pdf_points",
+        "top": 721.4067761538462,
+        "x0": 85.42399999999999,
+        "x1": 525.0200066666666
+      },
+      "caption": null,
+      "cells": [
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 0,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "Código",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 1,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "PL.GA-03",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 2,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "Versión",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 3,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "0.1",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 4,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "Fecha",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 5,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "29/12/2025",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 6,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 7,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "Nivel de Etiquetado y",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 8,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 9,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "USO INTERNO (NC2)",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 10,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 11,
+          "column_span": 1,
+          "row_index": 0,
+          "row_span": 1,
+          "text": "Página",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 0,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 1,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 2,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 3,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 4,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 5,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 6,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 7,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "Clasificación",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 8,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 9,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 10,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "",
+          "warnings": []
+        },
+        {
+          "bbox": {
+            "bottom": 742.5083146153846,
+            "coordinate_system": "pdf_points",
+            "top": 721.4067761538462,
+            "x0": 85.42399999999999,
+            "x1": 525.0200066666666
+          },
+          "column_index": 11,
+          "column_span": 1,
+          "row_index": 1,
+          "row_span": 1,
+          "text": "4 de 4",
+          "warnings": []
+        }
+      ],
+      "extractor": "pdfplumber",
+      "headers": [
+        "Código",
+        "PL.GA-03",
+        "Versión",
+        "0.1",
+        "Fecha",
+        "29/12/2025",
+        "Nivel de Etiquetado y",
+        "USO INTERNO (NC2)",
+        "Página"
+      ],
+      "markdown_representation": "| Código | PL.GA-03 | Versión | 0.1 | Fecha | 29/12/2025 |  | Nivel de Etiquetado y |  | USO INTERNO (NC2) |  | Página |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n|  |  |  |  |  |  |  | Clasificación |  |  |  | 4 de 4 |",
+      "page_number": 4,
+      "quality": {
+        "engine": null,
+        "engine_version": null,
+        "kind": "unavailable",
+        "method": null,
+        "provenance": null,
+        "sample_size": null,
+        "unit": null,
+        "value": null,
+        "warnings": []
+      },
+      "rows": [
+        [
+          "Código",
+          "PL.GA-03",
+          "Versión",
+          "0.1",
+          "Fecha",
+          "29/12/2025",
+          "",
+          "Nivel de Etiquetado y",
+          "",
+          "USO INTERNO (NC2)",
+          "",
+          "Página"
+        ],
+        [
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "Clasificación",
+          "",
+          "",
+          "",
+          "4 de 4"
+        ]
+      ],
+      "table_id": "page_4_table_2",
+      "warnings": []
+    }
+  ],
+  "warnings": []
+}

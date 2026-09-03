@@ -101,7 +101,7 @@
     "warnings": []
   },
   "language": "es",
-  "legacy_normalized_path": "C:\\Users\\jvrincon\\Documents\\chatbot_sst\\chatbot-sst\\data\\projects\\sst-general\\.normalized.staging\\convivencia_laboral\\manual\\principios_convivencia.md",
+  "legacy_normalized_path": "C:\\Users\\jvrincon\\Documents\\rag_platform\\rag_platform\\data\\projects\\sst-general\\.normalized.staging\\convivencia_laboral\\manual\\principios_convivencia.md",
   "legacy_path": null,
   "legacy_source_path": null,
   "llama_cloud": null,
@@ -136,7 +136,7 @@
     "rag_variant_id": "ragv_local-bge",
     "semantic_recipe_fingerprint": "bd82bb646dcddaf91a4c9e4bb94e877c937a9c2ab18ed8f296f2a0827c34eece"
   },
-  "processed_at": "2026-09-03T08:02:33.920823-05:00",
+  "processed_at": "2026-09-03T11:01:48.711536-05:00",
   "processing_status": "processed",
   "review_reasons": [],
   "schema_version": "2.0",
