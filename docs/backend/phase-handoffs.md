@@ -1,22 +1,22 @@
 # Handoffs entre fases backend
 
-## Propósito
+## PropÃ³sito
 
-Este documento describe cómo se transfiere el control y los datos entre las
+Este documento describe cÃ³mo se transfiere el control y los datos entre las
 fases operativas implementadas en la rama actual, desde `docs_raw` hasta
-retrieval. La meta es dejar explícitos los contratos de entrada/salida, los
+retrieval. La meta es dejar explÃ­citos los contratos de entrada/salida, los
 gates y los consumidores inmediatos.
 
 ## Flujo extremo a extremo
 
-| Fase | Entrada principal | Transformación | Salida principal | Gate antes de pasar | Siguiente consumidor |
+| Fase | Entrada principal | TransformaciÃ³n | Salida principal | Gate antes de pasar | Siguiente consumidor |
 | --- | --- | --- | --- | --- | --- |
-| Inventario/ingesta | `data/docs_raw` o ruta staging | fingerprint, lectura, OCR/parse, normalización, clasificación, extracción, validación | Markdown y artefactos Schema 2.0 + `_manifests/` en `data/docs_normalized` o staging | validación estructural y estado documental (`processed` o `needs_review`) | `chunking`, revisión humana, indexación filtrada |
-| Revisión/promoción | candidate root + manifest de validación estructural | promoción controlada del candidato validado; `review_decisions.json` puede existir como soporte operativo, pero no es gate técnico actual | candidato promovido a `data/docs_normalized` | validación estructural aprobada | `chunking`, `indexing`, GUI |
-| Chunking | `docs_normalized` aprobado | parser estructural + parent builder + child builder + validación | chunk bundles e índices de inspección | bundle válido y correlación con documento normalizado | `embedding`, inspección HTTP/GUI |
-| Embedding | chunk bundle + perfil verificado | lectura de chunks, batch embedding, validación y readiness | embedding bundle + readiness checks | perfil compatible, motor disponible, documentos habilitados | `indexing` |
-| Indexing | embedding bundle + perfil/target | construcción de nodos, persistencia de rows activas, activación/rollback | indexing runs, nodes, vector rows, targets activos | bundle listo, target compatible, persistencia confirmada si PostgreSQL | `retrieval` |
-| Retrieval | retrieval profile + target activo + query | query embedding, vector search, lexical fallback, parent expansion | evidencia recuperada y estado de readiness/validación | perfil activo y validado; fallback léxico permitido si vector falla | capa de respuesta/chat futura o consumidor HTTP |
+| Inventario/ingesta | `data/docs_raw` o ruta staging | fingerprint, lectura, OCR/parse, normalizaciÃ³n, clasificaciÃ³n, extracciÃ³n, validaciÃ³n | Markdown y artefactos Schema 2.0 + `_manifests/` en `data/docs_normalized` o staging | validaciÃ³n estructural y estado documental (`processed` o `needs_review`) | `chunking`, revisiÃ³n humana, indexaciÃ³n filtrada |
+| RevisiÃ³n/promociÃ³n | candidate root + manifest de validaciÃ³n estructural | promociÃ³n controlada del candidato validado; `review_decisions.json` puede existir como soporte operativo, pero no es gate tÃ©cnico actual | candidato promovido a `data/docs_normalized` | validaciÃ³n estructural aprobada | `chunking`, `indexing`, GUI |
+| Chunking | `docs_normalized` aprobado | parser estructural + parent builder + child builder + validaciÃ³n | chunk bundles e Ã­ndices de inspecciÃ³n | bundle vÃ¡lido y correlaciÃ³n con documento normalizado | `embedding`, inspecciÃ³n HTTP/GUI |
+| Embedding | chunk bundle + perfil verificado | lectura de chunks, batch embedding, validaciÃ³n y readiness | embedding bundle + readiness checks | perfil compatible, motor disponible, documentos habilitados | `indexing` |
+| Indexing | embedding bundle + perfil/target | construcciÃ³n de nodos, persistencia de rows activas, activaciÃ³n/rollback | indexing runs, nodes, vector rows, targets activos | bundle listo, target compatible, persistencia confirmada si PostgreSQL | `retrieval` |
+| Retrieval | retrieval profile + target activo + query | query embedding, vector search, lexical fallback, parent expansion | evidencia recuperada y estado de readiness/validaciÃ³n | perfil activo y validado; fallback lÃ©xico permitido si vector falla | capa de respuesta/chat futura o consumidor HTTP |
 
 ## Fase 1: `docs_raw` -> `docs_normalized`
 
@@ -38,12 +38,12 @@ gates y los consumidores inmediatos.
 
 ### Gate
 
-- validación estructural por `validate_normalized_tree`
-- warnings materiales o ausencia de evidencia crítica empujan a
+- validaciÃ³n estructural por `validate_normalized_tree`
+- warnings materiales o ausencia de evidencia crÃ­tica empujan a
   `needs_review`
-- la promoción es atómica y separada de la normalización base
-- `needs_review` no bloquea por sí solo `promote_candidate`; el gate real en
-  `HEAD` es que la validación estructural haya pasado
+- la promociÃ³n es atÃ³mica y separada de la normalizaciÃ³n base
+- `needs_review` no bloquea por sÃ­ solo `promote_candidate`; el gate real en
+  `HEAD` es que la validaciÃ³n estructural haya pasado
 
 ## Fase 2: `docs_normalized` -> chunk bundles
 
@@ -56,7 +56,7 @@ gates y los consumidores inmediatos.
 
 - bundles parent-child
 - manifiestos `*.api-run.json`
-- material de inspección y validación de chunking
+- material de inspecciÃ³n y validaciÃ³n de chunking
 
 ### Gate
 
@@ -81,10 +81,10 @@ gates y los consumidores inmediatos.
 ### Gate
 
 - perfil de embedding verificado
-- semántica del engine compatible con el perfil
+- semÃ¡ntica del engine compatible con el perfil
 - bundle de chunking vigente y elegible
 
-## Fase 4: embedding bundles -> indexación durable o en memoria
+## Fase 4: embedding bundles -> indexaciÃ³n durable o en memoria
 
 ### Entry points
 
@@ -97,16 +97,16 @@ gates y los consumidores inmediatos.
 - indexing runs
 - nodos parent/child persistidos
 - filas vectoriales activas
-- activación o rollback del target
+- activaciÃ³n o rollback del target
 
 ### Gate
 
-- bundle de embeddings listo para indexación
+- bundle de embeddings listo para indexaciÃ³n
 - target compatible con el perfil
-- `--persist-confirmed` y `SST_POSTGRES_DSN` cuando la persistencia real es
+- `--persist-confirmed` y `RAG_PLATFORM_POSTGRES_DSN` cuando la persistencia real es
   PostgreSQL
 
-## Fase 5: indexación -> retrieval
+## Fase 5: indexaciÃ³n -> retrieval
 
 ### Entry points
 
@@ -118,13 +118,13 @@ gates y los consumidores inmediatos.
 
 - readiness del lane de retrieval
 - evidencia recuperada
-- fallback léxico explícitamente observable
+- fallback lÃ©xico explÃ­citamente observable
 
 ### Gate
 
 - perfil de retrieval activo y validado
 - filas vectoriales activas para el corpus/target/perfil
-- si no hay vector search disponible, solo puede contestar el camino léxico si
+- si no hay vector search disponible, solo puede contestar el camino lÃ©xico si
   `lexical_fallback_policy` lo permite
 
 ## Superficies HTTP y CLI
@@ -136,47 +136,48 @@ El repo expone dos superficies distintas:
 - **FastAPI bundle-first**: [api/app.py](../../app/back/src/api/app.py) para
   `embedding`, `indexing` y `retrieval`.
 
-Los CLIs siguen siendo la fuente más directa para inventario, pipeline,
-preparación PostgreSQL, verificación de perfiles y benchmarks.
+Los CLIs siguen siendo la fuente mÃ¡s directa para inventario, pipeline,
+preparaciÃ³n PostgreSQL, verificaciÃ³n de perfiles y benchmarks.
 
-## Plataforma RAG: cuatro semánticas separadas (ADR-006)
+## Plataforma RAG: cuatro semÃ¡nticas separadas (ADR-006)
 
-La plataforma multi-proyecto introduce estados que **no** son sinónimos entre sí
-ni de la activación legacy. El handoff entre fases debe preservar la distinción:
+La plataforma multi-proyecto introduce estados que **no** son sinÃ³nimos entre sÃ­
+ni de la activaciÃ³n legacy. El handoff entre fases debe preservar la distinciÃ³n:
 
 | Concepto | Confirma | No implica |
 | --- | --- | --- |
-| `promoted` | promoción técnica del normalizado (gate legacy: validación estructural) | que la revisión sea releaseable |
-| `release_eligible` | la revisión puede entrar a un corpus snapshot | promoción ni publicación |
-| `PUBLISHED` | el catálogo de plataforma acepta la release | activación de retrieval ni cambio de consumidor |
-| activación legacy (`is_active`) | qué release consulta el chatbot | nada de lo anterior; no se toca en este plan |
+| `promoted` | promociÃ³n tÃ©cnica del normalizado (gate legacy: validaciÃ³n estructural) | que la revisiÃ³n sea releaseable |
+| `release_eligible` | la revisiÃ³n puede entrar a un corpus snapshot | promociÃ³n ni publicaciÃ³n |
+| `PUBLISHED` | el catÃ¡logo de plataforma acepta la release | activaciÃ³n de retrieval ni cambio de consumidor |
+| activaciÃ³n legacy (`is_active`) | quÃ© release consulta el chatbot | nada de lo anterior; no se toca en este plan |
 
-Una revisión `needs_review` exige decisión de elegibilidad versionada antes de
+Una revisiÃ³n `needs_review` exige decisiÃ³n de elegibilidad versionada antes de
 entrar a un snapshot. Detalle en
 [identity-and-reuse-contract.md](../rag-platform/identity-and-reuse-contract.md)
 y baseline en [migration-baseline.md](../rag-platform/migration-baseline.md).
 
-## Coexistencia legacy tras Fase 6 (publicación de catálogo)
+## Coexistencia legacy tras Fase 6 (publicaciÃ³n de catÃ¡logo)
 
 La lane de plataforma se activa con `SST_FEATURE_RAG_PLATFORM_V1` (**off por
 defecto**, independiente de los flags bundle-first). Con el flag off el runtime
-legacy es byte-idéntico; con el flag on el composition root registra los servicios
+legacy es byte-idÃ©ntico; con el flag on el composition root registra los servicios
 de plataforma **sin** modificar el wiring de retrieval.
 
 `PublishRagReleaseUseCase` (`rag_platform/application/publication_service.py`)
-publica una release como transición `VALIDATED → PUBLISHED`; **no** escribe
+publica una release como transiciÃ³n `VALIDATED â†’ PUBLISHED`; **no** escribe
 `is_active`, **no** crea/actualiza `retrieval_profiles` y **no** usa el scope
 legacy `chatbot/sst-default`. `ActivateIndexedBundleUseCase`,
 `RollbackIndexedBundleUseCase` y `/api/retrieval` permanecen como la lane legacy.
 
 Nota de alcance: seleccionar una release publicada distinta como consumidor de
 retrieval **no** es un rollback de filas vectoriales (`is_active`) y **no** forma
-parte de este plan; es trabajo de una fase posterior de reconexión del consumidor.
+parte de este plan; es trabajo de una fase posterior de reconexiÃ³n del consumidor.
 
 ## Puntos de acoplamiento a vigilar
 
-- La ingesta y la GUI comparten mucha orquestación en archivos grandes.
+- La ingesta y la GUI comparten mucha orquestaciÃ³n en archivos grandes.
 - El boundary entre GUI heredada y FastAPI bundle-first existe, pero no
-  unifica toda la operación backend.
-- `docs_normalized` sigue siendo el contrato compartido más importante entre
+  unifica toda la operaciÃ³n backend.
+- `docs_normalized` sigue siendo el contrato compartido mÃ¡s importante entre
   Fase 1 y el resto del pipeline.
+

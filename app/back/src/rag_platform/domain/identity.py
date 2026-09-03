@@ -104,8 +104,8 @@ class IdentityKind(str, Enum):
     CHUNKING_PROFILE = "cp"
 
 
-#: Cuerpo permitido tras el prefijo: hex/alfanumérico y guiones, sin espacios.
-_ID_BODY = re.compile(r"^[a-z0-9][a-z0-9-]{0,127}$")
+#: Cuerpo permitido tras el prefijo: alfanumérico, guiones bajos y guiones, sin espacios.
+_ID_BODY = re.compile(r"^[a-z0-9][a-z0-9_-]{0,127}$")
 
 
 class InvalidIdentity(ValueError):

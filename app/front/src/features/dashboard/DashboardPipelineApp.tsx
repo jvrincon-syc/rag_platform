@@ -87,8 +87,8 @@ export function DashboardPipelineApp({
   const isStandaloneWorkspaceView =
     activeView === "chunking" || activeView === "embedding-indexing";
   const baseSubtitle = isChunkingView
-    ? "Legacy pipeline actual - Inspeccion de corridas parent-child y evidencia de chunks"
-    : `Legacy pipeline actual - Schema ${status?.summary.schemaVersion ?? "2.0"} - ${
+    ? "Pipeline de ingesta actual - Inspeccion de corridas parent-child y evidencia de chunks"
+    : `Pipeline de ingesta actual - Schema ${status?.summary.schemaVersion ?? "2.0"} - ${
         status?.summary.runId ?? "sin run"
       }`;
   const activeViewSubtitle = scopeSubtitle ? `${baseSubtitle} - ${scopeSubtitle}` : baseSubtitle;

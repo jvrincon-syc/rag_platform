@@ -27,8 +27,8 @@ afectada. No cargues `data/`, `memory/`, `.tmp/`, `.venv*` ni
 
 - `bibliography.md`: catalogo breve de documentos canonicos, ADRs, runbooks y
   referencias operativas.
-- `rag-platform/README.md`: punto de entrada para la transicion editorial de
-  `chatbot-sst` a `RAG Platform`.
+- `rag-platform/README.md`: punto de entrada para la identidad canonica
+  `rag_platform` / `RAG Platform`.
 
 ## Fuentes de verdad
 

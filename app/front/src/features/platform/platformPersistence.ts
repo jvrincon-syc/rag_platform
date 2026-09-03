@@ -9,7 +9,8 @@ import {
   type PlatformPreferences,
 } from "./platformState.js";
 
-const STORAGE_KEY = "chatbot-sst.platform.preferences.v1";
+const LEGACY_STORAGE_KEY = "chatbot-sst.platform.preferences.v1";
+const STORAGE_KEY = "rag-platform.platform.preferences.v1";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -52,7 +53,23 @@ export function readPlatformPreferences(): PlatformPreferences | null {
   }
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
-    return raw ? parseStoredPlatformPreferences(raw) : null;
+    if (raw) {
+      return parseStoredPlatformPreferences(raw);
+    }
+
+    const legacyRaw = window.localStorage.getItem(LEGACY_STORAGE_KEY);
+    if (!legacyRaw) {
+      return null;
+    }
+
+    const migrated = parseStoredPlatformPreferences(legacyRaw);
+    if (!migrated) {
+      return null;
+    }
+
+    window.localStorage.setItem(STORAGE_KEY, serializePlatformPreferences(migrated));
+    window.localStorage.removeItem(LEGACY_STORAGE_KEY);
+    return migrated;
   } catch {
     return null;
   }

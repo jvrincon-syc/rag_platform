@@ -18,8 +18,8 @@ _RESERVED_LOG_RECORD_ATTRS = frozenset(logging.makeLogRecord({}).__dict__) | {
     "asctime",
     "message",
 }
-_CONSOLE_HANDLER_NAME = "chatbot_sst_console"
-_FILE_HANDLER_NAME = "chatbot_sst_file"
+_CONSOLE_HANDLER_NAME = "rag_platform_console"
+_FILE_HANDLER_NAME = "rag_platform_file"
 
 
 class StructuredJsonFormatter(logging.Formatter):

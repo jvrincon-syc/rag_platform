@@ -28,7 +28,7 @@ export function DashboardSidebar({
     <aside className="sidebar">
       <div className="brand">
         <FileText size={24} />
-        <span>SST Pipeline</span>
+        <span>RAG Platform</span>
       </div>
       <nav>
         {DASHBOARD_VIEWS.map((item) => {

@@ -1,18 +1,18 @@
-"""Contrato del adaptador PostgreSQL de idempotencia (Fase 7).
+﻿"""Contrato del adaptador PostgreSQL de idempotencia (Fase 7).
 
-PostgreSQL es la **autoridad durable** de idempotencia, así que su contrato se
-congela aquí, no solo el del adaptador in-memory:
+PostgreSQL es la **autoridad durable** de idempotencia, asÃ­ que su contrato se
+congela aquÃ­, no solo el del adaptador in-memory:
 
 - la reserva es un ``INSERT ... ON CONFLICT (key_hash) DO NOTHING RETURNING``
-  atómico: si inserta, este llamador es el dueño (``fresh``); si no, lee el estado
+  atÃ³mico: si inserta, este llamador es el dueÃ±o (``fresh``); si no, lee el estado
   ya reservado;
 - ``complete``/``fail`` emiten ``UPDATE`` parametrizados y hacen commit corto;
 - el ``result_json`` nunca se escribe en la reserva y solo guarda el resultado
-  terminal (dict serializado); jamás datos sensibles;
-- la fila se mapea de vuelta a ``IdempotencyRecord`` (result_json string → dict).
+  terminal (dict serializado); jamÃ¡s datos sensibles;
+- la fila se mapea de vuelta a ``IdempotencyRecord`` (result_json string â†’ dict).
 
 El test marcado ``postgres_live`` prueba dos reservas **concurrentes** reales
-sobre la BD: exactamente un llamador se convierte en dueño.
+sobre la BD: exactamente un llamador se convierte en dueÃ±o.
 """
 
 from __future__ import annotations
@@ -65,11 +65,11 @@ def test_reserve_fresh_inserta_atomico_hace_commit_y_no_persiste_result_json() -
     assert "ON CONFLICT (key_hash) DO NOTHING" in statement
     assert "RETURNING key_hash" in statement
     params = connection.cursor_obj.params[0]
-    # 10 columnas parametrizadas (%s), nunca interpolación de strings.
+    # 10 columnas parametrizadas (%s), nunca interpolaciÃ³n de strings.
     assert len(params) == 10
-    # result_json (posición 7) NUNCA se escribe en la reserva.
+    # result_json (posiciÃ³n 7) NUNCA se escribe en la reserva.
     assert params[7] is None
-    # Reserva = transición corta e independiente: commit inmediato.
+    # Reserva = transiciÃ³n corta e independiente: commit inmediato.
     assert connection.commits == 1
 
 
@@ -137,7 +137,7 @@ def test_fail_marca_failed_sin_result_json() -> None:
 
 
 # --------------------------------------------------------------------------- #
-# Aislamiento de conexión: idempotencia no puede commitear negocio             #
+# Aislamiento de conexiÃ³n: idempotencia no puede commitear negocio             #
 # --------------------------------------------------------------------------- #
 
 
@@ -149,7 +149,7 @@ def test_store_usa_la_conexion_dedicada_no_la_de_negocio() -> None:
     store = _build_idempotency_store(
         connection=business, idempotency_connection=dedicated
     )
-    # El store solo conoce la conexión dedicada; jamás la de negocio.
+    # El store solo conoce la conexiÃ³n dedicada; jamÃ¡s la de negocio.
     assert store._connection is dedicated
 
 
@@ -164,8 +164,8 @@ def test_store_cae_a_la_compartida_si_no_hay_dedicada() -> None:
 
 
 def test_reserve_no_toca_la_conexion_de_negocio() -> None:
-    # El store se cablea con SU conexión; una conexión de negocio separada no
-    # recibe sentencias ni commits del store (aislamiento físico).
+    # El store se cablea con SU conexiÃ³n; una conexiÃ³n de negocio separada no
+    # recibe sentencias ni commits del store (aislamiento fÃ­sico).
     business = RecordingConnection([])
     idempotency = RecordingConnection([{"fetchone": ("a" * 64,)}])
     PostgresIdempotencyStore(idempotency).reserve(_record())
@@ -175,15 +175,15 @@ def test_reserve_no_toca_la_conexion_de_negocio() -> None:
 
 
 # --------------------------------------------------------------------------- #
-# Concurrencia real (postgres_live): exactamente un dueño                       #
+# Concurrencia real (postgres_live): exactamente un dueÃ±o                       #
 # --------------------------------------------------------------------------- #
 
 
 @pytest.mark.postgres_live
 def test_dos_reservas_concurrentes_reales_solo_un_dueno() -> None:
-    dsn = (os.environ.get("SST_POSTGRES_DSN") or "").strip()
+    dsn = (os.environ.get("RAG_PLATFORM_POSTGRES_DSN") or "").strip()
     if not dsn:
-        pytest.skip("SST_POSTGRES_DSN no configurado")
+        pytest.skip("RAG_PLATFORM_POSTGRES_DSN no configurado")
 
     import psycopg2
     from psycopg2.extensions import parse_dsn
@@ -231,13 +231,13 @@ def test_dos_reservas_concurrentes_reales_solo_un_dueno() -> None:
     finally:
         cleanup.close()
 
-    # La PK + ON CONFLICT DO NOTHING garantiza un único INSERT ganador.
+    # La PK + ON CONFLICT DO NOTHING garantiza un Ãºnico INSERT ganador.
     assert outcomes.count(True) == 1
     assert outcomes.count(False) == 1
 
 
 # --------------------------------------------------------------------------- #
-# Doble de conexión que registra sentencias, parámetros y commits              #
+# Doble de conexiÃ³n que registra sentencias, parÃ¡metros y commits              #
 # --------------------------------------------------------------------------- #
 
 
@@ -273,3 +273,4 @@ class RecordingCursor:
 
     def fetchone(self):
         return self._current.get("fetchone")
+

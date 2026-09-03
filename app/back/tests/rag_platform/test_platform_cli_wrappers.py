@@ -13,7 +13,7 @@ from pathlib import Path
 
 _ROOT = Path(__file__).resolve().parents[4]
 _DSN_ENV_VARS = (
-    "SST_POSTGRES_DSN",
+    "RAG_PLATFORM_POSTGRES_DSN",
     "POSTGRES_HOST",
     "POSTGRES_DB",
     "POSTGRES_USER",

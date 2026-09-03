@@ -82,8 +82,8 @@ def test_logger_does_not_duplicate_handlers_cuando_configuracion_se_repite() -> 
 
     handler_names = [handler.name for handler in logger.handlers]
 
-    assert handler_names.count("chatbot_sst_console") == 1
-    assert handler_names.count("chatbot_sst_file") == 1
+    assert handler_names.count("rag_platform_console") == 1
+    assert handler_names.count("rag_platform_file") == 1
 
 
 def test_observability_event_serializes_with_context_and_metrics_cuando_is_valid() -> None:

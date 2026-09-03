@@ -158,7 +158,7 @@ from core.logging.logger import configure_structured_logging
 
 root = configure_structured_logging(stream=sys.stdout)
 for handler in root.handlers:
-    if handler.name == "chatbot_sst_console":
+    if handler.name == "rag_platform_console":
         handler.setLevel(logging.DEBUG)
 ```
 

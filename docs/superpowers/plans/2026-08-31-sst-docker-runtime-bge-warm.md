@@ -74,7 +74,7 @@ def test_readiness_true_despues_de_warmup_exitoso() -> None:
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `.\.venv_windows_trabajo\Scripts\python.exe -m pytest app/back/tests/chatbot/test_chatbot_warmup.py -q`
+Run: `C:\venvs\rag_platform\Scripts\python.exe -m pytest app/back/tests/chatbot/test_chatbot_warmup.py -q`
 Expected: FAIL because `chatbot_runtime.warmup` and/or `BgeWarmupService` do not exist yet.
 
 - [ ] **Step 3: Write minimal implementation**
@@ -104,7 +104,7 @@ class BgeWarmupService:
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `.\.venv_windows_trabajo\Scripts\python.exe -m pytest app/back/tests/chatbot/test_chatbot_warmup.py -q`
+Run: `C:\venvs\rag_platform\Scripts\python.exe -m pytest app/back/tests/chatbot/test_chatbot_warmup.py -q`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
@@ -166,7 +166,7 @@ def test_runtime_reporta_ready_cuando_bge_ya_esta_warm(tmp_path: Path) -> None:
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `.\.venv_windows_trabajo\Scripts\python.exe -m pytest app/back/tests/chatbot/test_chatbot_runtime_worker.py -q`
+Run: `C:\venvs\rag_platform\Scripts\python.exe -m pytest app/back/tests/chatbot/test_chatbot_runtime_worker.py -q`
 Expected: FAIL because `chatbot_runtime.app`/`build_chatbot_runtime` do not exist yet.
 
 - [ ] **Step 3: Write minimal implementation**
@@ -194,7 +194,7 @@ def create_chatbot_runtime_app(...) -> FastAPI:
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `.\.venv_windows_trabajo\Scripts\python.exe -m pytest app/back/tests/chatbot/test_chatbot_runtime_worker.py -q`
+Run: `C:\venvs\rag_platform\Scripts\python.exe -m pytest app/back/tests/chatbot/test_chatbot_runtime_worker.py -q`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
@@ -242,7 +242,7 @@ def test_dockerfile_declares_api_and_worker_entrypoints() -> None:
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `.\.venv_windows_trabajo\Scripts\python.exe -m pytest app/back/tests/chatbot/test_chatbot_runtime_docker_config.py -q`
+Run: `C:\venvs\rag_platform\Scripts\python.exe -m pytest app/back/tests/chatbot/test_chatbot_runtime_docker_config.py -q`
 Expected: FAIL because the Docker assets and/or settings defaults do not exist yet.
 
 - [ ] **Step 3: Write minimal implementation**
@@ -270,7 +270,7 @@ services:
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `.\.venv_windows_trabajo\Scripts\python.exe -m pytest app/back/tests/chatbot/test_chatbot_runtime_docker_config.py -q`
+Run: `C:\venvs\rag_platform\Scripts\python.exe -m pytest app/back/tests/chatbot/test_chatbot_runtime_docker_config.py -q`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
@@ -311,7 +311,7 @@ def test_warmup_cli_returns_non_zero_when_warmup_fails(monkeypatch: pytest.Monke
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `.\.venv_windows_trabajo\Scripts\python.exe -m pytest app/back/tests/chatbot/test_chatbot_runtime_cli.py -q`
+Run: `C:\venvs\rag_platform\Scripts\python.exe -m pytest app/back/tests/chatbot/test_chatbot_runtime_cli.py -q`
 Expected: FAIL because the CLI entrypoint does not exist yet.
 
 - [ ] **Step 3: Write minimal implementation**
@@ -327,7 +327,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `.\.venv_windows_trabajo\Scripts\python.exe -m pytest app/back/tests/chatbot/test_chatbot_runtime_cli.py -q`
+Run: `C:\venvs\rag_platform\Scripts\python.exe -m pytest app/back/tests/chatbot/test_chatbot_runtime_cli.py -q`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
@@ -336,3 +336,4 @@ Expected: PASS
 git add app/back/src/chatbot_runtime/warmup.py app/back/src/chatbot_runtime/main.py README.md app/back/tests/chatbot/test_chatbot_runtime_cli.py
 git commit -m "feat: add chatbot runtime warmup cli"
 ```
+

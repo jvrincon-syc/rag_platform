@@ -1,4 +1,4 @@
-"""Upgrade test for ``20260805_16``: the dedicated profile verification kind.
+﻿"""Upgrade test for ``20260805_16``: the dedicated profile verification kind.
 
 The migration is applied by ``indexing:prepare-postgres`` like every other one.
 These checks prove the constraint really widened, that real indexing readiness
@@ -20,11 +20,11 @@ NEW_KIND = "embedding_profile_verification"
 
 
 def _connection():
-    if not os.environ.get("SST_POSTGRES_DSN"):
-        pytest.skip("SST_POSTGRES_DSN is required for live PostgreSQL checks")
+    if not os.environ.get("RAG_PLATFORM_POSTGRES_DSN"):
+        pytest.skip("RAG_PLATFORM_POSTGRES_DSN is required for live PostgreSQL checks")
         print("falta la variable")
     psycopg2 = pytest.importorskip("psycopg2")
-    return psycopg2.connect(os.environ["SST_POSTGRES_DSN"])
+    return psycopg2.connect(os.environ["RAG_PLATFORM_POSTGRES_DSN"])
 
 
 def test_la_migracion_existe_y_solo_amplia_el_catalogo() -> None:
@@ -128,3 +128,4 @@ def test_no_reclasifica_los_checks_reales_de_indexing() -> None:
             assert cursor.fetchone()[0] == 0
     finally:
         connection.close()
+

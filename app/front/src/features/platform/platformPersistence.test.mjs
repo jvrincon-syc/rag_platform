@@ -16,7 +16,8 @@ function test(name, assertion) {
   }
 }
 
-const STORAGE_KEY = "chatbot-sst.platform.preferences.v1";
+const LEGACY_STORAGE_KEY = "chatbot-sst.platform.preferences.v1";
+const STORAGE_KEY = "rag-platform.platform.preferences.v1";
 
 const PREFS = {
   selectedProjectId: "proj_alpha",
@@ -85,6 +86,14 @@ test("read sin window (SSR) devuelve null", () => {
 test("raw corrupto se degrada a null (no rompe)", () => {
   withMockWindow({ [STORAGE_KEY]: "{no-json" }, () => {
     assert.equal(readPlatformPreferences(), null);
+  });
+});
+
+test("lee preferencias legacy y las migra a la clave RAG Platform", () => {
+  withMockWindow({ [LEGACY_STORAGE_KEY]: JSON.stringify(PREFS) }, (store) => {
+    assert.deepEqual(readPlatformPreferences(), PREFS);
+    assert.equal(store.has(LEGACY_STORAGE_KEY), false);
+    assert.deepEqual(JSON.parse(store.get(STORAGE_KEY)), PREFS);
   });
 });
 

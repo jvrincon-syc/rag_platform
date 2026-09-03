@@ -4,7 +4,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     HF_HUB_DISABLE_TELEMETRY=1 \
-    HF_HUB_CACHE=/var/lib/chatbot-sst/hf-cache
+    HF_HUB_CACHE=/var/lib/rag_platform/hf-cache
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends curl libgomp1 \

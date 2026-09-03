@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import asyncio
 import json
@@ -47,8 +47,8 @@ LIVE_VECTOR_TABLE = "idx_vec_local_bge_m3_v1"
 
 
 def test_postgres_live_requires_explicit_dsn() -> None:
-    if not os.environ.get("SST_POSTGRES_DSN"):
-        pytest.skip("SST_POSTGRES_DSN is required for live PostgreSQL checks")
+    if not os.environ.get("RAG_PLATFORM_POSTGRES_DSN"):
+        pytest.skip("RAG_PLATFORM_POSTGRES_DSN is required for live PostgreSQL checks")
         print("falta la variable")
 
     pytest.importorskip("psycopg2")
@@ -57,8 +57,8 @@ def test_postgres_live_requires_explicit_dsn() -> None:
 def test_postgres_live_chunks_embeds_and_indexes_a_real_normalized_document_with_bge(
     tmp_path: Path,
 ) -> None:
-    if not os.environ.get("SST_POSTGRES_DSN"):
-        pytest.skip("SST_POSTGRES_DSN is required for live PostgreSQL checks")
+    if not os.environ.get("RAG_PLATFORM_POSTGRES_DSN"):
+        pytest.skip("RAG_PLATFORM_POSTGRES_DSN is required for live PostgreSQL checks")
 
     pytest.importorskip("torch")
     pytest.importorskip("FlagEmbedding")
@@ -287,3 +287,4 @@ def _read_live_rows(
         "vector_rows": vector_rows,
         "other_vector_tables": other_vector_tables,
     }
+

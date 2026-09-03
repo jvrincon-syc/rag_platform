@@ -116,7 +116,7 @@ def main() -> int:
     args = parse_args()
     settings = PostgresIndexingSettings.from_env(os.environ)
     if not settings.is_configured:
-        # secrets.env carries POSTGRES_* / DATABASE_URL, not SST_POSTGRES_DSN, so
+        # secrets.env carries POSTGRES_* / DATABASE_URL, not RAG_PLATFORM_POSTGRES_DSN, so
         # the documented npm command would otherwise always report dsn_missing.
         env_path = Path(args.env_file)
         if not env_path.is_absolute():
@@ -185,3 +185,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

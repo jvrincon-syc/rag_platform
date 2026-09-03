@@ -165,7 +165,7 @@ def main() -> int:
     dsn = build_dsn_from_env(os.environ)
     if not dsn:
         print(
-            "No hay DSN: define SST_POSTGRES_DSN o DATABASE_URL (o POSTGRES_HOST/DB/USER).",
+            "No hay DSN: define RAG_PLATFORM_POSTGRES_DSN o DATABASE_URL (o POSTGRES_HOST/DB/USER).",
             file=sys.stderr,
         )
         return 2

@@ -1,17 +1,17 @@
-# Variables críticas y composición
+# Variables crÃ­ticas y composiciÃ³n
 
-## Propósito
+## PropÃ³sito
 
 Esta matriz resume las variables con impacto operacional real en la rama actual.
-No reemplaza `secrets.example.env`, pero sí distingue qué configura cada lane y
-qué riesgo trae un valor incorrecto.
+No reemplaza `secrets.example.env`, pero sÃ­ distingue quÃ© configura cada lane y
+quÃ© riesgo trae un valor incorrecto.
 
 ## Reglas generales
 
-- Las variables se leen en los bordes de composición; dominio y application no
-  deberían leer entorno directamente.
-- Un valor vacío no debe inventar compatibilidad ni habilitar un proveedor.
-- Producción no debe degradar silenciosamente de PostgreSQL a memoria cuando el
+- Las variables se leen en los bordes de composiciÃ³n; dominio y application no
+  deberÃ­an leer entorno directamente.
+- Un valor vacÃ­o no debe inventar compatibilidad ni habilitar un proveedor.
+- ProducciÃ³n no debe degradar silenciosamente de PostgreSQL a memoria cuando el
   modo durable es requerido.
 - Las claves y secretos nunca deben documentarse con valores reales.
 
@@ -19,14 +19,14 @@ qué riesgo trae un valor incorrecto.
 
 | Grupo | Variables | Uso principal | Default observable | Riesgo operativo |
 | --- | --- | --- | --- | --- |
-| Persistencia | `SST_PERSISTENCE_MODE`, `SST_POSTGRES_DSN` | elegir lane `memory` o `postgres` para la composición bundle-first | `postgres` si hay DSN, si no `memory` | arrancar en un lane distinto al esperado o bloquear startup fail-closed |
-| Consumer scope | `SST_CONSUMER_SCOPE_TYPE`, `SST_CONSUMER_SCOPE_ID` | scope controlado por servidor para activación/rollback | `chatbot` / `sst-default` | activar o desactivar perfiles para el scope equivocado |
+| Persistencia | `SST_PERSISTENCE_MODE`, `RAG_PLATFORM_POSTGRES_DSN` | elegir lane `memory` o `postgres` para la composiciÃ³n bundle-first | `postgres` si hay DSN, si no `memory` | arrancar en un lane distinto al esperado o bloquear startup fail-closed |
+| Consumer scope | `SST_CONSUMER_SCOPE_TYPE`, `SST_CONSUMER_SCOPE_ID` | scope controlado por servidor para activaciÃ³n/rollback | `chatbot` / `sst-default` | activar o desactivar perfiles para el scope equivocado |
 | Feature flags | `SST_FEATURE_EMBEDDING_V2`, `SST_FEATURE_INDEXING_BUNDLE_FIRST`, `SST_FEATURE_RETRIEVAL_V1` | habilitar superficie bundle-first por capacidad | `false` | exponer rutas no listas o diagnosticar mal un `503` |
 | Ingesta/OCR | `OCR_*`, `TESSERACT_*`, `OCRMYPDF_CMD`, `GHOSTSCRIPT_CMD` | pipeline local y OCR reforzado | varios defaults en `secrets.example.env` | clasificar mal PDFs escaneados o dejar estados ambiguos |
-| Llama-first | `LLAMA_*` | lane cloud/experimental de parse, classify y extract | cloud desactivado por defecto | costos, orden inválido de stops o subida no autorizada |
-| Embeddings runtime | `EMBEDDING_*`, `BGE_*`, `HF_*`, `VOYAGE_API_KEY` | motor y semántica del embedding engine | provider `mock` | perfil incompatible, latencias/costos o bloqueo de readiness |
-| PostgreSQL base | `POSTGRES_*`, `DATABASE_URL`, `SST_POSTGRES_DSN` | construcción o resolución del DSN para migraciones y lanes durables | sin fallback inventado | scripts con DSN divergente o composición inconsistente |
-| Redis | `REDIS_*` | reservado para caché/coordinación futura | definidos en plantilla | asumir una dependencia operativa que hoy no es central en el backend versionado |
+| Llama-first | `LLAMA_*` | lane cloud/experimental de parse, classify y extract | cloud desactivado por defecto | costos, orden invÃ¡lido de stops o subida no autorizada |
+| Embeddings runtime | `EMBEDDING_*`, `BGE_*`, `HF_*`, `VOYAGE_API_KEY` | motor y semÃ¡ntica del embedding engine | provider `mock` | perfil incompatible, latencias/costos o bloqueo de readiness |
+| PostgreSQL base | `POSTGRES_*`, `DATABASE_URL`, `RAG_PLATFORM_POSTGRES_DSN` | construcciÃ³n o resoluciÃ³n del DSN para migraciones y lanes durables | sin fallback inventado | scripts con DSN divergente o composiciÃ³n inconsistente |
+| Redis | `REDIS_*` | reservado para cachÃ©/coordinaciÃ³n futura | definidos en plantilla | asumir una dependencia operativa que hoy no es central en el backend versionado |
 
 ## Variables clave por fase
 
@@ -42,15 +42,15 @@ qué riesgo trae un valor incorrecto.
 
 ## Chunking
 
-Chunking hoy depende más de parámetros internos y del contrato de documentos
-normalizados que de muchas env vars propias. Su composición efectiva se apoya
+Chunking hoy depende mÃ¡s de parÃ¡metros internos y del contrato de documentos
+normalizados que de muchas env vars propias. Su composiciÃ³n efectiva se apoya
 en:
 
 - `docs_normalized` como input controlado
-- perfiles locales de chunking y tokenizer canónico
-- request headers como `Idempotency-Key` y correlación HTTP cuando aplica
+- perfiles locales de chunking y tokenizer canÃ³nico
+- request headers como `Idempotency-Key` y correlaciÃ³n HTTP cuando aplica
 
-## Embedding e indexación
+## Embedding e indexaciÃ³n
 
 - `SST_FEATURE_EMBEDDING_V2`
 - `SST_FEATURE_INDEXING_BUNDLE_FIRST`
@@ -64,7 +64,7 @@ en:
 - `HF_TOKEN`
 - `HF_HUB_CACHE`
 - `VOYAGE_API_KEY`
-- `SST_POSTGRES_DSN`
+- `RAG_PLATFORM_POSTGRES_DSN`
 - `SST_PERSISTENCE_MODE`
 
 ## Retrieval
@@ -73,10 +73,10 @@ en:
 - `SST_CONSUMER_SCOPE_TYPE`
 - `SST_CONSUMER_SCOPE_ID`
 
-Retrieval hereda también la compatibilidad del perfil de embeddings y del
+Retrieval hereda tambiÃ©n la compatibilidad del perfil de embeddings y del
 indexing target activo; no se gobierna solo con sus propias variables.
 
-## Validaciones embebidas en código
+## Validaciones embebidas en cÃ³digo
 
 Validaciones relevantes observables hoy:
 
@@ -84,7 +84,7 @@ Validaciones relevantes observables hoy:
 - `LLAMA_CALL_ORDER` debe contener exactamente un `parse` y no puede repetir
   stops.
 - `extract` no puede ir antes de `parse`.
-- `classify` debe ir antes de `extract` cuando ambos están habilitados.
+- `classify` debe ir antes de `extract` cuando ambos estÃ¡n habilitados.
 - `SST_PERSISTENCE_MODE` solo acepta `memory` o `postgres`.
 - PostgreSQL durable falla cerrado si el DSN requerido no existe.
 - `VOYAGE_API_KEY` es obligatoria cuando el provider live de PostgreSQL usa
@@ -93,9 +93,10 @@ Validaciones relevantes observables hoy:
 ## Riesgos e inconsistencias visibles
 
 - `secrets.example.env` expone `REDIS_*`, pero Redis no aparece como pieza
-  central de la composición bundle-first actual.
-- Hay dos formas de resolver DSN en scripts: `SST_POSTGRES_DSN` directo o
-  construcción desde `POSTGRES_*` / `DATABASE_URL`; eso es útil, pero conviene
-  documentarlo como flexibilidad explícita y no como una sola ruta.
+  central de la composiciÃ³n bundle-first actual.
+- Hay dos formas de resolver DSN en scripts: `RAG_PLATFORM_POSTGRES_DSN` directo o
+  construcciÃ³n desde `POSTGRES_*` / `DATABASE_URL`; eso es Ãºtil, pero conviene
+  documentarlo como flexibilidad explÃ­cita y no como una sola ruta.
 - `LLAMA_PARSE_VERSION=latest` sigue apareciendo en la plantilla y en docs como
   valor exploratorio; no debe confundirse con pin productivo.
+

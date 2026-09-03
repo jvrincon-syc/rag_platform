@@ -57,7 +57,7 @@ CHUNKING_ROOT = ROOT / "data" / "chunks"
 EMBEDDINGS_ROOT = ROOT / "data" / "embeddings"
 #: Domains served by the FastAPI routers through the ASGI bridge. ``/api/platform``
 #: (Fase 7/8) atraviesa el mismo bridge: la autoridad de auth/scope/idempotencia
-#: sigue en FastAPI; el bridge solo reenvía método, headers y body sin reimplementar
+#: sigue en FastAPI; el bridge solo reenvÃ­a mÃ©todo, headers y body sin reimplementar
 #: negocio.
 PIPELINE_API_PREFIXES = (
     "/api/embedding",
@@ -75,9 +75,9 @@ ALLOWED_UPLOAD_SUFFIXES = {".pdf", ".md", ".markdown"}
 MAX_UPLOAD_BYTES = 200 * 1024 * 1024
 MAX_JSON_BODY_BYTES = 10 * 1024 * 1024
 ALLOWED_CORS_HEADERS = ("Content-Type", "Idempotency-Key", "Authorization")
-#: Orígenes de confianza para las rutas de auth de la GUI local (guarda CSRF).
-#: Un ``Origin`` presente que no esté aquí se rechaza; ausente (curl/same-origin)
-#: se permite. La cookie SameSite=Strict ya impide el envío cross-site.
+#: OrÃ­genes de confianza para las rutas de auth de la GUI local (guarda CSRF).
+#: Un ``Origin`` presente que no estÃ© aquÃ­ se rechaza; ausente (curl/same-origin)
+#: se permite. La cookie SameSite=Strict ya impide el envÃ­o cross-site.
 TRUSTED_GUI_ORIGINS = ("http://127.0.0.1:5173", "http://localhost:5173")
 DEFAULT_LLAMA_ROUTE = "classify,parse,extract"
 ALLOWED_LLAMA_ROUTES = {
@@ -130,18 +130,18 @@ class GuiRegisterThrottle:
             self._attempts[client_key] = recent
             return True
 
-# El bridge reenvía a una app FastAPI cableada con UNA sola conexión psycopg2
+# El bridge reenvÃ­a a una app FastAPI cableada con UNA sola conexiÃ³n psycopg2
 # compartida (``build_pipeline_services_from_env``). ``ThreadingHTTPServer`` sirve
 # cada request en su propio hilo, y psycopg2 no es thread-safe: dos requests
 # concurrentes (p. ej. la vista Variants dispara variant-matrix + variants en
-# paralelo) chocan sobre el mismo cursor y revientan la conexión. Este lock de
+# paralelo) chocan sobre el mismo cursor y revientan la conexiÃ³n. Este lock de
 # proceso serializa el acceso al bridge para una GUI local mono-operador.
-# ponytail: lock global; migrar a psycopg2 ThreadedConnectionPool + conexión por
-# request si algún día importa el throughput / multi-operador.
+# ponytail: lock global; migrar a psycopg2 ThreadedConnectionPool + conexiÃ³n por
+# request si algÃºn dÃ­a importa el throughput / multi-operador.
 _PIPELINE_BRIDGE_LOCK = threading.Lock()
 _GUI_REGISTER_THROTTLE = GuiRegisterThrottle()
 
-# psycopg2 STATUS_INERROR: la conexión está en estado de transacción abortada.
+# psycopg2 STATUS_INERROR: la conexiÃ³n estÃ¡ en estado de transacciÃ³n abortada.
 # Cualquier cursor.execute() en este estado levanta InFailedSqlTransaction.
 _PSYycopg2_STATUS_INERROR = 6
 
@@ -184,7 +184,7 @@ def _now() -> str:
 
 
 def _utcnow() -> datetime:
-    """Instante UTC actual (costura para el TTL de sesión GUI)."""
+    """Instante UTC actual (costura para el TTL de sesiÃ³n GUI)."""
 
     return datetime.now(timezone.utc)
 
@@ -192,7 +192,7 @@ def _utcnow() -> datetime:
 def _parse_project_scope(raw: object) -> tuple[str, ...] | None:
     """Valida el ``project_scope`` opcional del registro (lista de IDs de proyecto).
 
-    Ausente/``None`` o lista vacía = operador global. Fail-closed: cualquier forma
+    Ausente/``None`` o lista vacÃ­a = operador global. Fail-closed: cualquier forma
     que no sea una lista de strings se rechaza con 400 en vez de asumir un scope.
     """
 
@@ -758,7 +758,7 @@ class Phase1GuiHandler(BaseHTTPRequestHandler):
     def _handle_pipeline_api(self, method: str) -> None:
         """Forward Embedding, Indexing, Retrieval and Platform requests into FastAPI.
 
-        Reenvía método/headers/body tal cual y preserva el status + envelope de
+        ReenvÃ­a mÃ©todo/headers/body tal cual y preserva el status + envelope de
         error exacto de FastAPI. Los headers ``Authorization`` e ``Idempotency-Key``
         se propagan intactos; el bridge nunca inventa un actor ni parsea negocio.
         """
@@ -791,9 +791,9 @@ class Phase1GuiHandler(BaseHTTPRequestHandler):
             return
         body = self.rfile.read(length) if length else b""
         headers = {name: value for name, value in self.headers.items()}
-        # Gate 3: si hay cookie de sesión, el bearer se inyecta server-side y se
-        # descarta cualquier Authorization del cliente (evita confusión de headers).
-        # Sin cookie se reenvía tal cual (back-compat con clientes/herramientas que
+        # Gate 3: si hay cookie de sesiÃ³n, el bearer se inyecta server-side y se
+        # descarta cualquier Authorization del cliente (evita confusiÃ³n de headers).
+        # Sin cookie se reenvÃ­a tal cual (back-compat con clientes/herramientas que
         # ya presentan bearer directo; FastAPI sigue siendo la autoridad de auth).
         coordinator = getattr(self.server, "gui_auth", None)
         if coordinator is not None:
@@ -810,8 +810,8 @@ class Phase1GuiHandler(BaseHTTPRequestHandler):
                 }
                 headers["Authorization"] = f"Bearer {session.bearer_credential}"
         try:
-            # Serializado: la conexión psycopg2 compartida no tolera uso concurrente
-            # entre hilos del ThreadingHTTPServer (causa raíz del socket hang up en
+            # Serializado: la conexiÃ³n psycopg2 compartida no tolera uso concurrente
+            # entre hilos del ThreadingHTTPServer (causa raÃ­z del socket hang up en
             # variant-matrix bajo requests en paralelo).
             with _PIPELINE_BRIDGE_LOCK:
                 response = bridge.handle(
@@ -820,11 +820,11 @@ class Phase1GuiHandler(BaseHTTPRequestHandler):
                     headers=headers,
                     body=body,
                 )
-        except Exception as exc:  # noqa: BLE001 — frontera de proceso, fail-closed
+        except Exception as exc:  # noqa: BLE001 â€” frontera de proceso, fail-closed
             # El bridge NUNCA debe colgar el socket ("socket hang up" en el proxy):
-            # cualquier excepción que escape del ASGI app se traduce a un 500 con
+            # cualquier excepciÃ³n que escape del ASGI app se traduce a un 500 con
             # envelope para que el frontend vea el error real. El traceback queda en
-            # el log del wrapper externo (`_begin_http_request`) para diagnóstico.
+            # el log del wrapper externo (`_begin_http_request`) para diagnÃ³stico.
             server_logger.exception(
                 "Pipeline bridge raised; returning 500 envelope",
                 extra={
@@ -848,9 +848,9 @@ class Phase1GuiHandler(BaseHTTPRequestHandler):
             )
             return
         finally:
-            # Garantía: si cualquier query abortó la transacción (InFailedSqlTransaction),
+            # GarantÃ­a: si cualquier query abortÃ³ la transacciÃ³n (InFailedSqlTransaction),
             # el rollback limpia el estado para que la siguiente request no herede el fallo.
-            # Sin esta limpieza, un solo error de query envenena la conexión compartida
+            # Sin esta limpieza, un solo error de query envenena la conexiÃ³n compartida
             # para TODAS las requests subsiguientes hasta reiniciar el proceso.
             _safe_rollback(getattr(self.server, "pipeline_connection", None))
         self._response_status_code = HTTPStatus(response.status)
@@ -887,7 +887,7 @@ class Phase1GuiHandler(BaseHTTPRequestHandler):
         return False
 
     def _handle_auth_login(self) -> None:
-        """Valida el token y abre una sesión GUI (cookie opaca server-side)."""
+        """Valida el token y abre una sesiÃ³n GUI (cookie opaca server-side)."""
 
         coordinator = self._gui_auth()
         if coordinator is None:
@@ -943,7 +943,7 @@ class Phase1GuiHandler(BaseHTTPRequestHandler):
         )
 
     def _handle_auth_register(self) -> None:
-        """Crea un usuario local de la GUI, emite token y abre la sesión."""
+        """Crea un usuario local de la GUI, emite token y abre la sesiÃ³n."""
 
         coordinator = self._gui_auth()
         if coordinator is None:
@@ -1011,7 +1011,7 @@ class Phase1GuiHandler(BaseHTTPRequestHandler):
         )
 
     def _handle_auth_session(self) -> None:
-        """Devuelve la metadata pública de la sesión vigente o 401."""
+        """Devuelve la metadata pÃºblica de la sesiÃ³n vigente o 401."""
 
         coordinator = self._gui_auth()
         if coordinator is None:
@@ -1031,7 +1031,7 @@ class Phase1GuiHandler(BaseHTTPRequestHandler):
         self._send_json(session.public_metadata())
 
     def _handle_auth_logout(self) -> None:
-        """Revoca la sesión y expira la cookie (idempotente)."""
+        """Revoca la sesiÃ³n y expira la cookie (idempotente)."""
 
         coordinator = self._gui_auth()
         if coordinator is None:
@@ -1059,7 +1059,7 @@ class Phase1GuiHandler(BaseHTTPRequestHandler):
         return origin is None or origin in TRUSTED_GUI_ORIGINS
 
     def _send_gui_auth_required(self) -> None:
-        """401 fail-closed cuando la cookie de sesión es inválida/expirada."""
+        """401 fail-closed cuando la cookie de sesiÃ³n es invÃ¡lida/expirada."""
 
         self._send_json(
             {
@@ -1486,8 +1486,8 @@ class Phase1GuiHandler(BaseHTTPRequestHandler):
 
     def _send_common_headers(self) -> None:
         self.send_header("Access-Control-Allow-Origin", "http://127.0.0.1:5173")
-        # Necesario para que la cookie de sesión viaje en fetch cross-origin de dev
-        # (5173 → 8765, mismo site): sin esto el browser descarta la cookie.
+        # Necesario para que la cookie de sesiÃ³n viaje en fetch cross-origin de dev
+        # (5173 â†’ 8765, mismo site): sin esto el browser descarta la cookie.
         self.send_header("Access-Control-Allow-Credentials", "true")
         self.send_header("Access-Control-Allow-Methods", "GET, POST, PATCH, OPTIONS")
         self.send_header(
@@ -1980,7 +1980,7 @@ def main() -> int:
     )
     host = "127.0.0.1"
     port = 8765
-    # Persistence mode is explicit: PostgreSQL when SST_POSTGRES_DSN is set (or
+    # Persistence mode is explicit: PostgreSQL when RAG_PLATFORM_POSTGRES_DSN is set (or
     # SST_PERSISTENCE_MODE=postgres), otherwise the in-memory demo adapters.
     # Production never silently downgrades: a required-but-unavailable database
     # raises at startup instead of quietly serving from memory.
@@ -1999,7 +1999,7 @@ def main() -> int:
     server.chunking_api = chunking_api
     server.pipeline_api = AsgiBridge(create_app(services=pipeline_services))
     server.pipeline_connection = getattr(pipeline_services, "connection", None)
-    # Sesión GUI local: el bearer se valida con la MISMA autoridad que FastAPI
+    # SesiÃ³n GUI local: el bearer se valida con la MISMA autoridad que FastAPI
     # (SST_HTTP_AUTH_CREDENTIALS_JSON) y vive server-side; el browser solo recibe
     # la cookie opaca.
     server.gui_auth = GuiAuthCoordinator(
@@ -2048,3 +2048,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

@@ -1,5 +1,5 @@
 services:
-  sst-rag-worker:
+  rag-platform-worker:
     build:
       context: .
       dockerfile: app/back/Dockerfile
@@ -8,12 +8,13 @@ services:
       CHATBOT_RUNTIME_CHUNKS_ROOT: /app/data/projects/sst-general/chunks
       CHATBOT_RUNTIME_EMBEDDINGS_ROOT: /app/data/embeddings
       CHATBOT_RUNTIME_WARM_INTERVAL_SECONDS: ${CHATBOT_RUNTIME_WARM_INTERVAL_SECONDS:-1800}
-      HF_HUB_CACHE: /var/lib/chatbot-sst/hf-cache
+      HF_HUB_CACHE: /var/lib/rag_platform/hf-cache
       SST_PERSISTENCE_MODE: ${SST_PERSISTENCE_MODE:-memory}
+      RAG_PLATFORM_POSTGRES_DSN: ${RAG_PLATFORM_POSTGRES_DSN:-}
       SST_POSTGRES_DSN: ${SST_POSTGRES_DSN:-}
     volumes:
       - ./data:/app/data
-      - chatbot-hf-cache:/var/lib/chatbot-sst/hf-cache
+      - rag-platform-hf-cache:/var/lib/rag_platform/hf-cache
     healthcheck:
       test: ["CMD", "test", "-f", "/tmp/chatbot-runtime-worker-ready"]
       interval: 30s
@@ -21,27 +22,28 @@ services:
       retries: 3
       start_period: 60s
 
-  sst-rag-api:
+  rag-platform-api:
     build:
       context: .
       dockerfile: app/back/Dockerfile
     command: ["/app/app/back/docker/api-entrypoint.sh"]
     depends_on:
-      sst-rag-worker:
+      rag-platform-worker:
         condition: service_healthy
     environment:
       CHATBOT_RUNTIME_API_BIND_HOST: 0.0.0.0
       CHATBOT_RUNTIME_API_PORT: 8780
       CHATBOT_RUNTIME_CHUNKS_ROOT: /app/data/projects/sst-general/chunks
       CHATBOT_RUNTIME_EMBEDDINGS_ROOT: /app/data/embeddings
-      HF_HUB_CACHE: /var/lib/chatbot-sst/hf-cache
+      HF_HUB_CACHE: /var/lib/rag_platform/hf-cache
       SST_PERSISTENCE_MODE: ${SST_PERSISTENCE_MODE:-memory}
+      RAG_PLATFORM_POSTGRES_DSN: ${RAG_PLATFORM_POSTGRES_DSN:-}
       SST_POSTGRES_DSN: ${SST_POSTGRES_DSN:-}
     ports:
       - "8780:8780"
     volumes:
       - ./data:/app/data
-      - chatbot-hf-cache:/var/lib/chatbot-sst/hf-cache
+      - rag-platform-hf-cache:/var/lib/rag_platform/hf-cache
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8780/readyz"]
       interval: 30s
@@ -50,4 +52,4 @@ services:
       start_period: 120s
 
 volumes:
-  chatbot-hf-cache:
+  rag-platform-hf-cache:

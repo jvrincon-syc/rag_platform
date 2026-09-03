@@ -153,6 +153,7 @@ def main(argv: "list[str] | None" = None) -> int:
     if not dsn:
         print(json.dumps({"status": "blocked", "reason": "postgres_dsn_missing"}, sort_keys=True))
         return 2
+    os.environ["RAG_PLATFORM_POSTGRES_DSN"] = dsn
     os.environ["SST_POSTGRES_DSN"] = dsn
     os.environ["SST_PERSISTENCE_MODE"] = "postgres"
     # La lane de plataforma (incl. rag_platform_rebuild) se cablea tras este flag.

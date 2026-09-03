@@ -4,7 +4,11 @@ from pathlib import Path
 
 from fastapi import Request
 
-from api.dependencies import _open_postgres_connection, _resolve_persistence_mode
+from api.dependencies import (
+    _open_postgres_connection,
+    _postgres_dsn_from_env,
+    _resolve_persistence_mode,
+)
 from chunking.application.chunking_orchestrator import ChunkingOrchestrator
 from chunking.application.local_chunking_engine import LocalChunkingEngine
 from chunking.application.run_service import ChunkingRunService
@@ -62,7 +66,7 @@ def build_run_service_from_env(
     connection: object | None = None
     close_connection_on_close = False
     if _resolve_persistence_mode(os.environ) == "postgres":
-        dsn = (os.environ.get("SST_POSTGRES_DSN") or "").strip()
+        dsn = _postgres_dsn_from_env(os.environ)
         if dsn:
             connection = _open_postgres_connection(dsn)
             close_connection_on_close = True

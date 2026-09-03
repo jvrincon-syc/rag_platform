@@ -48,6 +48,9 @@ function withMockWindow(initialEntries, assertion) {
   }
 }
 
+const LEGACY_STORAGE_KEY = "chatbot-sst.chunking.workspace.v1";
+const STORAGE_KEY = "rag-platform.chunking.workspace.v1";
+
 test("persists the active chunking profile and form fields", () => {
   withMockWindow({}, (storage) => {
     writeChunkingWorkspaceSnapshot({
@@ -58,7 +61,7 @@ test("persists the active chunking profile and form fields", () => {
       idempotencyKey: "chunking-key",
     });
 
-    assert.deepEqual(JSON.parse(storage.getItem("chatbot-sst.chunking.workspace.v1")), {
+    assert.deepEqual(JSON.parse(storage.getItem(STORAGE_KEY)), {
       scope: "documents",
       documentIdsInput: "doc_1",
       profileId: "local-structural-v2",
@@ -70,7 +73,7 @@ test("persists the active chunking profile and form fields", () => {
 test("hydrates a chunking form state from the stored snapshot", () => {
   withMockWindow(
     {
-      "chatbot-sst.chunking.workspace.v1": JSON.stringify({
+      [LEGACY_STORAGE_KEY]: JSON.stringify({
         scope: "corpus",
         documentIdsInput: "doc_1, doc_2",
         profileId: "local-structural-v2",

@@ -71,7 +71,7 @@ validated and atomic.
 
 ## Critical variables and configuration
 
-Use the npm scripts, which select `C:\\venvs\\chatbot-sst` on Windows when
+Use the npm scripts, which select `C:\\venvs\\rag_platform` on Windows when
 available, otherwise `.venv`. OCR setup is checked with `doctor:ocr`; the
 review threshold is configurable by `--ocr-review-threshold` and defaults to
 `0.80`. The optional cloud route is controlled by `LLAMA_CLOUD_ENABLED` and

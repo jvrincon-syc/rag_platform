@@ -51,7 +51,7 @@ class ConfiguredChatbotWebhookDispatcher:
         ).encode("utf-8")
         headers = {
             "Content-Type": "application/json",
-            "User-Agent": "chatbot-sst-webhook/1.0",
+            "User-Agent": "rag-platform-chatbot-webhook/1.0",
         }
         if self._bearer_token:
             headers["Authorization"] = f"Bearer {self._bearer_token}"

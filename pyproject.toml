@@ -3,11 +3,12 @@ requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "chatbot-sst"
+name = "rag-platform"
 version = "0.1.0"
 requires-python = ">=3.12,<3.13"
 dependencies = [
   "fastapi>=0.139,<0.140",
+  "markdown-it-py>=3,<5",
   "numpy>=1.26,<2.3",
   "opencv-python-headless>=4.9,<5",
   "pdfplumber>=0.11,<0.12",
@@ -47,6 +48,7 @@ pythonpath = ["app/back/src"]
 testpaths = ["app/back/tests"]
 markers = [
   "corpus: slow checks against the real audited PDF corpus",
-  "postgres_live: live PostgreSQL/pgvector checks guarded by SST_POSTGRES_DSN",
+  "postgres_live: live PostgreSQL/pgvector checks guarded by RAG_PLATFORM_POSTGRES_DSN",
   "bge_runtime: checks needing the BAAI/bge-m3 snapshot in the Hugging Face cache",
 ]
+

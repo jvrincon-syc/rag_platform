@@ -2,7 +2,7 @@
 .pytest_cache
 .superpowers
 .venv
-.venv_windows_trabajo
+.venv
 __pycache__
 app/front/node_modules
 node_modules

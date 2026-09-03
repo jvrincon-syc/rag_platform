@@ -10,7 +10,7 @@ import {
 import * as authApi from "./operatorAuthApi.js";
 
 vi.mock("../dashboard/DashboardApp.js", () => ({
-  DashboardApp: () => <div>SST Pipeline</div>,
+  DashboardApp: () => <div>RAG Platform</div>,
 }));
 
 vi.mock("../platform/PlatformWorkspace.js", () => ({
@@ -92,6 +92,8 @@ describe("OperatorApp auth gate", () => {
     // probe de sesión); esperarlo async evita el flake de leer antes de tiempo.
     expect(await screen.findByRole("button", { name: "Crear cuenta" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Consola de operador" })).toBeTruthy();
+    expect(screen.getByText("RAG Platform")).toBeTruthy();
+    expect(screen.queryByText("chatbot·sst")).toBeNull();
     expect(screen.queryByRole("heading", { name: "RAG Platform" })).toBeNull();
   });
 
@@ -177,24 +179,23 @@ describe("OperatorApp auth gate", () => {
 });
 
 describe("OperatorApp", () => {
-  it("labels the legacy surface in the rail", async () => {
+  it("labels the ingestion pipeline surface in the rail", async () => {
     render(<OperatorApp />);
-    expect(await screen.findByRole("button", { name: "Legacy pipeline" })).toBeTruthy();
+    expect(await screen.findByRole("button", { name: "Pipeline de ingesta" })).toBeTruthy();
   });
 
-  it("switches between Platform and Legacy surfaces", async () => {
+  it("switches between Platform and ingestion pipeline surfaces", async () => {
     const user = userEvent.setup();
     render(<OperatorApp />);
 
     expect(await screen.findByRole("heading", { name: "RAG Platform" })).toBeTruthy();
 
-    await user.click(screen.getByRole("button", { name: "Legacy pipeline" }));
+    await user.click(screen.getByRole("button", { name: "Pipeline de ingesta" }));
     expect(screen.queryByRole("heading", { name: "RAG Platform" })).toBeNull();
-    expect(screen.getByText("SST Pipeline")).toBeTruthy();
+    expect(screen.getAllByText("RAG Platform").length).toBeGreaterThan(0);
 
     await user.click(screen.getByRole("button", { name: "Platform" }));
     expect(screen.getByRole("heading", { name: "RAG Platform" })).toBeTruthy();
-    expect(screen.queryByText("SST Pipeline")).toBeNull();
   });
 
   it("logs out back to the login screen", async () => {

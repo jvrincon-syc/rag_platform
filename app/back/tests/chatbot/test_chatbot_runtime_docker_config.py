@@ -15,9 +15,10 @@ def test_dockerfile_declares_runtime_entrypoints_and_embeddings_install() -> Non
 def test_compose_wires_api_and_worker_with_shared_hf_cache() -> None:
     compose = Path("docker-compose.yml").read_text(encoding="utf-8")
 
-    assert "sst-rag-api:" in compose
-    assert "sst-rag-worker:" in compose
-    assert "chatbot-hf-cache" in compose
+    assert "rag-platform-api:" in compose
+    assert "rag-platform-worker:" in compose
+    assert "rag-platform-hf-cache" in compose
+    assert "/var/lib/rag_platform/hf-cache" in compose
     assert "CHATBOT_RUNTIME_CHUNKS_ROOT" in compose
     assert "CHATBOT_RUNTIME_EMBEDDINGS_ROOT" in compose
     assert "service_healthy" in compose

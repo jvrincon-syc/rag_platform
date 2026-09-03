@@ -3,21 +3,23 @@
 ## Identidad vigente
 
 La identidad documental y funcional de este repositorio es **RAG Platform**.
-El nombre anterior `chatbot-sst` debe tratarse como legado editorial.
+El nombre anterior `chatbot-sst` debe tratarse como legado historico.
 
-## Identificadores tecnicos que siguen vivos
+## Identificadores tecnicos vigentes
 
-Algunos nombres heredados continuan porque existen literalmente en el codigo,
-en artefactos generados o en persistencia local. No deben presentarse como
-marca del producto, pero si respetarse cuando el documento hable de rutas,
-paquetes o claves reales:
+Estos nombres deben presentarse como la identidad actual del repo y su runtime
+operativo:
 
-- slug actual del repositorio en GitHub: `chatbot-sst`
-- entorno virtual de referencia en Windows: `C:\venvs\chatbot-sst`
+- slug actual del repositorio en GitHub: `rag_platform`
+- entorno virtual de referencia en Windows: `C:\venvs\rag_platform`
+- paquete npm raiz: `rag_platform`
+- distribucion Python: `rag-platform`
 - paquete runtime: `chatbot_runtime`
 - cookie de sesion GUI: `chatbot_sst_gui_session`
-- claves de persistencia local: `chatbot-sst.dashboard.preferences.v2` y
-  `chatbot-sst.platform.preferences.v1`
+- claves de persistencia local: `rag-platform.dashboard.preferences.v2`,
+  `rag-platform.platform.preferences.v1` y `rag-platform.chunking.workspace.v1`
+
+`chatbot` sigue siendo un nombre valido solo para la API/consumer de dispatch.
 
 ## Autoridades documentales
 

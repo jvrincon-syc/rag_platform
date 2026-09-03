@@ -1,4 +1,4 @@
-"""Launch the full SST chatbot API on :8765 (the port chatbot-aplicado dispatches to).
+"""Launch the RAG Platform chatbot dispatch API on :8765.
 
 Loads secrets.env into the process env (feature flags, webhook callback URL + bearer,
 Postgres), builds the postgres-backed pipeline, and serves via uvicorn. Startup warms
@@ -24,7 +24,8 @@ from prepare_postgres_indexing import build_dsn_from_env, load_env_file
 env = dict(load_env_file(ROOT / "secrets.env"))
 for key, value in env.items():
     os.environ[key] = value
-os.environ["SST_POSTGRES_DSN"] = build_dsn_from_env(env)
+os.environ["RAG_PLATFORM_POSTGRES_DSN"] = build_dsn_from_env(env)
+os.environ["SST_POSTGRES_DSN"] = os.environ["RAG_PLATFORM_POSTGRES_DSN"]
 os.environ["SST_PERSISTENCE_MODE"] = "postgres"
 
 # --- Retrieval speed (Fase 0/1, free) ---------------------------------------

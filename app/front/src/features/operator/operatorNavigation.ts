@@ -11,7 +11,7 @@ export type OperatorSurfaceDefinition = {
 
 export const OPERATOR_SURFACES: readonly OperatorSurfaceDefinition[] = [
   { surface: "platform", label: "Platform", title: "RAG Platform" },
-  { surface: "legacy", label: "Legacy pipeline", title: "Legacy pipeline" },
+  { surface: "legacy", label: "Pipeline de ingesta", title: "Pipeline de ingesta" },
 ];
 
 const OPERATOR_SURFACE_SET = new Set<OperatorSurface>(

@@ -186,11 +186,11 @@ export const statusLabels: Record<DisplayStatus, string> = {
 };
 
 export const viewTitles: Record<AppView, string> = {
-  operations: "Legacy pipeline - Operacion de ingesta",
-  review: "Legacy pipeline - Revision documental",
-  inventory: "Legacy pipeline - Inventario documental",
-  chunking: "Legacy pipeline - Chunking local",
-  "embedding-indexing": "Legacy pipeline - Embedding e Indexing",
+  operations: "RAG Platform - Operacion de ingesta",
+  review: "RAG Platform - Revision documental",
+  inventory: "RAG Platform - Inventario documental",
+  chunking: "RAG Platform - Chunking local",
+  "embedding-indexing": "RAG Platform - Embedding e Indexing",
 };
 
 export function createDefaultDashboardPreferences(): DashboardPreferences {

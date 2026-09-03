@@ -1,4 +1,4 @@
-"""Bundle-first end to end against a real PostgreSQL + pgvector database.
+﻿"""Bundle-first end to end against a real PostgreSQL + pgvector database.
 
 What is real here: every repository is the PostgreSQL adapter, the vectors land
 in a real ``idx_vec_*`` table with a real ``vector`` column, activation runs
@@ -204,8 +204,8 @@ def _seed_document_and_bundle(cursor, *, bundle_fingerprint: str, artifact_relpa
 
 
 def test_bundle_first_e2e_sobre_postgresql_y_pgvector_reales(tmp_path: Path) -> None:
-    if not os.environ.get("SST_POSTGRES_DSN"):
-        pytest.skip("SST_POSTGRES_DSN is required for live PostgreSQL checks")
+    if not os.environ.get("RAG_PLATFORM_POSTGRES_DSN"):
+        pytest.skip("RAG_PLATFORM_POSTGRES_DSN is required for live PostgreSQL checks")
     psycopg2 = pytest.importorskip("psycopg2")
     from psycopg2.extras import RealDictCursor
 
@@ -213,7 +213,7 @@ def test_bundle_first_e2e_sobre_postgresql_y_pgvector_reales(tmp_path: Path) -> 
     bundle_fingerprint, artifact_relpath = _write_chunk_artifacts(chunks_root)
 
     connection = psycopg2.connect(
-        os.environ["SST_POSTGRES_DSN"],
+        os.environ["RAG_PLATFORM_POSTGRES_DSN"],
         cursor_factory=RealDictCursor,
     )
     connection.autocommit = False
@@ -414,3 +414,4 @@ def test_bundle_first_e2e_sobre_postgresql_y_pgvector_reales(tmp_path: Path) -> 
     finally:
         connection.rollback()
         connection.close()
+

@@ -7,9 +7,9 @@ sesión local de operador. No cambia la lógica de negocio ni los manifests
 durables. La autorización sigue siendo responsabilidad de FastAPI (Fase 7): la
 GUI solo pone una cookie de sesión delante del bearer existente.
 
-> Nota de identidad: la interfaz operativa ya se documenta como **RAG Platform**.
-> Los nombres `chatbot_sst_gui_session` y `chatbot-sst.*` permanecen solo porque
-> son identificadores tecnicos reales del codigo vigente.
+> Nota de identidad: la interfaz operativa se documenta como **RAG Platform**.
+> `chatbot_sst_gui_session` permanece como cookie legacy; las claves nuevas de
+> persistencia local usan `rag-platform.*`.
 
 ## Modelo de sesión (Gate 3)
 
@@ -59,7 +59,7 @@ npm run gui:front    # frontend Vite en 127.0.0.1:5173
 1. Abrir el frontend (`http://127.0.0.1:5173`).
 2. En la pantalla de credencial, pegar el token del registro bearer.
 3. La sesión queda activa (cookie); el rail muestra las superficies
-   **Platform** y **Legacy pipeline**.
+   **Platform** y **Pipeline de ingesta**.
 
 ## Flujo E2E de aceptación (Platform)
 
@@ -73,7 +73,7 @@ login
 → crear corpus snapshot             (Corpus)
 → crear DRAFT → build → validate → publish   (Releases)
 → refrescar el browser
-→ proyecto/snapshot/release rehidratan; el Legacy pipeline sigue etiquetado aparte
+→ proyecto/snapshot/release rehidratan; el pipeline de ingesta sigue etiquetado aparte
 ```
 
 ## Estados fail-closed que verás (no son bugs)
@@ -94,7 +94,7 @@ login
   nombres de tabla ni rutas físicas. La `target_binding_key` es lógica.
 - La GUI solo persiste IDs de navegación (`selectedProjectId`,
   `selectedRagVariantId`, `selectedCorpusSnapshotId`, `selectedRagReleaseId`) en
-  `chatbot-sst.platform.preferences.v1`; nunca el bearer, la cookie ni
-  idempotency keys. La persistencia legacy (`chatbot-sst.dashboard.preferences.v2`)
-  queda intacta.
+  `rag-platform.platform.preferences.v1`; nunca el bearer, la cookie ni
+  idempotency keys. Las claves legacy `chatbot-sst.*` se migran a
+  `rag-platform.*` sin persistir secretos.
 - Cuando exista SSO/OIDC se reemplaza el provider de sesión, no los workspaces.

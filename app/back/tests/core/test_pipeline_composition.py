@@ -112,11 +112,14 @@ def test_flag_on_cablea_plataforma_sin_tocar_retrieval(tmp_path: Path) -> None:
 
 
 def test_resuelve_postgres_cuando_hay_dsn() -> None:
-    assert _resolve_persistence_mode({"SST_POSTGRES_DSN": "postgresql://x"}) == "postgres"
+    assert (
+        _resolve_persistence_mode({"RAG_PLATFORM_POSTGRES_DSN": "postgresql://x"})
+        == "postgres"
+    )
 
 
 def test_modo_forzado_gana_sobre_el_dsn() -> None:
-    env = {"SST_PERSISTENCE_MODE": "memory", "SST_POSTGRES_DSN": "postgresql://x"}
+    env = {"SST_PERSISTENCE_MODE": "memory", "RAG_PLATFORM_POSTGRES_DSN": "postgresql://x"}
     assert _resolve_persistence_mode(env) == "memory"
 
 
@@ -168,7 +171,7 @@ def test_postgres_requerido_sin_dsn_falla_sin_degradar(tmp_path: Path) -> None:
 def test_postgres_con_dsn_inalcanzable_no_cae_a_memoria(tmp_path: Path) -> None:
     # A DSN pointing nowhere must fail closed, never silently serve from memory.
     env = {
-        "SST_POSTGRES_DSN": "postgresql://user:pass@127.0.0.1:1/never",
+        "RAG_PLATFORM_POSTGRES_DSN": "postgresql://user:pass@127.0.0.1:1/never",
         "SST_PERSISTENCE_MODE": "postgres",
     }
     with pytest.raises(PostgresUnavailableAtStartup) as excinfo:

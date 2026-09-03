@@ -35,7 +35,7 @@ table per immutable embedding profile. A profile includes:
 - config hash.
 
 PostgreSQL mode is opt-in. The CLI blocks writes unless both
-`--persist-confirmed` and `SST_POSTGRES_DSN` are present. Dry-run and memory
+`--persist-confirmed` and `RAG_PLATFORM_POSTGRES_DSN` are present. Dry-run and memory
 mode remain the safe defaults.
 
 ## Alternatives Considered
@@ -53,3 +53,4 @@ Switching embedding providers means selecting or creating another immutable
 profile. Reindexing one document replaces nodes and vectors only for the
 selected profile lane. Validation must fail closed on orphan vectors,
 unapproved documents, lane mismatches and dimension mismatches.
+

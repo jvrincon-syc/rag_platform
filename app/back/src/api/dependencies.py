@@ -1351,7 +1351,14 @@ def _resolve_persistence_mode(environ: Mapping[str, str]) -> PersistenceMode:
         raise ValueError(
             f"SST_PERSISTENCE_MODE must be 'memory' or 'postgres', got {requested!r}"
         )
-    return "postgres" if (environ.get("SST_POSTGRES_DSN") or "").strip() else "memory"
+    return "postgres" if _postgres_dsn_from_env(environ) else "memory"
+
+
+def _postgres_dsn_from_env(environ: Mapping[str, str]) -> str:
+    return (
+        (environ.get("RAG_PLATFORM_POSTGRES_DSN") or "").strip()
+        or (environ.get("SST_POSTGRES_DSN") or "").strip()
+    )
 
 
 def _open_postgres_connection(dsn: str) -> object:
@@ -1406,7 +1413,7 @@ def build_pipeline_services_from_env(
     """Build the pipeline the way the production GUI server should.
 
     The persistence mode is explicit (``SST_PERSISTENCE_MODE`` or the presence of
-    ``SST_POSTGRES_DSN``). In ``postgres`` mode the durable profiles, targets and
+    ``RAG_PLATFORM_POSTGRES_DSN``). In ``postgres`` mode the durable profiles, targets and
     repositories come from the database; there is no silent fallback to memory.
     Startup observability records the selected mode and the loaded profile and
     target counts so a degraded composition is never invisible.
@@ -1419,10 +1426,10 @@ def build_pipeline_services_from_env(
     connection: object | None = None
     idempotency_connection: object | None = None
     if mode == "postgres":
-        dsn = (env.get("SST_POSTGRES_DSN") or "").strip()
+        dsn = _postgres_dsn_from_env(env)
         if not dsn:
             raise PostgresUnavailableAtStartup(
-                "postgres persistence was requested but SST_POSTGRES_DSN is empty"
+                "postgres persistence was requested but RAG_PLATFORM_POSTGRES_DSN is empty"
             )
         connection = _open_postgres_connection(dsn)
         # Conexión dedicada del store de idempotencia: sesión/transacción

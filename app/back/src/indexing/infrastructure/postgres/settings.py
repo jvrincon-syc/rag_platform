@@ -22,5 +22,5 @@ class PostgresIndexingSettings(StrictModel):
     def from_env(cls, environ: Mapping[str, str]) -> "PostgresIndexingSettings":
         """Load settings from environment without inventing defaults."""
 
-        dsn = environ.get("SST_POSTGRES_DSN")
+        dsn = environ.get("RAG_PLATFORM_POSTGRES_DSN") or environ.get("SST_POSTGRES_DSN")
         return cls(dsn=dsn or None)

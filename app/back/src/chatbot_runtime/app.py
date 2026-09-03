@@ -1,4 +1,4 @@
-"""ASGI application factory for dedicated SST chatbot traffic."""
+"""ASGI application factory for dedicated RAG chatbot traffic."""
 
 from __future__ import annotations
 
@@ -39,7 +39,7 @@ def create_chatbot_runtime_app(
             yield
 
     app = FastAPI(
-        title="Chatbot SST Runtime",
+        title="RAG Platform Runtime",
         version="0.1.0",
         lifespan=lifespan,
     )

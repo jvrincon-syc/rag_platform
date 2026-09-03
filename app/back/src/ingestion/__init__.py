@@ -1,1 +1,1 @@
-"""Document ingestion and normalization pipeline for chatbot-sst."""
+"""Document ingestion and normalization pipeline for RAG Platform."""

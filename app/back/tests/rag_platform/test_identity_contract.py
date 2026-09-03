@@ -36,6 +36,12 @@ def test_parse_falla_cerrado_cuando_cuerpo_es_malformado() -> None:
         PlatformId.parse(IdentityKind.PROJECT, "proj_Con Espacios")
 
 
+def test_project_id_acepta_guion_bajo_en_cuerpo() -> None:
+    project = PlatformId.parse(IdentityKind.PROJECT, "proj_ambiental_syc")
+
+    assert project.value == "proj_ambiental_syc"
+
+
 def test_build_context_rechaza_variante_donde_se_espera_release() -> None:
     variant_masquerading_as_release = _pid(IdentityKind.RAG_VARIANT)
     with pytest.raises(InvalidIdentity):

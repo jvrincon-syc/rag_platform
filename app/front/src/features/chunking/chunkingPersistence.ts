@@ -1,6 +1,7 @@
 import { DEFAULT_CHUNKING_PROFILE_ID, createChunkingIdempotencyKey, type ChunkingFormState } from "./chunkingState.js";
 
-const STORAGE_KEY = "chatbot-sst.chunking.workspace.v1";
+const LEGACY_STORAGE_KEY = "chatbot-sst.chunking.workspace.v1";
+const STORAGE_KEY = "rag-platform.chunking.workspace.v1";
 
 type ChunkingWorkspaceSnapshot = {
   scope: ChunkingFormState["scope"];
@@ -43,7 +44,16 @@ export function readChunkingWorkspaceSnapshot(): ChunkingWorkspaceSnapshot | nul
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) {
-      return null;
+      const legacyRaw = window.localStorage.getItem(LEGACY_STORAGE_KEY);
+      if (!legacyRaw) {
+        return null;
+      }
+      const migrated = toSnapshot(JSON.parse(legacyRaw));
+      if (migrated) {
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
+        window.localStorage.removeItem(LEGACY_STORAGE_KEY);
+      }
+      return migrated;
     }
     return toSnapshot(JSON.parse(raw));
   } catch {
@@ -76,6 +86,7 @@ export function writeChunkingWorkspaceSnapshot(form: ChunkingFormState): void {
       force: form.force,
     };
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
+    window.localStorage.removeItem(LEGACY_STORAGE_KEY);
   } catch {
     // Ignore storage failures. The workspace still functions without persistence.
   }

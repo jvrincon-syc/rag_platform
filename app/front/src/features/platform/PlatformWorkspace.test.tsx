@@ -127,14 +127,14 @@ describe("PlatformWorkspace", () => {
 
     await user.click(screen.getByRole("button", { name: "Operacion" }));
     expect(
-      await screen.findByRole("heading", { name: "Legacy pipeline - Operacion de ingesta" }),
+      await screen.findByRole("heading", { name: "RAG Platform - Operacion de ingesta" }),
     ).toBeTruthy();
     expect(screen.getByRole("button", { name: /Ejecutar ingesta local/i })).toBeTruthy();
     expect(screen.queryByRole("heading", { name: "Intake documental" })).toBeNull();
 
     await user.click(screen.getByRole("button", { name: "Revision" }));
     expect(
-      await screen.findByRole("heading", { name: "Legacy pipeline - Revision documental" }),
+      await screen.findByRole("heading", { name: "RAG Platform - Revision documental" }),
     ).toBeTruthy();
     expect(screen.getAllByRole("button", { name: "Aprobar" }).length).toBeGreaterThan(0);
     expect(screen.getAllByRole("button", { name: "Rechazar" }).length).toBeGreaterThan(0);
@@ -142,7 +142,7 @@ describe("PlatformWorkspace", () => {
 
     await user.click(screen.getByRole("button", { name: "Inventario" }));
     expect(
-      await screen.findByRole("heading", { name: "Legacy pipeline - Inventario documental" }),
+      await screen.findByRole("heading", { name: "RAG Platform - Inventario documental" }),
     ).toBeTruthy();
     expect(screen.getByRole("columnheader", { name: "Ruta del documento" })).toBeTruthy();
     expect(screen.queryByRole("heading", { name: "Inventario del proyecto" })).toBeNull();
@@ -173,7 +173,7 @@ describe("PlatformWorkspace", () => {
     await user.click(screen.getByRole("button", { name: "Inventario" }));
 
     expect(
-      await screen.findByRole("heading", { name: "Legacy pipeline - Inventario documental" }),
+      await screen.findByRole("heading", { name: "RAG Platform - Inventario documental" }),
     ).toBeTruthy();
     expect(screen.getByLabelText("Proyecto activo").textContent).toContain("Proyecto Beta");
     expect(api.listAllDocuments).toHaveBeenCalledWith("proj_beta");

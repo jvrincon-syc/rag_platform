@@ -33,6 +33,21 @@ class FakePdfPageExtractor:
         return [PdfPage(page_number=1, text="Texto extraido por OCR", tables=[])]
 
 
+def test_ocrmypdf_engine_defaults_to_path_commands_and_relative_temp(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delenv("OCRMYPDF_CMD", raising=False)
+    monkeypatch.delenv("TESSERACT_CMD", raising=False)
+    monkeypatch.delenv("OCR_TEMP_DIR", raising=False)
+
+    engine = OcrMyPdfEngine(runner=lambda *_args, **_kwargs: FakeCompletedProcess())
+
+    assert engine.ocrmypdf_cmd == "ocrmypdf"
+    assert engine.tesseract_cmd == "tesseract"
+    assert engine.temp_dir == Path(".tmp/ocr")
+    assert not engine.temp_dir.is_absolute()
+
+
 def test_ocrmypdf_engine_reads_sidecar_text_without_pdf_text_extractor(tmp_path: Path) -> None:
     def runner(command, **kwargs):
         if command[:2] == ["/usr/local/bin/tesseract", "--version"]:

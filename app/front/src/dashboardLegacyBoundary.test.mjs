@@ -16,19 +16,19 @@ function test(name, assertion) {
   }
 }
 
-test("dashboard labels the current surface as legacy pipeline", () => {
+test("dashboard labels the current surface under RAG Platform identity", () => {
   for (const title of Object.values(viewTitles)) {
-    assert.equal(title.includes("Legacy pipeline"), true);
+    assert.equal(title.includes("RAG Platform"), true);
   }
 
-  assert.equal(viewTitles.operations.includes("Legacy pipeline"), true);
+  assert.equal(viewTitles.operations.includes("RAG Platform"), true);
 });
 
-test("dashboard navigation keeps the legacy boundary in its single source of truth", () => {
+test("dashboard navigation keeps the ingestion boundary in its single source of truth", () => {
   assert.deepEqual(
     DASHBOARD_VIEWS.map((item) => item.view),
     ["operations", "review", "inventory", "chunking", "embedding-indexing"],
   );
   assert.equal(isDashboardView("embedding-indexing"), true);
-  assert.equal(DASHBOARD_VIEWS.every((item) => item.title.includes("Legacy pipeline")), true);
+  assert.equal(DASHBOARD_VIEWS.every((item) => item.title.includes("RAG Platform")), true);
 });

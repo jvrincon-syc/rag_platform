@@ -1,5 +1,5 @@
-
-"""Live E2E: real SST pipeline -> release build -> pgvector retrieval.
+﻿
+"""Live E2E: real sst-general corpus -> release build -> pgvector retrieval.
 
 Purpose
 -------
@@ -254,7 +254,7 @@ def _assert_local_e2e_dsn(dsn: str) -> None:
     allowed_hosts = {"", "localhost", "127.0.0.1", "::1"}
     if host not in allowed_hosts:
         raise RuntimeError(
-            "E2E destructivo bloqueado: SST_POSTGRES_DSN no apunta a localhost "
+            "E2E destructivo bloqueado: RAG_PLATFORM_POSTGRES_DSN no apunta a localhost "
             f"(host={host!r})"
         )
 
@@ -676,7 +676,7 @@ def _acquire_e2e_lock() -> None:
         except OSError:
             pass
         raise RuntimeError(
-            "otra corrida (o un lock huérfano) ya posee el E2E lock: "
+            "otra corrida (o un lock huÃ©rfano) ya posee el E2E lock: "
             f"{_E2E_LOCK_PATH} owner={owner!r}. "
             "Si confirmaste que no hay otra corrida activa, usa "
             "RAG_E2E_FORCE_UNLOCK=1 una sola vez."
@@ -1613,3 +1613,4 @@ def test_end_to_end_local_pipeline_and_retrieval(capsys, request) -> None:
     )
 
     progress.detail(f"report={report_path.name}")
+

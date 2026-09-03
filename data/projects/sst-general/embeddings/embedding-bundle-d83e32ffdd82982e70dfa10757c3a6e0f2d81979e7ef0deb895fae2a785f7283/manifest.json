@@ -1,8 +1,8 @@
 {
   "bundle_schema_version": "embedding-bundle-v1",
   "checksums": {
-    "chunk_map.jsonl": "31af610c751efba7634c54988efab1fc189283d017faa88cd17fd17759c280c6",
-    "vectors.npy": "7318ef5fe18555b814f23f4c2b4bd8699127e983f3b203d21b6cf9f7db366d7e"
+    "chunk_map.jsonl": "d63080b0c0254cd82d7d2660dc7440aa379a8651fe95fbdbacfe83132d9c2ff1",
+    "vectors.npy": "d085661ad2efa87ad9ad01c83d9c5b31f1d844c291e060e9ad5a2fff8572ed5e"
   },
   "configuration_fingerprint": "9b3ddef1933ca3b9e9a405c8c6fd37ee024737aa5a2fe05fdb638cc99fd87f0b",
   "corpus_version": "platform-normalized",

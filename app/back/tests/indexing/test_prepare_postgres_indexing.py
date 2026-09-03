@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from pathlib import Path
 
@@ -20,7 +20,7 @@ def test_load_env_file_parses_values_without_comments(tmp_path: Path) -> None:
         POSTGRES_HOST=localhost
         POSTGRES_PASSWORD=secret # comment
         HF_TOKEN =
-        DATABASE_URL="postgresql://postgres:secret@localhost:5432/chatbot_sst"
+        DATABASE_URL="postgresql://postgres:secret@localhost:5432/rag_platform"
         """,
         encoding="utf-8",
     )
@@ -30,18 +30,30 @@ def test_load_env_file_parses_values_without_comments(tmp_path: Path) -> None:
     assert values["POSTGRES_HOST"] == "localhost"
     assert values["POSTGRES_PASSWORD"] == "secret"
     assert values["HF_TOKEN"] == ""
-    assert values["DATABASE_URL"] == "postgresql://postgres:secret@localhost:5432/chatbot_sst"
+    assert values["DATABASE_URL"] == "postgresql://postgres:secret@localhost:5432/rag_platform"
 
 
-def test_build_dsn_prefers_explicit_sst_postgres_dsn() -> None:
+def test_build_dsn_prefers_explicit_rag_platform_postgres_dsn() -> None:
     dsn = build_dsn_from_env(
         {
-            "SST_POSTGRES_DSN": "postgresql://explicit/db",
+            "RAG_PLATFORM_POSTGRES_DSN": "postgresql://explicit/db",
+            "SST_POSTGRES_DSN": "postgresql://legacy/db",
             "DATABASE_URL": "postgresql://fallback/db",
         }
     )
 
     assert dsn == "postgresql://explicit/db"
+
+
+def test_build_dsn_accepts_legacy_sst_postgres_dsn_as_fallback() -> None:
+    dsn = build_dsn_from_env(
+        {
+            "SST_POSTGRES_DSN": "postgresql://legacy/db",
+            "DATABASE_URL": "postgresql://fallback/db",
+        }
+    )
+
+    assert dsn == "postgresql://legacy/db"
 
 
 def test_build_dsn_falls_back_to_database_url() -> None:
@@ -53,16 +65,16 @@ def test_build_dsn_falls_back_to_database_url() -> None:
 def test_build_dsn_prefers_split_postgres_credentials_over_database_url() -> None:
     dsn = build_dsn_from_env(
         {
-            "DATABASE_URL": "postgresql://postgres@localhost:5432/chatbot_sst",
+            "DATABASE_URL": "postgresql://postgres@localhost:5432/rag_platform",
             "POSTGRES_HOST": "localhost",
-            "POSTGRES_DB": "chatbot_sst",
+            "POSTGRES_DB": "rag_platform",
             "POSTGRES_USER": "postgres",
             "POSTGRES_PASSWORD": "secret",
             "POSTGRES_PORT": "5432",
         }
     )
 
-    assert dsn == "postgresql://postgres:secret@localhost:5432/chatbot_sst"
+    assert dsn == "postgresql://postgres:secret@localhost:5432/rag_platform"
 
 
 def test_migration_files_include_schema_before_seed() -> None:
@@ -107,13 +119,13 @@ def test_prepare_database_uses_parsed_connection_kwargs(
     )
 
     summary = prepare_database(
-        dsn="postgresql://postgres:secret@localhost:5432/chatbot_sst",
+        dsn="postgresql://postgres:secret@localhost:5432/rag_platform",
         migrations=[migration],
     )
 
     assert captured["host"] == "localhost"
     assert captured["port"] == "5432"
-    assert captured["dbname"] == "chatbot_sst"
+    assert captured["dbname"] == "rag_platform"
     assert captured["user"] == "postgres"
     assert captured["password"] == "secret"
     assert summary["status"] == "prepared"
@@ -145,3 +157,4 @@ class FakeCursor:
 
     def fetchone(self):
         return (1,)
+

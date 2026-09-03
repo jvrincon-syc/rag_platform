@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import json
 from pathlib import Path
@@ -180,7 +180,7 @@ def test_run_indexing_blocks_postgres_without_confirmation(tmp_path) -> None:
         store="postgres",
         ingestion_origin="llama_cloud",
         persist_confirmed=False,
-        environ={"SST_POSTGRES_DSN": "postgresql://user:secret@localhost/sst"},
+        environ={"RAG_PLATFORM_POSTGRES_DSN": "postgresql://user:secret@localhost/sst"},
     )
 
     assert result["status"] == "blocked"
@@ -223,7 +223,7 @@ def test_run_indexing_blocks_postgres_for_platform_owned_normalized_output(
         store="postgres",
         ingestion_origin="local",
         persist_confirmed=True,
-        environ={"SST_POSTGRES_DSN": "postgresql://user:secret@localhost/sst"},
+        environ={"RAG_PLATFORM_POSTGRES_DSN": "postgresql://user:secret@localhost/sst"},
     )
 
     assert result["status"] == "blocked"
@@ -254,7 +254,7 @@ def test_run_indexing_blocks_postgres_when_metadata_sidecar_is_missing(
         store="postgres",
         ingestion_origin="local",
         persist_confirmed=True,
-        environ={"SST_POSTGRES_DSN": "postgresql://user:secret@localhost/sst"},
+        environ={"RAG_PLATFORM_POSTGRES_DSN": "postgresql://user:secret@localhost/sst"},
     )
 
     assert result["status"] == "blocked"
@@ -280,7 +280,7 @@ def test_run_indexing_blocks_postgres_when_metadata_sidecar_is_invalid(
         store="postgres",
         ingestion_origin="local",
         persist_confirmed=True,
-        environ={"SST_POSTGRES_DSN": "postgresql://user:secret@localhost/sst"},
+        environ={"RAG_PLATFORM_POSTGRES_DSN": "postgresql://user:secret@localhost/sst"},
     )
 
     assert result["status"] == "blocked"
@@ -318,7 +318,7 @@ def test_run_indexing_blocks_postgres_for_unsupported_live_provider(
         store="postgres",
         ingestion_origin="local",
         persist_confirmed=True,
-        environ={"SST_POSTGRES_DSN": "postgresql://user:secret@localhost/sst"},
+        environ={"RAG_PLATFORM_POSTGRES_DSN": "postgresql://user:secret@localhost/sst"},
     )
 
     assert result["status"] == "blocked"
@@ -358,7 +358,7 @@ def test_run_indexing_blocks_postgres_for_voyage_without_api_key(
         store="postgres",
         ingestion_origin="local",
         persist_confirmed=True,
-        environ={"SST_POSTGRES_DSN": "postgresql://user:secret@localhost/sst"},
+        environ={"RAG_PLATFORM_POSTGRES_DSN": "postgresql://user:secret@localhost/sst"},
     )
 
     assert result["status"] == "blocked"
@@ -544,3 +544,4 @@ def _resolved_profile(
         active=True,
         config_hash="a" * 64,
     )
+

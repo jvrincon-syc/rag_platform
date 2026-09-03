@@ -8,7 +8,7 @@ Bundle-first indexing persists approved pre-computed embedding bundles as durabl
 
 This reflects committed `main` at `f918b512a5320b6fc434feefe1e3e9f780bc097b`. No indexing README existed in that commit. Migrations `20260805_01` through `20260805_15` define the bundle-first contract; legacy LlamaIndex-oriented code and CLI remain committed.
 
-> Baseline de plataforma RAG: ver `docs/rag-platform/migration-baseline.md` (autoridad del baseline reproducible; este hash histórico se conserva por precisión).
+> Baseline de plataforma RAG: ver `docs/rag-platform/migration-baseline.md` (autoridad del baseline reproducible; este hash histÃ³rico se conserva por precisiÃ³n).
 
 ## 3. Code map
 
@@ -42,7 +42,7 @@ Bundle-first input is a sealed `EmbeddingBundle`, source chunk bundle, compatibl
 
 - `SST_FEATURE_INDEXING_BUNDLE_FIRST` gates bundle-first API writes and
   activation; `indexing_bundle_first` is the internal resolved flag field.
-- `SST_POSTGRES_DSN`, `POSTGRES_*`, or `DATABASE_URL` configure preparation.
+- `RAG_PLATFORM_POSTGRES_DSN`, `POSTGRES_*`, or `DATABASE_URL` configure preparation.
 - The provider type includes mock/BGE/Voyage/Cohere, but live PostgreSQL CLI writes allow only BGE or Voyage; Voyage needs `VOYAGE_API_KEY`.
 - `DEFAULT_MAX_QUEUE_SIZE=16`; vector tables match `idx_vec_[a-z0-9_]+`.
 
@@ -83,3 +83,4 @@ Preparation applies all committed SQL migrations and verifies base tables, activ
 - `scripts/indexing/run_indexing.py`
 - `scripts/indexing/validate_index.py`
 - `app/back/tests/indexing/`
+

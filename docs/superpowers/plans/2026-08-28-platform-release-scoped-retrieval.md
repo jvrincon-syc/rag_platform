@@ -4,7 +4,7 @@
 
 **Goal:** Replace the legacy Retrieval panel inside RAG Platform with a release-scoped testing surface that lets operators choose a rag variant and one of its releases, while keeping production chatbot dispatch published-only.
 
-**Architecture:** Add a Platform-specific retrieval testing surface under `/api/platform/retrieval` that reuses the existing release-scoped retrieval engine already introduced for chatbot dispatch. Keep release-state policy outside the shared retrieval adapter so Platform can test `draft`, `validated`, and `published` releases, while chatbot production remains `published`-only; then replace the frontend’s profile-based panel with a variant-first, release-scoped operator workflow that mirrors the grouped release map.
+**Architecture:** Add a Platform-specific retrieval testing surface under `/api/platform/retrieval` that reuses the existing release-scoped retrieval engine already introduced for chatbot dispatch. Keep release-state policy outside the shared retrieval adapter so Platform can test `draft`, `validated`, and `published` releases, while chatbot production remains `published`-only; then replace the frontendâ€™s profile-based panel with a variant-first, release-scoped operator workflow that mirrors the grouped release map.
 
 **Tech Stack:** FastAPI, Pydantic, Python pytest, React, TypeScript, Vitest, existing platform shared API client and CSS tokens.
 
@@ -92,7 +92,7 @@ def test_platform_retrieval_rejects_retired_release(client: TestClient) -> None:
 
 - [ ] **Step 2: Run the focused backend tests to verify they fail**
 
-Run: `& 'C:/venvs/chatbot-sst/Scripts/python.exe' -m pytest app/back/tests/rag_platform/test_platform_api.py -q`
+Run: `& 'C:/venvs/rag_platform/Scripts/python.exe' -m pytest app/back/tests/rag_platform/test_platform_api.py -q`
 
 Expected: FAIL because `/api/platform/retrieval/*` routes and schemas do not exist yet.
 
@@ -148,7 +148,7 @@ def platform_retrieval_search(payload: PlatformRetrievalSearchRequestSchema, ...
 
 - [ ] **Step 4: Run backend regression tests**
 
-Run: `& 'C:/venvs/chatbot-sst/Scripts/python.exe' -m pytest app/back/tests/rag_platform/test_platform_api.py app/back/tests/chatbot/test_chatbot_api.py -q`
+Run: `& 'C:/venvs/rag_platform/Scripts/python.exe' -m pytest app/back/tests/rag_platform/test_platform_api.py app/back/tests/chatbot/test_chatbot_api.py -q`
 
 Expected: PASS, including the existing chatbot regression that still rejects non-`published` production releases.
 
@@ -195,7 +195,7 @@ If `git commit` is blocked by the pre-existing `.git/index.lock`, record the exa
 it("permite elegir variant y release testable para retrieval desde Platform", async () => {
   renderRagReleaseWorkspace();
   expect(await screen.findByRole("heading", { name: /Retrieval por release/i })).toBeTruthy();
-  expect(screen.getByText(/Prueba interna \+ chatbot producción/i)).toBeTruthy();
+  expect(screen.getByText(/Prueba interna \+ chatbot producciÃ³n/i)).toBeTruthy();
 });
 
 it("limpia resultados viejos cuando cambia la variant seleccionada", async () => {
@@ -278,3 +278,4 @@ git commit -m "feat: add platform release-scoped retrieval workspace"
 ```
 
 If `git commit` is blocked by the pre-existing `.git/index.lock`, record the exact command failure in the task report and stop after keeping the tested file diffs intact.
+

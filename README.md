@@ -4,10 +4,9 @@ Plataforma RAG para normalizar documentos, revisar evidencia y preparar
 indexacion con trazabilidad verificable.
 
 > Identidad editorial actual: **RAG Platform**.
-> Identificadores tecnicos temporales que siguen existiendo en el codigo:
-> `chatbot-sst` (slug del repositorio), `chatbot_runtime`,
-> `chatbot_sst_gui_session`, `chatbot-sst.*` en persistencia local y la ruta de
-> entorno `C:\venvs\chatbot-sst`.
+> Identidad tecnica actual: repositorio y paquetes `rag_platform` / `rag-platform`.
+> `chatbot` se conserva solo para la API/consumer de dispatch cuando el contrato
+> lo requiere.
 
 ## Lectura rapida
 
@@ -62,15 +61,15 @@ instalar PDFium aparte para la ruta normal del repo.
 ## Instalacion recomendada en Windows
 
 Esta es la fuente de verdad actual del equipo en Windows: el repo esta
-funcionando con el entorno virtual `chatbot-sst` ubicado en
-`C:\venvs\chatbot-sst`.
+funcionando con el entorno virtual `rag_platform` ubicado en
+`C:\venvs\rag_platform`.
 
 ### 1. Crear el entorno virtual canonico
 
 ```powershell
-py -3.12 -m venv C:\venvs\chatbot-sst
+py -3.12 -m venv C:\venvs\rag_platform
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
-& 'C:\venvs\chatbot-sst\Scripts\Activate.ps1'
+& 'C:\venvs\rag_platform\Scripts\Activate.ps1'
 ```
 
 ### 2. Instalar dependencias Python del repo
@@ -120,7 +119,7 @@ execution policy. Si te pasa, tienes dos opciones validas:
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
 ```
 
-Los scripts del repo priorizan `C:\venvs\chatbot-sst\Scripts\python.exe` en
+Los scripts del repo priorizan `C:\venvs\rag_platform\Scripts\python.exe` en
 Windows si existe. Si no existe, usan `.venv` como fallback.
 
 ## Instalacion recomendada en macOS
@@ -193,7 +192,7 @@ Ese flujo:
 - genera `secrets.env` desde `secrets.example.env` si no existe
 
 En Windows sigue siendo recomendable el entorno canonico
-`C:\venvs\chatbot-sst` cuando quieras alinearte con la configuracion que hoy
+`C:\venvs\rag_platform` cuando quieras alinearte con la configuracion que hoy
 usa el equipo y con la prioridad de `npm run python`.
 
 ## Que hace falta para dejar el repo funcional
@@ -214,7 +213,7 @@ usa el equipo y con la prioridad de `npm run python`.
 
 - PostgreSQL accesible por `DATABASE_URL` o `POSTGRES_*`
 - Redis accesible por `REDIS_*`
-- `SST_POSTGRES_DSN` para corridas live de PostgreSQL/pgvector cuando aplique
+- `RAG_PLATFORM_POSTGRES_DSN` para corridas live de PostgreSQL/pgvector cuando aplique
 - keys reales solo si activas embeddings externos o Llama Cloud
 
 Por defecto `LLAMA_CLOUD_ENABLED=false`, asi que la ruta local sigue siendo la
@@ -311,12 +310,12 @@ separado del servidor GUI legacy. El paquete implementado sigue llamandose
 La base Docker vive en `app/back/Dockerfile` y `docker-compose.yml` levanta dos
 servicios:
 
-- `sst-rag-worker`: ejecuta `python -m chatbot_runtime.warmup` en bucle para
+- `rag-platform-worker`: ejecuta `python -m chatbot_runtime.warmup` en bucle para
   hidratar y verificar la cache compartida de Hugging Face.
-- `sst-rag-api`: hace warmup in-process antes de aceptar trafico y solo pasa a
+- `rag-platform-api`: hace warmup in-process antes de aceptar trafico y solo pasa a
   ready cuando el BGE del proceso quedo cargado correctamente.
 
-La compose comparte `chatbot-hf-cache` entre ambos contenedores y monta
+La compose comparte `rag-platform-hf-cache` entre ambos contenedores y monta
 `./data` en `/app/data`. Los roots por defecto para este runtime son:
 
 - `CHATBOT_RUNTIME_CHUNKS_ROOT=/app/data/projects/sst-general/chunks`
@@ -325,11 +324,11 @@ La compose comparte `chatbot-hf-cache` entre ambos contenedores y monta
 Uso:
 
 ```powershell
-docker compose up --build sst-rag-worker sst-rag-api
+docker compose up --build rag-platform-worker rag-platform-api
 ```
 
 El worker reduce el costo de descarga y valida la cache; el warmup que elimina
-el cold-start del primer request ocurre dentro del contenedor `sst-rag-api`
+el cold-start del primer request ocurre dentro del contenedor `rag-platform-api`
 antes de servir trafico.
 
 ## Estado del proyecto
@@ -348,7 +347,7 @@ Chunking, embedding, indexacion y retrieval deben consumir solo documentos o
 bundles elegibles, o manejar `needs_review` explicitamente. Llama-first sigue
 detras de configuracion y autorizacion de datos.
 
-La identidad funcional del repositorio ya es **RAG Platform**. Mientras el
-slug de GitHub siga en transicion, cualquier referencia a `chatbot-sst` en
-rutas, claves, paquetes o artefactos debe leerse como un identificador tecnico
-heredado, no como el nombre vigente del producto.
+La identidad funcional y tecnica del repositorio es **RAG Platform**. Las
+referencias a `chatbot` describen exclusivamente la API/consumer de dispatch,
+no el nombre del producto ni del repositorio.
+

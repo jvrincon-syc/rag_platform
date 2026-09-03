@@ -13,7 +13,7 @@ reuse (release_build_service.py:200), y el retrieval Postgres resuelve la lane p
 publicar sobre el corpus reusado deja el retrieval funcional sin re-embeber.
 
 Uso:
-    C:/venvs/chatbot-sst/Scripts/python.exe scripts/rag_platform/publish_sst_release.py
+    C:/venvs/rag_platform/Scripts/python.exe scripts/rag_platform/publish_sst_release.py
 """
 
 from __future__ import annotations
@@ -105,6 +105,7 @@ def _verify(dsn: str, release_id: str) -> None:
 
 def main() -> int:
     dsn = _dsn()
+    os.environ["RAG_PLATFORM_POSTGRES_DSN"] = dsn
     os.environ["SST_POSTGRES_DSN"] = dsn
     os.environ["SST_PERSISTENCE_MODE"] = "postgres"
     os.environ["SST_FEATURE_RAG_PLATFORM_V1"] = "true"

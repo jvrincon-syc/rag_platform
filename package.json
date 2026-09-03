@@ -1,8 +1,8 @@
 {
-  "name": "chatbot-sst",
+  "name": "rag_platform",
   "version": "0.1.0",
   "private": true,
-  "description": "Pipeline de ingesta y normalizacion documental para chatbot SST.",
+  "description": "RAG Platform multiproyecto con ingesta, versionado, indexacion y retrieval trazable.",
   "scripts": {
     "setup": "npm run setup:venv && npm run setup:deps && npm run secrets:init",
     "setup:venv": "node -e \"const { spawnSync } = require('child_process'); const fs = require('fs'); const path = require('path'); const run = (cmd, args) => { const result = spawnSync(cmd, args, { stdio: 'inherit' }); if (result.status !== 0) process.exit(result.status || 1); }; const isWin = process.platform === 'win32'; const candidates = []; if (process.env.PYTHON) candidates.push(process.env.PYTHON); if (isWin) candidates.push('py'); candidates.push('python3.12', 'python3.11', 'python3.10', 'python3', 'python'); const resolvePython = () => { for (const candidate of candidates) { const args = isWin && candidate === 'py' ? ['-3'] : []; const result = spawnSync(candidate, [...args, '--version'], { stdio: 'ignore' }); if (result.status === 0) return { cmd: candidate, args }; } console.error('No compatible Python interpreter found. Install Python 3.12.x and try again.'); process.exit(1); }; const python = resolvePython(); if (fs.existsSync('.venv')) { fs.rmSync('.venv', { recursive: true, force: true }); } run(python.cmd, [...python.args, '-m', 'venv', '.venv']);\"",
@@ -31,8 +31,8 @@
     "gui:api": "npm run python -- -m ingestion.gui.server",
     "gui:front": "npm --prefix app/front run dev",
     "gui:dev": "node scripts/gui/dev.mjs",
-    "python": "node -e \"const { spawnSync } = require('child_process'); const path = require('path'); const candidates = process.platform === 'win32' ? ['C:\\\\venvs\\\\chatbot-sst\\\\Scripts\\\\python.exe', path.join('.venv', 'Scripts', 'python.exe')] : [path.join('.venv', 'bin', 'python')]; const venvPython = candidates.find((candidate) => require('fs').existsSync(candidate)) || candidates[candidates.length - 1]; const args = process.argv.slice(1); const result = spawnSync(venvPython, args, { stdio: 'inherit' }); if (result.status !== 0) process.exit(result.status || 1);\" --",
-    "activate:venv": "powershell -NoExit -NoProfile -Command \"Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned; & 'C:\\venvs\\chatbot-sst\\Scripts\\Activate.ps1'\""
+    "python": "node -e \"const { spawnSync } = require('child_process'); const path = require('path'); const candidates = process.platform === 'win32' ? ['C:\\\\venvs\\\\rag_platform\\\\Scripts\\\\python.exe', path.join('.venv', 'Scripts', 'python.exe')] : [path.join('.venv', 'bin', 'python')]; const venvPython = candidates.find((candidate) => require('fs').existsSync(candidate)) || candidates[candidates.length - 1]; const args = process.argv.slice(1); const result = spawnSync(venvPython, args, { stdio: 'inherit' }); if (result.status !== 0) process.exit(result.status || 1);\" --",
+    "activate:venv": "powershell -NoExit -NoProfile -Command \"Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned; & 'C:\\venvs\\rag_platform\\Scripts\\Activate.ps1'\""
   },
   "engines": {
     "node": ">=18",

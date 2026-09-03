@@ -1,20 +1,20 @@
-"""End-to-end del tramo de release: prueba que ``rag_release_id`` se persiste.
+﻿"""End-to-end del tramo de release: prueba que ``rag_release_id`` se persiste.
 
-El e2e físico (``test_end_to_end_local_platform.py``) solo materializa artefactos
-con ``rebuild_platform`` y deja ``rag_release_id`` NULL a propósito (no construye una
+El e2e fÃ­sico (``test_end_to_end_local_platform.py``) solo materializa artefactos
+con ``rebuild_platform`` y deja ``rag_release_id`` NULL a propÃ³sito (no construye una
 release). Este test cierra esa deuda (#1): corre el tramo de release real
 ``corpus snapshot -> CreateRagReleaseDraft -> BuildRagReleaseUseCase`` y verifica en
 PostgreSQL que ``embedding_runs``/``indexing_runs`` quedan estampados con el
 ``rag_release_id`` de la release construida.
 
 Se **limpian los derivados** antes de construir para forzar el path BUILD del
-resolver (no REUSE): solo un run recién creado por el build lleva el
+resolver (no REUSE): solo un run reciÃ©n creado por el build lleva el
 ``rag_release_id`` derivado server-side; un artefacto reusado no crea run nuevo.
 
 Requiere corpus real + runtime BGE + PostgreSQL con proyecto/variante/binding
 sembrados (``scripts/rag_platform/seed_project.py``) y el corpus normalizado en
 disco. Marcado ``corpus``/``bge_runtime``/``postgres_live``; el usuario lo corre con
-autorización explícita.
+autorizaciÃ³n explÃ­cita.
 
 Uso:
     npm run python -- -m pytest app/back/tests/rag_platform/test_end_to_end_release_build.py -v
@@ -173,7 +173,7 @@ def test_release_build_persiste_rag_release_id(capsys) -> None:
 
     # --- 0) prerequisitos: raw + normalized en disco/BD -------------------------
     # Registra raw (crea source_document_revisions) y normaliza el corpus. El build
-    # de release lee el normalizado de disco; sin él no hay artefacto que reusar.
+    # de release lee el normalizado de disco; sin Ã©l no hay artefacto que reusar.
     ingestion_cli = _load(
         "run_project_ingestion_rel", "scripts/rag_platform/run_project_ingestion.py"
     )
@@ -237,7 +237,7 @@ def test_release_build_persiste_rag_release_id(capsys) -> None:
     # --- 3) BuildRagReleaseUseCase (BGE vivo) -----------------------------------
     from api.dependencies import build_pipeline_services_from_env
 
-    os.environ["SST_POSTGRES_DSN"] = dsn
+    os.environ["RAG_PLATFORM_POSTGRES_DSN"] = dsn
     os.environ["SST_PERSISTENCE_MODE"] = "postgres"
     os.environ["SST_FEATURE_RAG_PLATFORM_V1"] = "true"
     chunks_root = _REPO_ROOT / "data" / "projects" / "sst-general" / "chunks"
@@ -251,7 +251,7 @@ def test_release_build_persiste_rag_release_id(capsys) -> None:
             rag_release_id=release.rag_release_id, actor=PlatformActor(actor_id=_ACTOR)
         )
         assert report.revisions_built == len(_THREE_DOCS)
-        assert report.built_stages > 0, "el build debía construir (no solo reusar)"
+        assert report.built_stages > 0, "el build debÃ­a construir (no solo reusar)"
     finally:
         services.close()
 
@@ -278,10 +278,11 @@ def test_release_build_persiste_rag_release_id(capsys) -> None:
     finally:
         connection.close()
 
-    assert release_row is not None, "la release DRAFT no se persistió"
+    assert release_row is not None, "la release DRAFT no se persistiÃ³"
     assert embed_releases == {release_id}, (
         f"embedding_runs.rag_release_id = {embed_releases}, esperado {{{release_id}}}"
     )
     assert index_releases == {release_id}, (
         f"indexing_runs.rag_release_id = {index_releases}, esperado {{{release_id}}}"
     )
+

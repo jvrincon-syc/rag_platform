@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from pathlib import Path
 
@@ -93,7 +93,7 @@ def test_create_vector_table_sql_fails_closed_on_catalog_profile_table_mismatch(
 
 def test_postgres_settings_require_dsn_for_enabled_store() -> None:
     settings = PostgresIndexingSettings.from_env(
-        {"SST_POSTGRES_DSN": "postgresql://user:secret@localhost/sst"}
+        {"RAG_PLATFORM_POSTGRES_DSN": "postgresql://user:secret@localhost/sst"}
     )
 
     assert settings.dsn == "postgresql://user:secret@localhost/sst"
@@ -141,3 +141,4 @@ def _render(statement: pg_sql.Composed, monkeypatch: pytest.MonkeyPatch) -> str:
         lambda value, _context: '"' + str(value).replace('"', '""') + '"',
     )
     return statement.as_string(object())
+

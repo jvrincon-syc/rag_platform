@@ -188,6 +188,6 @@ describe("platform contract guards — persistencia aislada del legacy", () => {
     writePlatformPreferences({ ...DEFAULT_PLATFORM_PREFERENCES, selectedProjectId: "proj_x" });
     // El legacy usa su propia clave versionada (D6); la plataforma no la contamina.
     expect(window.localStorage.getItem("chatbot-sst.dashboard.preferences.v2")).toBeNull();
-    expect(window.localStorage.getItem("chatbot-sst.platform.preferences.v1")).not.toBeNull();
+    expect(window.localStorage.getItem("rag-platform.platform.preferences.v1")).not.toBeNull();
   });
 });

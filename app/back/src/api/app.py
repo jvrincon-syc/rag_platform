@@ -64,7 +64,7 @@ def create_app(*, services: PipelineServices) -> FastAPI:
             services.close()
 
     app = FastAPI(
-        title="Chatbot SST Pipeline API",
+        title="RAG Platform API",
         version="0.1.0",
         lifespan=lifespan,
         dependencies=[Depends(require_authenticated_principal)],

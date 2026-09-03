@@ -10,8 +10,12 @@ import type {
   StatusPayload,
 } from "./dashboardTypes.js";
 
-const LEGACY_STORAGE_KEY = "chatbot-sst.dashboard.preferences.v1";
-const STORAGE_KEY = "chatbot-sst.dashboard.preferences.v2";
+const LEGACY_STORAGE_KEYS = [
+  "rag-platform.dashboard.preferences.v1",
+  "chatbot-sst.dashboard.preferences.v2",
+  "chatbot-sst.dashboard.preferences.v1",
+];
+const STORAGE_KEY = "rag-platform.dashboard.preferences.v2";
 
 function serializeDashboardPreferences(value: DashboardPreferences): string {
   return JSON.stringify({
@@ -155,7 +159,9 @@ function parseStoredDashboardPreferences(raw: string): DashboardPreferences | nu
 
 function persistDashboardPreferences(value: DashboardPreferences): void {
   window.localStorage.setItem(STORAGE_KEY, serializeDashboardPreferences(value));
-  window.localStorage.removeItem(LEGACY_STORAGE_KEY);
+  for (const legacyKey of LEGACY_STORAGE_KEYS) {
+    window.localStorage.removeItem(legacyKey);
+  }
 }
 
 export function writePayloadForTest(value: DashboardPreferences): string {
@@ -176,18 +182,22 @@ export function readDashboardPreferences(): DashboardPreferences | null {
       }
     }
 
-    const legacyRaw = window.localStorage.getItem(LEGACY_STORAGE_KEY);
-    if (!legacyRaw) {
-      return null;
+    for (const legacyKey of LEGACY_STORAGE_KEYS) {
+      const legacyRaw = window.localStorage.getItem(legacyKey);
+      if (!legacyRaw) {
+        continue;
+      }
+
+      const migrated = parseStoredDashboardPreferences(legacyRaw);
+      if (!migrated) {
+        return null;
+      }
+
+      persistDashboardPreferences(migrated);
+      return migrated;
     }
 
-    const migrated = parseStoredDashboardPreferences(legacyRaw);
-    if (!migrated) {
-      return null;
-    }
-
-    persistDashboardPreferences(migrated);
-    return migrated;
+    return null;
   } catch {
     return null;
   }

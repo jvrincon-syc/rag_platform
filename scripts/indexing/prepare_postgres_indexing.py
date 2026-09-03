@@ -115,7 +115,7 @@ def load_env_file(path: Path) -> dict[str, str]:
 def build_dsn_from_env(env: Mapping[str, str]) -> str | None:
     """Resolve a PostgreSQL DSN without inventing credentials."""
 
-    explicit = env.get("SST_POSTGRES_DSN")
+    explicit = env.get("RAG_PLATFORM_POSTGRES_DSN") or env.get("SST_POSTGRES_DSN")
     if explicit:
         return explicit
     host = env.get("POSTGRES_HOST")

@@ -14,7 +14,7 @@ Requiere: llama-server en :8001, Postgres con la release publicada, corpus
 materializado, BGE cacheado.
 
 Uso:
-    C:/venvs/chatbot-sst/Scripts/python.exe scripts/rag_platform/run_61_real_retrieval.py [limit]
+    C:/venvs/rag_platform/Scripts/python.exe scripts/rag_platform/run_61_real_retrieval.py [limit]
 """
 
 from __future__ import annotations
@@ -201,6 +201,7 @@ def main() -> int:
     from prepare_postgres_indexing import build_dsn_from_env, load_env_file
 
     dsn = build_dsn_from_env(dict(load_env_file(_REPO_ROOT / "secrets.env")))
+    os.environ["RAG_PLATFORM_POSTGRES_DSN"] = dsn
     os.environ["SST_POSTGRES_DSN"] = dsn
     os.environ["SST_PERSISTENCE_MODE"] = "postgres"
     os.environ["SST_FEATURE_RAG_PLATFORM_V1"] = "true"

@@ -154,6 +154,16 @@ def test_crear_y_leer_proyecto(client: TestClient) -> None:
     assert fetched.json()["configuration"]["version"] == 1
 
 
+def test_crear_proyecto_acepta_slug_con_guion_bajo(client: TestClient) -> None:
+    response = client.post(
+        "/api/platform/projects",
+        json={"project_slug": "ambiental_syc", "display_name": "Ambiental SYC"},
+    )
+
+    assert response.status_code == 201, response.text
+    assert response.json()["project_id"] == "proj_ambiental_syc"
+
+
 def test_actualizar_display_name(client: TestClient) -> None:
     _create_project(client, "demo")
     response = client.patch(

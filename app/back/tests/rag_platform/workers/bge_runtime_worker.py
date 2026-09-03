@@ -1,4 +1,4 @@
-"""Entrypoint de procesos REALES para los workloads BGE del E2E live.
+﻿"""Entrypoint de procesos REALES para los workloads BGE del E2E live.
 
 En esta maquina, el primer forward de Torch/BGE-M3 muere con access violation
 (0xC0000005) dentro de CUALQUIER hijo creado por ``multiprocessing`` (pool o
@@ -168,7 +168,7 @@ def _run_build(argv: list[str]) -> dict:
     dsn, _profile_id, rag_release_id_value = argv[0], argv[1], argv[2]
     chunks_root, embeddings_root = Path(argv[3]), Path(argv[4])
 
-    os.environ["SST_POSTGRES_DSN"] = dsn
+    os.environ["RAG_PLATFORM_POSTGRES_DSN"] = dsn
     os.environ["SST_PERSISTENCE_MODE"] = "postgres"
     os.environ["SST_FEATURE_RAG_PLATFORM_V1"] = "true"
 
@@ -254,3 +254,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

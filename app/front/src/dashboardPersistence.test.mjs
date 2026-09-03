@@ -33,8 +33,9 @@ const status = {
   },
 };
 
-const STORAGE_KEY_V1 = "chatbot-sst.dashboard.preferences.v1";
-const STORAGE_KEY_V2 = "chatbot-sst.dashboard.preferences.v2";
+const LEGACY_STORAGE_KEY_V1 = "chatbot-sst.dashboard.preferences.v1";
+const STORAGE_KEY_V1 = "rag-platform.dashboard.preferences.v1";
+const STORAGE_KEY_V2 = "rag-platform.dashboard.preferences.v2";
 
 function withMockWindow(initialEntries, assertion) {
   const store = new Map(Object.entries(initialEntries));
@@ -155,7 +156,7 @@ test("preserves embedding-indexing as a stored dashboard view", () => {
 test("migrates dashboard preferences from v1 to v2 with minimal embedding-indexing state", () => {
   withMockWindow(
     {
-      [STORAGE_KEY_V1]: JSON.stringify({
+      [LEGACY_STORAGE_KEY_V1]: JSON.stringify({
         activeView: "chunking",
         selectedDocumentIds: {
           review: "doc-review",
@@ -179,6 +180,7 @@ test("migrates dashboard preferences from v1 to v2 with minimal embedding-indexi
       assert.equal(preferences?.embeddingIndexing.activeIndexingRunId, null);
       assert.equal(preferences?.embeddingIndexing.activeActivationRunId, null);
       assert.equal(preferences?.embeddingIndexing.selectedRetrievalProfileId, null);
+      assert.equal(storage.getItem(LEGACY_STORAGE_KEY_V1), null);
       assert.equal(storage.getItem(STORAGE_KEY_V1), null);
       assert.deepEqual(JSON.parse(storage.getItem(STORAGE_KEY_V2)), {
         activeView: "chunking",
@@ -212,6 +214,7 @@ test("writes only the compact v2 dashboard preferences payload", () => {
     writeDashboardPreferences(preferences);
 
     assert.equal(storage.getItem(STORAGE_KEY_V1), null);
+    assert.equal(storage.getItem(LEGACY_STORAGE_KEY_V1), null);
     assert.deepEqual(storage.entries(), {
       [STORAGE_KEY_V2]: JSON.stringify({
         activeView: "embedding-indexing",

@@ -106,22 +106,22 @@ describe("DashboardApp legacy regression", () => {
     const user = userEvent.setup();
     render(<DashboardApp />);
 
-    expect(await screen.findByRole("heading", { name: "Legacy pipeline - Revision documental" })).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "RAG Platform - Revision documental" })).toBeTruthy();
     expect(screen.getAllByText("Manual por revisar").length).toBeGreaterThan(0);
 
-    await user.click(screen.getByTitle("Legacy pipeline - Operacion de ingesta"));
-    expect(await screen.findByRole("heading", { name: "Legacy pipeline - Operacion de ingesta" })).toBeTruthy();
+    await user.click(screen.getByTitle("RAG Platform - Operacion de ingesta"));
+    expect(await screen.findByRole("heading", { name: "RAG Platform - Operacion de ingesta" })).toBeTruthy();
     expect(screen.getByRole("button", { name: /Actualizar/i })).toBeTruthy();
     expect(screen.getByText(/Operaciones SST/i)).toBeTruthy();
 
-    await user.click(screen.getByTitle("Legacy pipeline - Inventario documental"));
-    expect(await screen.findByRole("heading", { name: "Legacy pipeline - Inventario documental" })).toBeTruthy();
+    await user.click(screen.getByTitle("RAG Platform - Inventario documental"));
+    expect(await screen.findByRole("heading", { name: "RAG Platform - Inventario documental" })).toBeTruthy();
     expect(screen.getByRole("table")).toBeTruthy();
 
-    await user.click(screen.getByTitle("Legacy pipeline - Chunking local"));
+    await user.click(screen.getByTitle("RAG Platform - Chunking local"));
     expect(await screen.findByRole("heading", { name: "Chunking sentinel" })).toBeTruthy();
 
-    await user.click(screen.getByTitle("Legacy pipeline - Embedding e Indexing"));
+    await user.click(screen.getByTitle("RAG Platform - Embedding e Indexing"));
     expect(await screen.findByRole("heading", { name: "Embedding Indexing sentinel" })).toBeTruthy();
   });
 });

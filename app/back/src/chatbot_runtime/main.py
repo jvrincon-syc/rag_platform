@@ -1,4 +1,4 @@
-"""Dedicated ASGI entrypoint for the SST chatbot runtime."""
+"""Dedicated ASGI entrypoint for the RAG Platform chatbot dispatch runtime."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ def load_runtime_settings(environ: Mapping[str, str]) -> RuntimeSettings:
 
 
 def main() -> None:
-    """Warm BGE before serving chatbot requests through Uvicorn."""
+    """Warm BGE before serving RAG Platform dispatch traffic through Uvicorn."""
 
     settings = load_runtime_settings(os.environ)
     runtime = build_chatbot_runtime_from_env(environ=os.environ)

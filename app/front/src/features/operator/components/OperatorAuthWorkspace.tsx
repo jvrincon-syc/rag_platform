@@ -86,9 +86,9 @@ export function OperatorAuthWorkspace({
     <main className="operator-auth">
       <aside className="operator-auth-aside">
         <div className="operator-auth-aside-inner">
-          <span className="operator-auth-wordmark">chatbot·sst</span>
+          <span className="operator-auth-wordmark">RAG Platform</span>
           <p className="operator-auth-tagline">
-            Consola interna para construir, comparar y publicar releases RAG por proyecto.
+            Consola interna multiproyecto para construir, comparar y publicar releases RAG.
           </p>
           <span className="operator-auth-lineage">project → variant → release</span>
         </div>

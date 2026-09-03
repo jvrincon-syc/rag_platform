@@ -1,4 +1,4 @@
-# Handoff frontend — Embedding, Indexing y Retrieval bundle-first
+# Handoff frontend â€” Embedding, Indexing y Retrieval bundle-first
 
 Contrato **real implementado**. OpenAPI completo: `docs/api/pipeline-openapi.json`
 (23 rutas, 40 schemas). Generado desde `api.app.create_app`.
@@ -9,71 +9,71 @@ Todos los cuerpos JSON son `snake_case`.
 
 Este handoff describe la **superficie frontend legacy bundle-first** que existe hoy.
 La GUI actual de dashboard, incluido el workspace de Embedding/Indexing/Activation/Retrieval,
-debe presentarse explícitamente como `Legacy pipeline`; no es todavía la futura UI
+debe presentarse explÃ­citamente como `Legacy pipeline`; no es todavÃ­a la futura UI
 de plataforma.
 
 `app/front/src/features/platform/platformApi.ts`,
 `app/front/src/features/platform/platformTypes.ts` y cualquier contrato frontend
-para `/api/platform/*` quedan **diferidos a Fase 8**, después de que exista un
+para `/api/platform/*` quedan **diferidos a Fase 8**, despuÃ©s de que exista un
 OpenAPI real exportado para esa superficie. Antes de eso, la persistencia del
 dashboard sigue siendo solo del workspace legacy actual.
 
-### Actualización Fase 7 (superficie administrativa `/api/platform/*`)
+### ActualizaciÃ³n Fase 7 (superficie administrativa `/api/platform/*`)
 
 Fase 7 **ya expone** la superficie administrativa de plataforma bajo
-`/api/platform/*` (proyectos, configuración versionada, matriz/variantes, corpus
-snapshots y lifecycle de releases). Está detrás del flag `SST_FEATURE_RAG_PLATFORM_V1`
+`/api/platform/*` (proyectos, configuraciÃ³n versionada, matriz/variantes, corpus
+snapshots y lifecycle de releases). EstÃ¡ detrÃ¡s del flag `SST_FEATURE_RAG_PLATFORM_V1`
 (apagado devuelve `503 RAG_PLATFORM_V1_DISABLED`) y ya aparece en el OpenAPI
 exportado (regenerar con `npm run python -- scripts/api/export_pipeline_openapi.py`).
 Invariantes del contrato:
 
-- **autenticación HTTP obligatoria (bearer):** toda la superficie
+- **autenticaciÃ³n HTTP obligatoria (bearer):** toda la superficie
   (`embedding/indexing/retrieval/platform`) exige `Authorization: Bearer <token>`
-  contra `SST_HTTP_AUTH_CREDENTIALS_JSON`; sin token válido → `401`
+  contra `SST_HTTP_AUTH_CREDENTIALS_JSON`; sin token vÃ¡lido â†’ `401`
   (`HTTP_AUTH_REQUIRED`/`HTTP_AUTH_INVALID_CREDENTIALS`), sin credenciales
-  configuradas en el servidor → `503 HTTP_AUTH_NOT_CONFIGURED` (fail-closed);
+  configuradas en el servidor â†’ `503 HTTP_AUTH_NOT_CONFIGURED` (fail-closed);
 - la identidad del actor **nunca** viene del cliente (ni body, ni query, ni header
   arbitrario): se deriva del **principal HTTP autenticado** (`principal_id`,
   `project_scope`); un `actor_id` en el body se rechaza con 422;
 - `build/validate/publish/retire` exigen el header `Idempotency-Key`; el mismo par
-  clave+petición no re-ejecuta la operación y un fingerprint distinto bajo la misma
+  clave+peticiÃ³n no re-ejecuta la operaciÃ³n y un fingerprint distinto bajo la misma
   clave devuelve `409 IDEMPOTENCY_KEY_CONFLICT`;
 - `POST /variants` solo acepta `cell_id + variant_slug` de la matriz reconfirmada;
-  nunca IDs físicos de target ni nombres de tabla;
-- el alta de proyecto y la nueva versión de configuración **no** aceptan
-  `target_bindings`/`indexing_target_id` (el target físico se provisiona
-  server-side); el frontend solo declara plantilla, política y perfiles de embedding;
-- todos los IDs externos son **canónicos completos** (`proj_...`, `ragv_...`,
+  nunca IDs fÃ­sicos de target ni nombres de tabla;
+- el alta de proyecto y la nueva versiÃ³n de configuraciÃ³n **no** aceptan
+  `target_bindings`/`indexing_target_id` (el target fÃ­sico se provisiona
+  server-side); el frontend solo declara plantilla, polÃ­tica y perfiles de embedding;
+- todos los IDs externos son **canÃ³nicos completos** (`proj_...`, `ragv_...`,
   `ragr_...`, `corpus_...`, `srev_...`), incluido el body de `POST /corpus-snapshots`;
   un ID/slug malformado devuelve `422 INVALID_PLATFORM_ID`, nunca 500;
 - **lecturas acotadas por scope:** las GET exigen el actor de confianza y un actor
-  scoped solo ve/lee sus proyectos; `GET /projects` filtra al scope (vacío = 0
+  scoped solo ve/lee sus proyectos; `GET /projects` filtra al scope (vacÃ­o = 0
   proyectos); leer un proyecto/config/matriz/variantes/release fuera de scope da
   `403 PLATFORM_ACCESS_DENIED`;
-- **bindings server-controlled:** el frontend nunca envía `target_bindings` ni
+- **bindings server-controlled:** el frontend nunca envÃ­a `target_bindings` ni
   `indexing_target_id`; el server los provisiona resolviendo un target compatible
-  por perfil de embedding. La `PATCH` de configuración que omite bindings los
-  **preserva** (jamás los borra); las versiones históricas conservan los suyos;
-- **modelo transaccional:** reserva durable de idempotencia (conexión dedicada) →
-  workflow de negocio con su propia frontera transaccional → completar/fallar
-  idempotencia. `publish`/`validate`/`retire` son una transacción corta; `build` es
-  un workflow **durable incremental por revisión**, NO una transacción atómica
-  global (si una revisión falla, las previas quedan durables/reutilizables);
+  por perfil de embedding. La `PATCH` de configuraciÃ³n que omite bindings los
+  **preserva** (jamÃ¡s los borra); las versiones histÃ³ricas conservan los suyos;
+- **modelo transaccional:** reserva durable de idempotencia (conexiÃ³n dedicada) â†’
+  workflow de negocio con su propia frontera transaccional â†’ completar/fallar
+  idempotencia. `publish`/`validate`/`retire` son una transacciÃ³n corta; `build` es
+  un workflow **durable incremental por revisiÃ³n**, NO una transacciÃ³n atÃ³mica
+  global (si una revisiÃ³n falla, las previas quedan durables/reutilizables);
 - `build/validate/publish/retire` son idempotentes por `Idempotency-Key` scoped por
-  principal (más `reason` en retire); un snapshot que exceda
+  principal (mÃ¡s `reason` en retire); un snapshot que exceda
   `SST_PLATFORM_MAX_BUILD_DOCUMENTS` (default finito 1000) devuelve
   `422 RELEASE_BUILD_TOO_LARGE` antes de trabajo costoso;
 - un futuro proveedor SSO/OIDC reemplaza el autenticador bearer /
   `AuthenticatedPrincipalActorProvider` (y la policy) sin cambiar los schemas HTTP
-  ni la intención de los casos de uso;
-- publicar una release **no** activa la recuperación legacy.
+  ni la intenciÃ³n de los casos de uso;
+- publicar una release **no** activa la recuperaciÃ³n legacy.
 
-La **integración frontend** de esta superficie (`platformApi.ts`/`platformTypes.ts`)
-sigue diferida a Fase 8; el backend HTTP ya está listo.
+La **integraciÃ³n frontend** de esta superficie (`platformApi.ts`/`platformTypes.ts`)
+sigue diferida a Fase 8; el backend HTTP ya estÃ¡ listo.
 
 ---
 
-## 1. Envelope de error (idéntico a Chunking)
+## 1. Envelope de error (idÃ©ntico a Chunking)
 
 ```json
 {
@@ -86,7 +86,7 @@ sigue diferida a Fase 8; el backend HTTP ya está listo.
 }
 ```
 
-Códigos publicados:
+CÃ³digos publicados:
 
 ```text
 EMBEDDING_PROFILE_NOT_FOUND                     404
@@ -118,7 +118,7 @@ PIPELINE_INVALID_REQUEST                        422
 PIPELINE_ROUTE_NOT_FOUND                        404
 ```
 
-## 2. Paginación
+## 2. PaginaciÃ³n
 
 Todo listado devuelve exactamente:
 
@@ -126,13 +126,13 @@ Todo listado devuelve exactamente:
 { "items": [], "page": 1, "page_size": 25, "total_items": 0, "total_pages": 0 }
 ```
 
-Query params: `page >= 1`, `1 <= page_size <= 100` (default 25). Fuera de rango → `422 PIPELINE_INVALID_REQUEST`.
+Query params: `page >= 1`, `1 <= page_size <= 100` (default 25). Fuera de rango â†’ `422 PIPELINE_INVALID_REQUEST`.
 
 ## 3. Headers
 
-- `Idempotency-Key` **obligatorio** en `POST /api/embedding/runs` y `POST /api/indexing/runs`. Ausente → `422`.
-- Misma key + mismo payload → devuelve el run existente (mismo id, `202`).
-- Misma key + payload distinto → `409 IDEMPOTENCY_CONFLICT`.
+- `Idempotency-Key` **obligatorio** en `POST /api/embedding/runs` y `POST /api/indexing/runs`. Ausente â†’ `422`.
+- Misma key + mismo payload â†’ devuelve el run existente (mismo id, `202`).
+- Misma key + payload distinto â†’ `409 IDEMPOTENCY_CONFLICT`.
 
 ---
 
@@ -166,7 +166,7 @@ Query params: `page >= 1`, `1 <= page_size <= 100` (default 25). Fuera de rango 
 }
 ```
 
-**Todo esto es metadata de solo lectura.** El frontend nunca envía provider,
+**Todo esto es metadata de solo lectura.** El frontend nunca envÃ­a provider,
 model, dimension, normalization ni distance_metric.
 
 Enums:
@@ -179,9 +179,9 @@ Enums:
 durable bruto, y el backend puede abrir un perfil legacy con una waiver
 operativa estrecha sin reescribir esas flags.
 
-**Selección permitida:** el usuario solo puede elegir un `profile_id` con
-`can_embed_documents == true`. Los demás deben mostrarse **bloqueados**
-(si `can_embed_documents == false`; ver §9).
+**SelecciÃ³n permitida:** el usuario solo puede elegir un `profile_id` con
+`can_embed_documents == true`. Los demÃ¡s deben mostrarse **bloqueados**
+(si `can_embed_documents == false`; ver Â§9).
 
 ### `GET /api/embedding/runtime`
 
@@ -218,11 +218,11 @@ operativa estrecha sin reescribir esas flags.
 
 ### `GET /api/embedding/chunk-bundles/{chunk_bundle_id}/summary`
 
-Lo anterior más `profile_fingerprint` y `embedding_bundle_ids: string[]`.
+Lo anterior mÃ¡s `profile_fingerprint` y `embedding_bundle_ids: string[]`.
 
-### `POST /api/embedding/runs` → `202`
+### `POST /api/embedding/runs` â†’ `202`
 
-**Request (MVP — singular, NO una lista):**
+**Request (MVP â€” singular, NO una lista):**
 
 ```json
 { "chunk_bundle_id": "chunk-bundle-...", "profile_id": "local-bge-m3-v1" }
@@ -262,9 +262,9 @@ pending  running  completed  failed  cancelled  blocked
 ```
 
 - **Terminales:** `completed`, `failed`, `cancelled`, `blocked`.
-- No hay cancelación cooperativa: `cancelled` existe en el esquema pero el
+- No hay cancelaciÃ³n cooperativa: `cancelled` existe en el esquema pero el
   backend nunca lo emite hoy.
-- «completed con warnings» = `status == "completed"` y `warnings.length > 0`.
+- Â«completed con warningsÂ» = `status == "completed"` y `warnings.length > 0`.
 - Un run interrumpido por reinicio se reconcilia a `failed` con
   `error_summary == "EMBEDDING_RUN_INTERRUPTED"`.
 
@@ -350,11 +350,11 @@ Se lee de `embedding_bundle_chunks`. **Sin vectores.**
 
 ### Endpoints omitidos respecto al plan original
 
-- `GET /api/embedding/runs/{id}/documents` — **omitido**. Un run consume un único
+- `GET /api/embedding/runs/{id}/documents` â€” **omitido**. Un run consume un Ãºnico
   `chunk_bundle_id` (= un documento); el detalle vive en `runs/{id}.summary.document_id`.
-- `GET /api/embedding/runs/{id}/items` — **omitido**. No existe la tabla
-  `embedding_run_items`; simular el detalle sería inventar datos. El detalle final
-  por chunk está en `bundles/{id}/chunks`.
+- `GET /api/embedding/runs/{id}/items` â€” **omitido**. No existe la tabla
+  `embedding_run_items`; simular el detalle serÃ­a inventar datos. El detalle final
+  por chunk estÃ¡ en `bundles/{id}/chunks`.
 
 ---
 
@@ -388,14 +388,14 @@ Se lee de `embedding_bundle_chunks`. **Sin vectores.**
 Informativo. **El frontend no elige target**: se resuelve desde
 `indexing_profiles.default_indexing_target_id`.
 
-### `POST /api/indexing/runs` → `202`
+### `POST /api/indexing/runs` â†’ `202`
 
 ```json
 { "embedding_bundle_id": "embedding-bundle-..." }
 ```
 
 Header `Idempotency-Key` obligatorio.
-**No se envía** `provider`, `model`, `dimension`, `normalization`,
+**No se envÃ­a** `provider`, `model`, `dimension`, `normalization`,
 `distance_metric`, `indexing_target_id` ni `force`.
 
 Response:
@@ -427,7 +427,7 @@ Enums:
 - `activation_status`: `pending | active | inactive | rolled_back | blocked | legacy_unverified`
 
 **Parcialmente completado** = `status == "failed"` con
-`summary.committed_documents > 0`. Un run interrumpido añade
+`summary.committed_documents > 0`. Un run interrumpido aÃ±ade
 `summary.interrupted == true` y `warnings` incluye `INDEXING_RUN_INTERRUPTED`.
 
 Polling: `GET /api/indexing/runs/{run_id}` cada **1 s**.
@@ -482,12 +482,12 @@ Polling: `GET /api/indexing/runs/{run_id}` cada **1 s**.
 `INDEXING_BUNDLE_NOT_ACTIVATED`, `NO_ACTIVE_VECTOR_ROWS`,
 `INDEXING_TARGET_INCOMPATIBLE`.
 
-### `POST /api/indexing/activations` (indexar ≠ activar)
+### `POST /api/indexing/activations` (indexar â‰  activar)
 
 Requiere el flag `indexing_bundle_first`; con el flag apagado devuelve
 `503 INDEXING_BUNDLE_FIRST_DISABLED`.
 
-**El `consumer_scope` NO se envía en el body.** Lo resuelve el servidor
+**El `consumer_scope` NO se envÃ­a en el body.** Lo resuelve el servidor
 (`SST_CONSUMER_SCOPE_TYPE` / `SST_CONSUMER_SCOPE_ID`, por defecto
 `chatbot` / `sst-default`). Un body que incluya `consumer_scope_type` o
 `consumer_scope_id` es rechazado con `422 PIPELINE_INVALID_REQUEST`: un cliente
@@ -500,7 +500,7 @@ no puede elegir el scope cuyo perfil activo muta.
 }
 ```
 
-→ `200`:
+â†’ `200`:
 
 ```json
 {
@@ -515,7 +515,7 @@ no puede elegir el scope cuyo perfil activo muta.
 ### `POST /api/indexing/rollbacks`
 
 Mismo gate (`indexing_bundle_first`) y mismo scope server-side que
-`/activations`. El scope tampoco se envía en el body.
+`/activations`. El scope tampoco se envÃ­a en el body.
 
 ```json
 {
@@ -530,10 +530,10 @@ Misma response. **No regenera embeddings.**
 
 ## 6. Retrieval
 
-`consumer_scope_type` / `consumer_scope_id` son genéricos mientras no exista una
-entidad concreta de chatbot. Convención sugerida: `"chatbot"` / `"sst-default"`.
+`consumer_scope_type` / `consumer_scope_id` son genÃ©ricos mientras no exista una
+entidad concreta de chatbot. ConvenciÃ³n sugerida: `"chatbot"` / `"sst-default"`.
 
-El cliente **no** envÃ­a `consumer_scope_type` ni `consumer_scope_id` en
+El cliente **no** envÃƒÂ­a `consumer_scope_type` ni `consumer_scope_id` en
 `POST /api/retrieval/profiles`: el servidor los resuelve desde
 `SST_CONSUMER_SCOPE_TYPE` / `SST_CONSUMER_SCOPE_ID`. Si el body intenta
 inyectarlos, FastAPI responde `422 PIPELINE_INVALID_REQUEST`.
@@ -563,7 +563,7 @@ Enums:
 - `last_runtime_status`: `never_run | ok | failed | blocked`
 - `lexical_fallback_policy`: `allowed_when_vector_unavailable | never | always`
 
-### `POST /api/retrieval/profiles` → `201`
+### `POST /api/retrieval/profiles` â†’ `201`
 
 ```json
 {
@@ -575,8 +575,8 @@ Enums:
 ```
 
 Se crea **inactivo**.
-El `project_id` tambiÃ©n se deriva server-side desde el dueÃ±o registrado para ese
-`corpus_version`; si no hay un Ãºnico proyecto determinista, la creaciÃ³n falla
+El `project_id` tambiÃƒÂ©n se deriva server-side desde el dueÃƒÂ±o registrado para ese
+`corpus_version`; si no hay un ÃƒÂºnico proyecto determinista, la creaciÃƒÂ³n falla
 cerrada (`409 RETRIEVAL_PROJECT_CONTEXT_UNAVAILABLE` o
 `RETRIEVAL_PROJECT_CONTEXT_AMBIGUOUS`).
 
@@ -620,7 +620,7 @@ Sin cuerpo. `409 RETRIEVAL_PROFILE_BLOCKED` si readiness falla; el perfil queda
 { "retrieval_profile_id": "retrieval-profile-..." }
 ```
 
-→
+â†’
 
 ```json
 {
@@ -633,7 +633,7 @@ Sin cuerpo. `409 RETRIEVAL_PROFILE_BLOCKED` si readiness falla; el perfil queda
 }
 ```
 
-Usa una **query sintética** interna. Nunca se almacena una pregunta real de
+Usa una **query sintÃ©tica** interna. Nunca se almacena una pregunta real de
 usuario en `readiness_checks`.
 
 ### `POST /api/retrieval/search`
@@ -696,44 +696,44 @@ SST_FEATURE_RETRIEVAL_V1
 
 Con el flag apagado, las **lecturas siguen funcionando** y las escrituras
 devuelven `503` con `EMBEDDING_V2_DISABLED` / `INDEXING_BUNDLE_FIRST_DISABLED` /
-`RETRIEVAL_V1_DISABLED`. El frontend debe deshabilitar los botones de creación
-cuando reciba esos códigos, no ocultarlos.
+`RETRIEVAL_V1_DISABLED`. El frontend debe deshabilitar los botones de creaciÃ³n
+cuando reciba esos cÃ³digos, no ocultarlos.
 
-`/api/indexing/activations` y `/api/indexing/rollbacks` también exigen
+`/api/indexing/activations` y `/api/indexing/rollbacks` tambiÃ©n exigen
 `indexing_bundle_first`; con el flag apagado devuelven `503
 INDEXING_BUNDLE_FIRST_DISABLED`.
 
-### Modo de persistencia (composición del servidor)
+### Modo de persistencia (composiciÃ³n del servidor)
 
-El servidor GUI elige el modo de persistencia de forma explícita:
+El servidor GUI elige el modo de persistencia de forma explÃ­cita:
 
 ```text
 SST_PERSISTENCE_MODE   memory | postgres   (por defecto: postgres si hay
-                                            SST_POSTGRES_DSN, si no memory)
-SST_POSTGRES_DSN       DSN durable de PostgreSQL
+                                            RAG_PLATFORM_POSTGRES_DSN, si no memory)
+RAG_PLATFORM_POSTGRES_DSN       DSN durable de PostgreSQL
 ```
 
 - `postgres`: perfiles, targets y repositorios se leen de la base durable;
   aplica el filtro `review_status = approved`.
 - `memory`: adaptadores en memoria, solo para demo y desarrollo local.
-- En modo `postgres`, si la base no está disponible el arranque **falla cerrado**
+- En modo `postgres`, si la base no estÃ¡ disponible el arranque **falla cerrado**
   (`PostgresUnavailableAtStartup`); nunca degrada silenciosamente a memoria.
 
-El scope de consumidor para activación/rollback es server-side
+El scope de consumidor para activaciÃ³n/rollback es server-side
 (`SST_CONSUMER_SCOPE_TYPE` / `SST_CONSUMER_SCOPE_ID`, por defecto
 `chatbot` / `sst-default`) y no se acepta desde el body.
 
 ## 8. Flujo de pantalla recomendado
 
 ```text
-1. GET /api/embedding/profiles      → elegir profile_id con can_embed_documents
-2. GET /api/embedding/chunk-bundles → elegir chunk_bundle_id
-3. POST /api/embedding/runs         (Idempotency-Key)  → poll 1s
-4. GET  /api/embedding/bundles/{id}/indexing-readiness → status == "ready"
-5. POST /api/indexing/runs          (Idempotency-Key)  → poll 1s
-6. POST /api/indexing/activations   → devuelve retrieval_profile_id
-7. GET  /api/retrieval/profiles/{id}/status  → readiness.ready == true
-8. POST /api/retrieval/validate     → status == "passed"
+1. GET /api/embedding/profiles      â†’ elegir profile_id con can_embed_documents
+2. GET /api/embedding/chunk-bundles â†’ elegir chunk_bundle_id
+3. POST /api/embedding/runs         (Idempotency-Key)  â†’ poll 1s
+4. GET  /api/embedding/bundles/{id}/indexing-readiness â†’ status == "ready"
+5. POST /api/indexing/runs          (Idempotency-Key)  â†’ poll 1s
+6. POST /api/indexing/activations   â†’ devuelve retrieval_profile_id
+7. GET  /api/retrieval/profiles/{id}/status  â†’ readiness.ready == true
+8. POST /api/retrieval/validate     â†’ status == "passed"
 ```
 
 ## 9. Estado real de los perfiles hoy
@@ -752,7 +752,7 @@ Por defecto eso deja `can_embed_documents` y `can_embed_queries` en `false`, y
 `POST /api/embedding/runs` responde `409
 EMBEDDING_PROFILE_COMPATIBILITY_NOT_PROVEN`.
 
-Excepción operativa actual:
+ExcepciÃ³n operativa actual:
 
 ```text
 provider  = bge
@@ -761,13 +761,14 @@ dimension = 1024
 ```
 
 Ese perfil legacy queda libre por una waiver operativa estrecha. La UI debe
-seguir guiándose por `can_embed_documents` y `can_embed_queries`, no por asumir
+seguir guiÃ¡ndose por `can_embed_documents` y `can_embed_queries`, no por asumir
 que todo `compatibility_not_proven` queda bloqueado.
 
-Los demás perfiles se desbloquean solo por el proceso explícito de verificación del backend:
+Los demÃ¡s perfiles se desbloquean solo por el proceso explÃ­cito de verificaciÃ³n del backend:
 
 ```bash
 npm run embedding:verify-profile -- --profile-id local-bge-m3-v1 --apply
 ```
 
-No hay endpoint HTTP de verificación en el MVP.
+No hay endpoint HTTP de verificaciÃ³n en el MVP.
+

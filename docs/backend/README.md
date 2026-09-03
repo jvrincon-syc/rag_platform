@@ -103,7 +103,7 @@ El detalle de handoffs y gates esta en
 - `SST_HTTP_AUTH_CREDENTIALS_JSON` define los bearer credentials autorizados
   para toda la superficie FastAPI; vacio o ausente deja la API en fail-closed
   con `HTTP_AUTH_NOT_CONFIGURED`.
-- `SST_PERSISTENCE_MODE` y `SST_POSTGRES_DSN` deciden lane `memory` o
+- `SST_PERSISTENCE_MODE` y `RAG_PLATFORM_POSTGRES_DSN` deciden lane `memory` o
   `postgres`.
 - `SST_CONSUMER_SCOPE_TYPE` y `SST_CONSUMER_SCOPE_ID` fijan el scope durable de
   activacion.
@@ -174,3 +174,4 @@ El detalle esta en [gaps-and-debt.md](./gaps-and-debt.md).
 - [../retrieval/README.md](../retrieval/README.md)
 - [../llama_first/README.md](../llama_first/README.md)
 - [../observability/README.md](../observability/README.md)
+

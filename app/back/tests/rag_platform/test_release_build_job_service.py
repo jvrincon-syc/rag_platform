@@ -247,7 +247,7 @@ def test_runner_excepcion_inesperada_no_filtra_detalle_al_cliente() -> None:
     repo = InMemoryReleaseBuildJobRepository()
     repo.create(_job("bjob_1"))
     actor = PlatformActor(actor_id="op", project_scope=None)
-    secreto = r"C:\venvs\chatbot-sst\secrets.env password=hunter2"
+    secreto = r"C:\venvs\rag_platform\secrets.env password=hunter2"
 
     run_one_build(
         jobs=repo,

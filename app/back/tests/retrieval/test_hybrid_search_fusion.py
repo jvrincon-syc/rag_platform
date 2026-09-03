@@ -99,7 +99,8 @@ _DISTANCE_OPERATOR = {
     "l2": "<->",
     "inner_product": "<#>",
 }
-_FOCUS_ENV = "CHATBOT_SST_LIVE_RETRIEVAL_FOCUS"
+_FOCUS_ENV = "RAG_PLATFORM_LIVE_RETRIEVAL_FOCUS"
+_LEGACY_FOCUS_ENV = "CHATBOT_SST_LIVE_RETRIEVAL_FOCUS"
 _SMOKE_QUERIES = (
     "ARL responsabilidades",
     "COPASST funciones",
@@ -591,7 +592,9 @@ def _release_lane(
 
 
 def _selected_question_bank() -> list[tuple[int, str]]:
-    focus = os.environ.get(_FOCUS_ENV, "").strip()
+    focus = os.environ.get(_FOCUS_ENV, "").strip() or os.environ.get(
+        _LEGACY_FOCUS_ENV, ""
+    ).strip()
     all_questions = list(enumerate(SST_E2E_QUESTIONS, start=1))
     if not focus:
         return all_questions

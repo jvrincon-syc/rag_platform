@@ -17,7 +17,11 @@ def pytest_configure() -> None:
     on the application contract instead of the temporary-directory teardown.
     """
 
-    if os.environ.get("CHATBOT_SST_DISABLE_PYTEST_SYMLINK_CLEANUP", "1") != "1":
+    cleanup_flag = os.environ.get(
+        "RAG_PLATFORM_DISABLE_PYTEST_SYMLINK_CLEANUP",
+        os.environ.get("CHATBOT_SST_DISABLE_PYTEST_SYMLINK_CLEANUP", "1"),
+    )
+    if cleanup_flag != "1":
         return
 
     try:
