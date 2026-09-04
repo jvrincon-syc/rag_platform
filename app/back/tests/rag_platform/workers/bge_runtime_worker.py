@@ -183,7 +183,7 @@ def _run_build(argv: list[str]) -> dict:
             embeddings_root=embeddings_root,
         )
         try:
-            report = services.rag_platform_build.execute(
+            report = services.rag_platform.build_release.execute(
                 rag_release_id=PlatformId(
                     kind=IdentityKind.RAG_RELEASE, value=rag_release_id_value
                 ),

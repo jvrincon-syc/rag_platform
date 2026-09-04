@@ -125,12 +125,16 @@ function CustomChunkingForm({
   const [backend, setBackend] = useState<"local" | "lightning" | "voyage">("local");
   const [values, setValues] = useState<Record<string, string>>({});
   const [sectionContext, setSectionContext] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-  const field = (key: string): number | null => {
+  // Vacío = usar el default canónico (null). Un valor NO numérico es un error de
+  // formulario que bloquea el POST (PR-4 4.4): antes `Number("abc")` caía en NaN
+  // y se convertía en `null` en silencio, indistinguible de "vacío a propósito".
+  const parseField = (key: string): number | null | "invalid" => {
     const raw = (values[key] ?? "").trim();
     if (!raw) return null;
     const parsed = Number(raw);
-    return Number.isFinite(parsed) ? parsed : null;
+    return Number.isFinite(parsed) ? parsed : "invalid";
   };
 
   const NUM_FIELDS: { key: string; label: string; placeholder: string }[] = [
@@ -157,14 +161,30 @@ function CustomChunkingForm({
       className="custom-chunking-form"
       onSubmit={(event) => {
         event.preventDefault();
+        const parsed: Record<string, number | null> = {};
+        const nextErrors: Record<string, string> = {};
+        for (const f of NUM_FIELDS) {
+          const value = parseField(f.key);
+          if (value === "invalid") {
+            nextErrors[f.key] = "Debe ser un número, o déjalo vacío para usar el default.";
+          } else {
+            parsed[f.key] = value;
+          }
+        }
+        setFieldErrors(nextErrors);
+        if (Object.keys(nextErrors).length > 0) {
+          // Fail-closed: nunca envía la variante con un valor inventado (null)
+          // cuando el operador tecleó algo no numérico por error.
+          return;
+        }
         onCreate({
           embedding_backend: backend,
-          child_min_tokens: field("child_min_tokens"),
-          child_target_tokens: field("child_target_tokens"),
-          child_max_tokens: field("child_max_tokens"),
-          overlap_min_tokens: field("overlap_min_tokens"),
-          overlap_max_tokens: field("overlap_max_tokens"),
-          overlap_ratio: field("overlap_ratio"),
+          child_min_tokens: parsed.child_min_tokens ?? null,
+          child_target_tokens: parsed.child_target_tokens ?? null,
+          child_max_tokens: parsed.child_max_tokens ?? null,
+          overlap_min_tokens: parsed.overlap_min_tokens ?? null,
+          overlap_max_tokens: parsed.overlap_max_tokens ?? null,
+          overlap_ratio: parsed.overlap_ratio ?? null,
           include_section_context: sectionContext,
         });
       }}
@@ -194,10 +214,21 @@ function CustomChunkingForm({
               placeholder={`${f.placeholder} (def.)`}
               value={values[f.key] ?? ""}
               disabled={creating}
-              onChange={(event) =>
-                setValues((current) => ({ ...current, [f.key]: event.target.value }))
-              }
+              aria-invalid={fieldErrors[f.key] ? true : undefined}
+              onChange={(event) => {
+                setValues((current) => ({ ...current, [f.key]: event.target.value }));
+                setFieldErrors((current) => {
+                  if (!current[f.key]) return current;
+                  const { [f.key]: _removed, ...rest } = current;
+                  return rest;
+                });
+              }}
             />
+            {fieldErrors[f.key] ? (
+              <span className="ui-field-note" role="alert">
+                {fieldErrors[f.key]}
+              </span>
+            ) : null}
           </div>
         ))}
       </div>

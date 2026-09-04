@@ -55,7 +55,6 @@ The canonical contract lists indexing document/profile/bundle/node/persistence e
 ```powershell
 npm run test:indexing
 npm run indexing:prepare-postgres
-npm run indexing:run -- --dry-run
 npm run indexing:validate
 ```
 
@@ -64,13 +63,13 @@ Preparation applies all committed SQL migrations and verifies base tables, activ
 ## 10. Visible inconsistencies and debt
 
 - The committed tree had no README for this area.
-- `run_indexing.py` uses the legacy normalized-document/LlamaIndex path; bundle-first consumes `EmbeddingBundle`. No single documented orchestrator joins them.
 - Declared provider types and live PostgreSQL CLI allowances differ.
 
 ## 11. Missing pieces to reach the target model
 
-- No committed bundle-first CLI performs create, execute, activate, rollback, or resume.
-- The documented dry-run only covers the legacy CLI path.
+- No committed bundle-first CLI performs create, execute, activate, rollback, or resume; the
+  supported path is `POST /api/indexing/runs` (admin-gated, G3) or a RAG Release build, never a
+  standalone script.
 - No consolidated migration/rollback runbook exists for vector tables and activation changes.
 
 ## 12. References
@@ -80,7 +79,12 @@ Preparation applies all committed SQL migrations and verifies base tables, activ
 - `app/back/src/indexing/application/bundle_first/activation.py`
 - `app/back/src/indexing/application/eligibility.py`
 - `scripts/indexing/prepare_postgres_indexing.py`
-- `scripts/indexing/run_indexing.py`
 - `scripts/indexing/validate_index.py`
 - `app/back/tests/indexing/`
+
+> PR-7 (2026-09-04): removed the legacy `IndexDocumentUseCase`/`LlamaIndexingPort`
+> write lane (`scripts/indexing/run_indexing.py`, `indexing/infrastructure/llama_index/*`,
+> `PostgresNodeRepository`, `EmbeddingProfileOrchestrator`) — superseded entirely by
+> bundle-first. `IndexingEligibilityService` (`eligibility.py`) stayed: `validate_index.py`
+> still depends on it.
 

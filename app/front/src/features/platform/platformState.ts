@@ -22,15 +22,23 @@ export const DEFAULT_PLATFORM_PREFERENCES: PlatformPreferences = {
 // Identidades vivas contra las que se validan las selecciones persistidas. Solo
 // IDs (no entidades): mantiene la reconciliación pura y barata. Los IDs de
 // variante/snapshot/release son los del proyecto seleccionado (los carga el
-// caller por proyecto).
+// caller por proyecto). Los tres sub-scopes son OPCIONALES: `undefined` = ese
+// artefacto todavía no fue reportado por ningún workspace para el proyecto
+// activo (p. ej. el operador nunca abrió RAG/Releases) y su selección
+// persistida se preserva tal cual (fail-closed hacia preservar, nunca se
+// borra por falta de evidencia). `projectIds` sí es obligatorio: es la única
+// lista que el provider siempre conoce (via `listProjects`).
 export type PlatformSelectionScope = {
   projectIds: readonly string[];
-  variantIds: readonly string[];
-  corpusSnapshotIds: readonly string[];
-  releaseIds: readonly string[];
+  variantIds?: readonly string[];
+  corpusSnapshotIds?: readonly string[];
+  releaseIds?: readonly string[];
 };
 
-function keepIfPresent(id: string | null, ids: readonly string[]): string | null {
+function keepIfPresent(id: string | null, ids: readonly string[] | undefined): string | null {
+  if (ids === undefined) {
+    return id;
+  }
   return id !== null && ids.includes(id) ? id : null;
 }
 

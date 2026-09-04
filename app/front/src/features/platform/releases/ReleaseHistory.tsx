@@ -185,9 +185,6 @@ function toneForReleaseState(state: string): "neutral" | "warning" | "success" |
   if (state === "published") {
     return "success";
   }
-  if (state === "failed") {
-    return "danger";
-  }
   return "neutral";
 }
 

@@ -192,13 +192,6 @@ class PipelineServices:
     # the in-memory/mock path leaves a ``NoOpReranker``). Held here so ``warmup``
     # can preload the ~2GB model at startup instead of on the first user request.
     reranker: object | None = None
-    # RAG platform admin services (Fase 6). Only wired when the
-    # ``rag_platform_v1`` flag is on; ``None`` keeps the legacy surface untouched.
-    rag_platform_build: object | None = None
-    rag_platform_publish: object | None = None
-    rag_platform_rebuild: object | None = None
-    rag_platform_draft: object | None = None
-    rag_platform_validate: object | None = None
     # Task 3: superficie tipada de proyectos/configuración (``RagPlatformServices``).
     # Task 4 la extenderá con variantes/releases; ``None`` deja el legacy intacto.
     rag_platform: RagPlatformServices | None = None
@@ -234,42 +227,26 @@ class PipelineServices:
                 close()
 
 
-def _resolve_faq_path(chunks_root: Path) -> Path | None:
-    """Locate the curated ``sst-faq-80.md`` across the two runtime layouts.
+def _build_faq_registry(chunks_root: Path) -> object | None:
+    """Build the per-project FAQ resolver registry, unless the shortcut is disabled.
 
-    The dedicated chatbot runtime passes ``chunks_root=data/projects/<proj>/chunks`` (the FAQ is a
-    sibling ``faq/`` dir), while the ingestion GUI server passes ``chunks_root=data/chunks`` (the FAQ
-    lives under ``data/projects/<proj>/faq``). Deriving only ``chunks_root.parent/faq`` silently
-    disabled the shortcut under the GUI server. ``FAQ_PATH`` overrides both when set.
+    PR-3 3.1/3.2: replaces the single global resolver picked by
+    ``sorted(data_root.glob("projects/*/faq/sst-faq-80.md"))[0]`` — a multi-project process could
+    answer project A's question from project B's curated FAQ. ``FaqResolverRegistry`` resolves and
+    caches one resolver per ``project_id`` (see ``retrieval/infrastructure/faq_resolver.py``), so a
+    project only ever sees its own FAQ file. A FAQ hit is also no longer trusted unconditionally:
+    ``PostgresReleaseScopedRetrievalPort._faq_result`` (PR-3 3.3) verifies the cited document
+    belongs to the queried release before answering, falling through to real retrieval otherwise.
+
+    PR-3 3.4: with 3.1-3.3 landed, the shortcut is enabled by default again (PR-1 1.1 had flipped
+    it to ``off`` as the P0 stop-gap for the cross-project leak). ``FAQ_MATCH=off`` still disables
+    it explicitly; a construction error also just disables the shortcut — it never blocks startup.
     """
 
-    explicit = os.environ.get("FAQ_PATH", "").strip()
-    if explicit:
-        candidate = Path(explicit)
-        return candidate if candidate.exists() else None
-    data_root = Path(chunks_root).parent
-    sibling = data_root / "faq" / "sst-faq-80.md"
-    if sibling.exists():
-        return sibling
-    # GUI-server layout: chunks_root is data/chunks, so the project FAQ is under data/projects/*.
-    matches = sorted(data_root.glob("projects/*/faq/sst-faq-80.md"))
-    return matches[0] if matches else None
-
-
-def _build_faq_resolver(chunks_root: Path) -> object | None:
-    """Load the direct-FAQ resolver if the project ships ``faq/sst-faq-80.md`` and it isn't disabled.
-
-    Best-effort optimization: a missing file, a parse error, or ``FAQ_MATCH=off`` just disables the
-    lexical/fuzzy shortcut so the full embedding retrieval runs — it never blocks startup.
-    """
-
-    if os.environ.get("FAQ_MATCH", "off").lower() == "off":  # off until PR-3 makes it project-aware
-        return None
-    faq_path = _resolve_faq_path(chunks_root)
-    if faq_path is None:
+    if os.environ.get("FAQ_MATCH", "on").lower() == "off":
         return None
     try:
-        from retrieval.infrastructure.faq_resolver import FaqResolver
+        from retrieval.infrastructure.faq_resolver import FaqResolverRegistry
 
         # High-precision FAQ: fire only on near-exact matches. The fuzzy scorer is dominated by the
         # shared topic phrase, so different intents over the same subject ("que ES el comite" vs
@@ -280,7 +257,7 @@ def _build_faq_resolver(chunks_root: Path) -> object | None:
         # 1.0) and everything looser falls through to retrieval + the relevance gate, which handle
         # intent far better than token overlap. Tune via FAQ_THRESHOLD.
         threshold = float(os.environ.get("FAQ_THRESHOLD", "0.85"))
-        return FaqResolver.from_file(faq_path, threshold=threshold)
+        return FaqResolverRegistry(data_root=Path(chunks_root).parent, threshold=threshold)
     except Exception:  # noqa: BLE001 - the FAQ shortcut is an optimization, never a startup gate
         return None
 
@@ -422,7 +399,7 @@ def build_pipeline_services(
         vector_search=vector_search,
         query_embedding=query_embedding,
     )
-    faq_resolver = _build_faq_resolver(chunks_root)
+    faq_resolver_registry = _build_faq_registry(chunks_root)
     if connection is None:
         release_retrieval = InMemoryReleaseScopedRetrievalPort(
             indexing_runs=indexing_runs,
@@ -443,7 +420,7 @@ def build_pipeline_services(
             retrieval_profiles=retrieval_profiles,
             query_embedding=query_embedding,
             reranker=reranker,
-            faq_resolver=faq_resolver,
+            faq_resolver_registry=faq_resolver_registry,
         )
     services = PipelineServices(
         feature_flags=flags,
@@ -570,14 +547,9 @@ def build_pipeline_services(
             run_documents=run_documents,
             indexing_targets=targets,
             build_services_factory=build_services_factory,
+            release_serving_only=flags.release_serving_only,
         )
         services.rag_platform = platform
-        # Compat legacy: los aliases apuntan a la misma composición tipada.
-        services.rag_platform_build = platform.build_release
-        services.rag_platform_publish = platform.publish_release
-        services.rag_platform_rebuild = platform.rebuild_platform
-        services.rag_platform_draft = platform.create_release_draft
-        services.rag_platform_validate = platform.validate_release
         # Fase 7: adaptador HTTP. Idempotencia durable (Postgres si hay conexión,
         # in-memory para dry-run/tests) sobre una conexión **dedicada** e
         # independiente de la de negocio, y actor de confianza server-side.
@@ -640,6 +612,32 @@ def require_project_access(
             message=str(error),
             headers=error.response_headers,
         ) from error
+    return principal
+
+
+def require_admin_principal(request: Request) -> AuthenticatedPrincipal:
+    """Authorize an admin principal for low-level write mutations.
+
+    G3: RAG Release is the single public write authority (ADR-014). The
+    low-level embedding/indexing/retrieval mutation routes
+    (``POST /runs``, ``/activations``, ``/rollbacks``, ``POST /profiles``,
+    ``POST /profiles/{id}/activate``) stay reachable for Release's own
+    internal orchestration (it calls the use cases in-process, never through
+    HTTP) and for admin tooling/tests, but are no longer a second public write
+    plane for any authenticated principal. Reads/status/search/validate are
+    unaffected.
+    """
+
+    principal = get_authenticated_principal(request)
+    if not principal.is_admin:
+        raise http_error(
+            status_code=status.HTTP_403_FORBIDDEN,
+            code="HTTP_ADMIN_REQUIRED",
+            message=(
+                f"principal {principal.principal_id} is not authorized for "
+                "this low-level write mutation"
+            ),
+        )
     return principal
 
 #: Tope finito por defecto de documentos por build síncrono. El build es una
@@ -714,6 +712,7 @@ def _build_rag_platform_services(
     run_documents: object,
     indexing_targets: object,
     build_services_factory: object | None = None,
+    release_serving_only: bool = False,
 ) -> "RagPlatformServices":
     """Cablea la superficie tipada única de plataforma para Fase 7 (Task 3 + Task 4).
 
@@ -768,6 +767,9 @@ def _build_rag_platform_services(
     )
     from rag_platform.application.document_query_service import (
         ListProjectDocumentsUseCase,
+    )
+    from rag_platform.application.document_raw_location_service import (
+        GetProjectDocumentRevisionRawLocationUseCase,
     )
     from rag_platform.application.document_revision_service import (
         CreateSourceDocumentRevisionUseCase,
@@ -909,9 +911,10 @@ def _build_rag_platform_services(
 
     # Intake documental project-aware (Gate 1 Fase 8): el upload compone el
     # registro raw ya existente con un writer de bytes; el listado es read-model.
+    project_raw_storage = FilesystemProjectRawStorage(storage_roots)
     upload_document = UploadProjectRawDocumentUseCase(
         projects=projects,
-        storage=FilesystemProjectRawStorage(storage_roots),
+        storage=project_raw_storage,
         register=RegisterProjectRawArtifactUseCase(
             projects=projects,
             revisions=CreateSourceDocumentRevisionUseCase(
@@ -926,6 +929,14 @@ def _build_rag_platform_services(
         normalized=normalized,
         access_policy=access_policy,
         review_decisions=review_decisions,
+    )
+    # Citas project-aware (PR-1 1.7): reusa el mismo puerto de almacenamiento raw
+    # (misma raíz catalog-driven) del upload, solo en modo lectura.
+    get_document_revision_raw_location = GetProjectDocumentRevisionRawLocationUseCase(
+        projects=projects,
+        documents=documents,
+        raw_storage=project_raw_storage,
+        access_policy=access_policy,
     )
     submit_review_decision = SubmitRevisionReviewDecisionUseCase(
         documents=documents,
@@ -993,6 +1004,7 @@ def _build_rag_platform_services(
     )
     publish_release = PublishRagReleaseUseCase(
         releases=releases,
+        memberships=memberships,
         access_policy=access_policy,
         transactions=transactions,
         logger=get_logger("rag_platform.publication"),
@@ -1109,6 +1121,25 @@ def _build_rag_platform_services(
         from rag_platform.domain.errors import RagReleaseNotActivatable
         from rag_platform.infrastructure.release_activation import activate_rag_release
 
+        if release_serving_only:
+            # G2 (was PR-2 2.2's partial no-op): bajo el nuevo modelo de serving
+            # (PUBLISHED + rag_release_memberships) el chatbot nunca lee
+            # ``is_active`` ni el retrieval profile legacy que esta activación
+            # crea (``test_release_search_no_depende_de_is_active``, PR-2 2.1),
+            # así que /activate se retira del contrato público (410,
+            # ReleaseActivateNotPublic) ANTES de exigir Postgres — decidir "esto
+            # ya no aplica" no necesita persistencia real, solo autorización
+            # (misma que la ruta real). Se corta antes de la iteración de
+            # bundles multi-transacción de ``activate_rag_release`` (no atómica
+            # hoy), evitando ese riesgo sin poder reescribirla contra Postgres
+            # real en esta sesión.
+            from rag_platform.application.release_activation_service import (
+                NoOpActivateReleaseUseCase,
+            )
+
+            return NoOpActivateReleaseUseCase(
+                releases=releases, access_policy=access_policy
+            ).execute(rag_release_id=rag_release_id, actor=actor)
         if connection is None:
             raise RagReleaseNotActivatable(
                 "activation requires the postgres persistence mode"
@@ -1178,6 +1209,7 @@ def _build_rag_platform_services(
         upload_project_document=upload_document,
         normalize_project_documents=normalize_documents,
         submit_revision_review_decision=submit_review_decision,
+        get_document_revision_raw_location=get_document_revision_raw_location,
         create_corpus_snapshot=CreateCorpusSnapshotUseCase(
             snapshots=snapshots, documents=documents, access_policy=access_policy
         ),

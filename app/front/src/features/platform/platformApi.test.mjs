@@ -151,7 +151,11 @@ await test("buildRelease encola (POST /build) con Idempotency-Key de plataforma"
 
 await test("buildRelease respeta una Idempotency-Key provista (replay del MISMO build)", async () => {
   const calls = captureFetch(jsonResponse({ build_job_id: "bjob_1", rag_release_id: "ragr_1", state: "queued" }));
-  await buildRelease("ragr_1", { idempotencyKey: "platform-fija" });
+  // ponytail: buildRelease ganó un 2do parámetro posicional (embeddingRuntime,
+  // ADR-010 runtime override) después de escrito este test; `options` es ahora
+  // el 3er argumento, no el 2do. Bug de test preexistente (no de producción:
+  // useRagReleaseWorkspace.ts ya llama con la firma de 3 args correcta).
+  await buildRelease("ragr_1", null, { idempotencyKey: "platform-fija" });
   const [, init] = calls[0];
   assert.equal(init.headers["Idempotency-Key"], "platform-fija");
 });

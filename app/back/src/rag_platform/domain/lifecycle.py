@@ -3,7 +3,10 @@
 Una ``RagRelease`` congela una variante (receta) sobre un corpus snapshot y un
 target binding pinneado. Su lifecycle es estricto e inmutable en sitio:
 
-``DRAFT → VALIDATED → PUBLISHED → RETIRED`` (más ``FAILED`` como terminal de fallo).
+``DRAFT → VALIDATED → PUBLISHED → RETIRED`` (ADR-012: ``FAILED`` se eliminó — un
+build que no completa deja la release en ``DRAFT``; el fallo vive en
+``ReleaseBuildJob.error_code``/``error_message``, nunca en el estado de la
+release).
 
 Separación de semánticas (criterio del plan, ADR-006 §3):
 
@@ -43,28 +46,26 @@ from rag_platform.domain.models import (
 
 
 class ReleaseState(str, Enum):
-    """Estados del lifecycle de una release (ADR-006 §3).
+    """Estados del lifecycle de una release (ADR-006 §3, ADR-012).
 
-    ``FAILED`` es terminal: un build que no completa deja la release observable
-    como fallida, nunca a medias en ``DRAFT``.
+    No existe un estado ``FAILED``: no hay código productivo que transicione una
+    release ahí (un build fallido marca ``ReleaseBuildJob.state = failed``, no la
+    release — ADR-010/PR-1 1.6). Un build que no completa deja la release en
+    ``DRAFT``; el operador corrige la causa y reconstruye la misma release.
     """
 
     DRAFT = "draft"
     VALIDATED = "validated"
     PUBLISHED = "published"
     RETIRED = "retired"
-    FAILED = "failed"
 
 
 #: Transiciones permitidas. Cualquier par fuera de este grafo es fail-closed.
 _ALLOWED_TRANSITIONS: Mapping[ReleaseState, frozenset[ReleaseState]] = {
-    ReleaseState.DRAFT: frozenset({ReleaseState.VALIDATED, ReleaseState.FAILED}),
-    ReleaseState.VALIDATED: frozenset(
-        {ReleaseState.PUBLISHED, ReleaseState.FAILED, ReleaseState.RETIRED}
-    ),
+    ReleaseState.DRAFT: frozenset({ReleaseState.VALIDATED}),
+    ReleaseState.VALIDATED: frozenset({ReleaseState.PUBLISHED, ReleaseState.RETIRED}),
     ReleaseState.PUBLISHED: frozenset({ReleaseState.RETIRED}),
     ReleaseState.RETIRED: frozenset(),
-    ReleaseState.FAILED: frozenset(),
 }
 
 

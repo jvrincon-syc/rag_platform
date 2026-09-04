@@ -424,6 +424,7 @@ def test_la_validacion_falla_cuando_el_contenido_fuente_cambio(harness, tmp_path
         source_content_fingerprint="9" * 64,
         corpus_version=content.corpus_version,
         document_id=content.document_id,
+        document_name=content.document_name,
         source_relpath=content.source_relpath,
         source_hash=content.source_hash,
         normalized_relpath=content.normalized_relpath,

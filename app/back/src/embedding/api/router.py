@@ -6,7 +6,11 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Header, Query, Request, status
 
-from api.dependencies import get_authenticated_principal, require_project_access
+from api.dependencies import (
+    get_authenticated_principal,
+    require_admin_principal,
+    require_project_access,
+)
 from core.api.http import (
     DEFAULT_PAGE_SIZE,
     ErrorEnvelopeSchema,
@@ -160,6 +164,7 @@ def get_chunk_bundle_summary(
     "/runs",
     status_code=status.HTTP_202_ACCEPTED,
     response_model=EmbeddingRunSchema,
+    dependencies=[Depends(require_admin_principal)],
 )
 def create_run(
     request: Request,

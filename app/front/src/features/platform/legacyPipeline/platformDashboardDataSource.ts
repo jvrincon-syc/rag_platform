@@ -1,9 +1,10 @@
 // Datasource Platform para el shell de pipeline Legacy compartido
 // (`DashboardPipelineApp`): mismo arbol de componentes que Legacy, alimentado
-// por `/api/platform/*` y con identidad de proyecto inyectada. La variante
-// RAG nunca se toma de una preferencia guardada: se resuelve/crea aqui a
-// partir de la receta configurada en las pantallas Legacy (ver
-// `platformRagVariantResolver`).
+// por `/api/platform/*` y con identidad de proyecto inyectada. La variante RAG
+// (PR-4 4.1) es la ya persistida en DB y seleccionada por el operador
+// (`ragVariantId`, resuelta por `PlatformLegacyPipelineWorkspace` contra el
+// catalogo real de variantes) -- nunca una receta reconstruida desde un Map
+// efimero alimentado por controles de UI que se resetean en cada refresh.
 import type { DashboardPipelineDataSource } from "../../dashboard/dashboardDataSource.js";
 import {
   getConfiguration,
@@ -13,12 +14,11 @@ import {
   uploadDocument,
 } from "../platformApi.js";
 import { toPlatformDashboardStatus } from "./platformDashboardMappers.js";
-import { readRecipeDraft, recordProcessingControls } from "./platformRecipeDraft.js";
-import { resolveOrCreatePlatformRagVariant } from "./platformRagVariantResolver.js";
 
 export function createPlatformDashboardDataSource(input: {
   projectId: string;
   projectName: string;
+  ragVariantId: string | null;
 }): DashboardPipelineDataSource {
   async function loadStatus() {
     const [configuration, documents] = await Promise.all([
@@ -52,14 +52,14 @@ export function createPlatformDashboardDataSource(input: {
         statusPayload: await loadStatus(),
       };
     },
-    async runPipeline({ controls }) {
-      // La variante se CONSTRUYE a partir de la configuracion de las pantallas
-      // (receta primero), nunca de una preferencia guardada.
-      recordProcessingControls(input.projectId, controls);
-      const resolved = await resolveOrCreatePlatformRagVariant({
-        projectId: input.projectId,
-        recipe: readRecipeDraft(input.projectId),
-      });
+    async runPipeline() {
+      // Fail-closed: sin una variante RAG elegida (ver el selector en
+      // Operacion) nunca se adivina ni se crea una implicitamente.
+      if (!input.ragVariantId) {
+        throw new Error(
+          "Selecciona una variante RAG del proyecto (arriba, en Operacion) antes de ejecutar la normalizacion.",
+        );
+      }
 
       // Los ids de revision salen del read-model CRUDO de Platform
       // (listAllDocuments), nunca del StatusPayload ya mapeado a display Legacy.
@@ -75,7 +75,7 @@ export function createPlatformDashboardDataSource(input: {
         .map((revision) => revision.source_document_revision_id);
 
       const report = await normalizeDocuments(input.projectId, {
-        rag_variant_id: resolved.ragVariantId,
+        rag_variant_id: input.ragVariantId,
         document_revision_ids: revisionIds,
         force: false,
       });
@@ -92,12 +92,10 @@ export function createPlatformDashboardDataSource(input: {
         statusPayload: await loadStatus(),
       };
     },
-    async saveSettings({ llamaControls }) {
-      // Lo UNICO que persiste es el leg de Operacion de la receta (por
-      // proyecto, alcance de sesion) para el resolutor. El umbral OCR no tiene
-      // contrato Platform: su input va deshabilitado-con-motivo y nunca se
-      // simula su guardado.
-      recordProcessingControls(input.projectId, llamaControls);
+    async saveSettings() {
+      // Proveedor/OCR no tienen contrato de persistencia en Platform (la
+      // receta real es la variante RAG seleccionada arriba, nunca este panel):
+      // solo refresca el estado, nunca fabrica un "guardado" que no ocurrio.
       return {
         ok: true,
         status: await loadStatus(),

@@ -8,7 +8,7 @@ from llama_index.core.schema import BaseNode
 
 from embedding.infrastructure.postgres.repositories import PostgresIndexingTargetRepository
 from indexing.domain.profiles import ResolvedIndexingProfile
-from indexing.infrastructure.llama_index.pgvector_store import VectorStoreWriteError
+from indexing.domain.errors import VectorStoreWriteError
 from indexing.infrastructure.postgres.profile_registry import (
     PostgresProfileRegistry,
     safe_vector_table_identifier,

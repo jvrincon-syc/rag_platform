@@ -105,10 +105,30 @@ def _build_answer_reference_phrase(document_name: str) -> str:
 
 
 def _build_source_url(metadata: dict[str, object]) -> str | None:
-    """Construct a public URL for the raw document, if configured."""
+    """Construct a public URL for the raw document, if configured.
+
+    G1: prefiere la ruta project-aware (autorizada, sin root global) cuando la
+    evidencia trae ``project_id`` + ``source_document_revision_id`` (siempre que
+    la evidencia venga de un nodo de indexación construido con G1 wired —
+    ``build_nodes`` en indexing/application/bundle_first/index_bundle.py).
+    Cae a la ruta legacy deprecada por ``source_relpath`` cuando falta la
+    revisión (p. ej. evidencia FAQ, o bundles sellados antes de este cambio).
+    """
     base_url = os.environ.get("SST_DOCUMENTS_BASE_URL", "").strip().rstrip("/")
     if not base_url:
         return None
+    project_id = metadata.get("project_id")
+    revision_id = metadata.get("source_document_revision_id")
+    if (
+        isinstance(project_id, str)
+        and project_id.strip()
+        and isinstance(revision_id, str)
+        and revision_id.strip()
+    ):
+        return (
+            f"{base_url}/api/projects/{project_id.strip()}"
+            f"/document-revisions/{revision_id.strip()}/raw"
+        )
     source_relpath = metadata.get("source_relpath")
     if not isinstance(source_relpath, str) or not source_relpath.strip():
         return None

@@ -1,7 +1,11 @@
 // Superficies de nivel operador. `OperatorSurface` es un tipo separado de
 // `AppView`: "platform" nunca es una vista del dashboard legacy, por lo que no
 // vive en `dashboardTypes` ni en `dashboardNavigation`.
-export type OperatorSurface = "platform" | "legacy";
+//
+// La superficie "legacy" global (DashboardApp) se eliminó (PR-5 5.1): todo el
+// flujo vive en Platform. `OperatorSurface` queda con una sola entrada; el tipo
+// se conserva por si el rail vuelve a tener más de una superficie.
+export type OperatorSurface = "platform";
 
 export type OperatorSurfaceDefinition = {
   surface: OperatorSurface;
@@ -9,8 +13,6 @@ export type OperatorSurfaceDefinition = {
   title: string;
 };
 
-// "Pipeline de ingesta" (superficie legacy) se retira de la barra: todo el flujo
-// vive en Platform. El tipo conserva "legacy" para compatibilidad de rutas/tests.
 export const OPERATOR_SURFACES: readonly OperatorSurfaceDefinition[] = [
   { surface: "platform", label: "Platform", title: "RAG Platform" },
 ];

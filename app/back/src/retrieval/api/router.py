@@ -4,7 +4,11 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends, Query, Request, status
 
-from api.dependencies import get_authenticated_principal, require_project_access
+from api.dependencies import (
+    get_authenticated_principal,
+    require_admin_principal,
+    require_project_access,
+)
 from core.api.http import (
     DEFAULT_PAGE_SIZE,
     ErrorEnvelopeSchema,
@@ -177,6 +181,7 @@ def list_profiles(
     "/profiles",
     status_code=status.HTTP_201_CREATED,
     response_model=RetrievalProfileSchema,
+    dependencies=[Depends(require_admin_principal)],
 )
 def create_profile(
     request: Request,
@@ -214,6 +219,7 @@ def create_profile(
 @router.post(
     "/profiles/{retrieval_profile_id}/activate",
     response_model=RetrievalProfileSchema,
+    dependencies=[Depends(require_admin_principal)],
 )
 def activate_profile(
     request: Request,

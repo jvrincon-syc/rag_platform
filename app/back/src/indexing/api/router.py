@@ -6,7 +6,11 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Header, Query, Request, status
 
-from api.dependencies import get_authenticated_principal, require_project_access
+from api.dependencies import (
+    get_authenticated_principal,
+    require_admin_principal,
+    require_project_access,
+)
 from core.api.http import (
     DEFAULT_PAGE_SIZE,
     ErrorEnvelopeSchema,
@@ -157,6 +161,7 @@ def list_targets(
     "/runs",
     status_code=status.HTTP_202_ACCEPTED,
     response_model=IndexingRunSchema,
+    dependencies=[Depends(require_admin_principal)],
 )
 def create_run(
     request: Request,
@@ -263,7 +268,11 @@ def get_retrieval_readiness(
         raise _translate(error, run_id=run_id) from error
 
 
-@router.post("/activations", response_model=ActivationResultSchema)
+@router.post(
+    "/activations",
+    response_model=ActivationResultSchema,
+    dependencies=[Depends(require_admin_principal)],
+)
 def activate_bundle(
     request: Request,
     payload: ActivationRequestSchema,
@@ -294,7 +303,11 @@ def activate_bundle(
     }
 
 
-@router.post("/rollbacks", response_model=ActivationResultSchema)
+@router.post(
+    "/rollbacks",
+    response_model=ActivationResultSchema,
+    dependencies=[Depends(require_admin_principal)],
+)
 def rollback_bundle(
     request: Request,
     payload: RollbackRequestSchema,

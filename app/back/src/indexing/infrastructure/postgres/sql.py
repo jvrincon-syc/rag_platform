@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from indexing.domain.bundle_first import IndexingTarget
 from indexing.domain.profiles import ResolvedIndexingProfile
-from indexing.infrastructure.llama_index.pgvector_store import VectorStoreWriteError
+from indexing.domain.errors import VectorStoreWriteError
 from psycopg2 import sql
 
 

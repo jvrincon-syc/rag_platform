@@ -19,7 +19,7 @@ from indexing.domain.bundle_first import (
 )
 from indexing.domain.errors import IndexingRunNotFound
 from indexing.domain.profiles import ResolvedIndexingProfile
-from indexing.infrastructure.llama_index.pgvector_store import VectorStoreWriteError
+from indexing.domain.errors import VectorStoreWriteError
 from indexing.infrastructure.postgres.vector_repository import AppendOnlyVectorRecord
 
 

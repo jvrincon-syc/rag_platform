@@ -24,12 +24,17 @@ FOREIGN_SCOPED_TOKEN = "token-proj-other"
 
 
 def _authenticator() -> ConfiguredBearerAuth:
+    # G3: op-1 drives every low-level mutation exercised by this file's
+    # contract tests (embedding/indexing runs, activations, rollbacks,
+    # retrieval profile create/activate); those routes now require an admin
+    # principal (require_admin_principal), so op-1 is granted is_admin here.
+    # proj-test/proj-other stay non-admin on purpose, to cover the new gate.
     return ConfiguredBearerAuth(
         {
             AUTH_CREDENTIALS_JSON_KEY: (
                 '[{"principal_id":"op-1","token":"'
                 + AUTH_TOKEN
-                + '"},'
+                + '","is_admin":true},'
                 + '{"principal_id":"proj-test","token":"'
                 + SCOPED_TOKEN
                 + '","project_scope":["proj_test"]},'
@@ -292,11 +297,112 @@ def test_scope_de_proyecto_bloquea_lecturas_y_mutaciones_legacy_ajenas(
     assert listed_profiles.status_code == 200
     assert listed_profiles.json()["items"] == []
     assert create_embedding.status_code == 403
-    assert create_embedding.json()["error"]["code"] == "HTTP_PROJECT_SCOPE_FORBIDDEN"
+    # G3: require_admin_principal runs as a router-level dependency, ahead of
+    # the route body's require_project_access — a non-admin principal is
+    # rejected before the project-scope check ever runs (fails closed on the
+    # broader gate first; FOREIGN_SCOPED_TOKEN was never admin either way).
+    assert create_embedding.json()["error"]["code"] == "HTTP_ADMIN_REQUIRED"
     assert read_indexing_run.status_code == 403
     assert read_indexing_run.json()["error"]["code"] == "HTTP_PROJECT_SCOPE_FORBIDDEN"
     assert search.status_code == 403
     assert search.json()["error"]["code"] == "HTTP_PROJECT_SCOPE_FORBIDDEN"
+
+
+def test_mutaciones_low_level_exigen_admin(client: TestClient) -> None:
+    """G3: Release es la única autoridad pública de escritura (ADR-014).
+
+    Un principal autenticado y con scope correcto sobre el proyecto (SCOPED_TOKEN,
+    ``project_scope=["proj_test"]``, el mismo proyecto que los fixtures de este
+    archivo) ya no basta para disparar las mutaciones low-level de
+    embedding/indexing/retrieval: hace falta además ``is_admin`` (op-1, único
+    admin configurado). Las lecturas siguen públicas para cualquier principal
+    autenticado con scope válido.
+    """
+
+    embedding_run = _run_embedding(client)
+    bundle_id = embedding_run["produced_embedding_bundle_id"]
+    indexing_run = _run_indexing(client, bundle_id)
+    activation = client.post(
+        "/api/indexing/activations",
+        json={"run_id": indexing_run["run_id"]},
+    ).json()
+
+    scoped_headers = _auth_headers(SCOPED_TOKEN)
+
+    create_embedding = client.post(
+        "/api/embedding/runs",
+        json={
+            "chunk_bundle_id": client.app.state.test_chunk_bundle.chunk_bundle_id,
+            "profile_id": client.app.state.test_profile.profile_id,
+        },
+        headers={**scoped_headers, "Idempotency-Key": "embed-non-admin"},
+    )
+    create_indexing = client.post(
+        "/api/indexing/runs",
+        json={"embedding_bundle_id": bundle_id},
+        headers={**scoped_headers, "Idempotency-Key": "index-non-admin"},
+    )
+    reactivate = client.post(
+        "/api/indexing/activations",
+        json={"run_id": indexing_run["run_id"]},
+        headers=scoped_headers,
+    )
+    rollback = client.post(
+        "/api/indexing/rollbacks",
+        json={
+            "current_embedding_bundle_id": bundle_id,
+            "previous_embedding_bundle_id": bundle_id,
+        },
+        headers=scoped_headers,
+    )
+    create_profile = client.post(
+        "/api/retrieval/profiles",
+        json={
+            "corpus_version": client.app.state.test_chunk_bundle.corpus_version,
+            "embedding_profile_id": client.app.state.test_profile.profile_id,
+            "indexing_target_id": "target-idx-vec-test-mock-v1",
+        },
+        headers=scoped_headers,
+    )
+    activate_profile = client.post(
+        f"/api/retrieval/profiles/{activation['retrieval_profile_id']}/activate",
+        headers=scoped_headers,
+    )
+
+    for response in (
+        create_embedding,
+        create_indexing,
+        reactivate,
+        rollback,
+        create_profile,
+        activate_profile,
+    ):
+        assert response.status_code == 403, response.text
+        assert response.json()["error"]["code"] == "HTTP_ADMIN_REQUIRED"
+
+    # Reads stay public for the same non-admin, project-scoped principal.
+    reads = (
+        client.get("/api/embedding/profiles?page=1&page_size=10", headers=scoped_headers),
+        client.get("/api/indexing/targets?page=1&page_size=10", headers=scoped_headers),
+        client.get(f"/api/embedding/runs/{embedding_run['embedding_run_id']}", headers=scoped_headers),
+        client.get(f"/api/indexing/runs/{indexing_run['run_id']}", headers=scoped_headers),
+        client.post(
+            "/api/retrieval/validate",
+            json={"retrieval_profile_id": activation["retrieval_profile_id"]},
+            headers=scoped_headers,
+        ),
+        client.post(
+            "/api/retrieval/search",
+            json={
+                "retrieval_profile_id": activation["retrieval_profile_id"],
+                "query": "validacion sintetica de recuperacion",
+                "top_k": 2,
+            },
+            headers=scoped_headers,
+        ),
+    )
+    for response in reads:
+        assert response.status_code == 200, response.text
 
 
 def test_expone_runtime_sin_secretos(client: TestClient) -> None:

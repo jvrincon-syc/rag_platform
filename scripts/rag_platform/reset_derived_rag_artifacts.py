@@ -23,6 +23,9 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT / "scripts" / "rag_platform"))
 sys.path.insert(0, str(REPO_ROOT / "scripts" / "indexing"))
+# PR-0: inventory_baseline.py moved to scripts/archive/ (orphan-marked, but this
+# destructive-reset tool still reuses it) -- keep the import resolvable.
+sys.path.insert(0, str(REPO_ROOT / "scripts" / "archive"))
 
 from inventory_baseline import collect_inventory  # noqa: E402
 from prepare_postgres_indexing import build_dsn_from_env, load_env_file  # noqa: E402

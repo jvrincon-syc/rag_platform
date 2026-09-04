@@ -83,12 +83,15 @@ class InspectableWebhookDispatcher:
 
 
 def _authenticator() -> ConfiguredBearerAuth:
+    # G3: op-1 drives the low-level embedding/indexing HTTP mutations used to
+    # seed fixtures in this file; those routes now require an admin principal
+    # (require_admin_principal), so op-1 is granted is_admin here.
     return ConfiguredBearerAuth(
         {
             AUTH_CREDENTIALS_JSON_KEY: (
                 '[{"principal_id":"op-1","token":"'
                 + AUTH_TOKEN
-                + '"},'
+                + '","is_admin":true},'
                 + '{"principal_id":"proj-test","token":"'
                 + SCOPED_TOKEN
                 + '","project_scope":["proj_test"]},'

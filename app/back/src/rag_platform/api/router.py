@@ -14,8 +14,9 @@ La traducción de errores de dominio (``RagPlatformError``) al envelope HTTP es
 
 from __future__ import annotations
 
+import os
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, Form, Header, Query, UploadFile, status
@@ -24,8 +25,10 @@ from core.api.http import (
     DEFAULT_PAGE_SIZE,
     ErrorEnvelopeSchema,
     MAX_PAGE_SIZE,
+    RequestThrottle,
     http_error,
     paginate,
+    rate_limit_error,
 )
 from rag_platform.api.dependencies import (
     get_actor_provider,
@@ -100,12 +103,29 @@ router = APIRouter(
         404: {"model": ErrorEnvelopeSchema},
         409: {"model": ErrorEnvelopeSchema},
         422: {"model": ErrorEnvelopeSchema},
+        429: {"model": ErrorEnvelopeSchema},
         503: {"model": ErrorEnvelopeSchema},
     },
 )
 
 #: Header de idempotencia obligatorio en mutaciones de release.
 IdempotencyKey = Annotated[str, Header(alias="Idempotency-Key", min_length=1)]
+
+#: PR-6: per-actor sliding-window throttle for release builds (reuses the
+#: pattern of ``ingestion.gui.server.GuiRegisterThrottle``). A build enqueues a
+#: real embedding/indexing job; conservative default protects against an actor
+#: hammering the endpoint (idempotency already dedupes retries of the SAME
+#: intent, this bounds distinct intents over time).
+_BUILD_RATE_LIMIT_MAX_ATTEMPTS = int(
+    os.environ.get("RELEASE_BUILD_RATE_LIMIT_MAX_ATTEMPTS", "5")
+)
+_BUILD_RATE_LIMIT_WINDOW_SECONDS = int(
+    os.environ.get("RELEASE_BUILD_RATE_LIMIT_WINDOW_SECONDS", "3600")
+)
+_build_throttle = RequestThrottle(
+    max_attempts=_BUILD_RATE_LIMIT_MAX_ATTEMPTS,
+    window=timedelta(seconds=_BUILD_RATE_LIMIT_WINDOW_SECONDS),
+)
 
 
 def get_actor(
@@ -114,6 +134,17 @@ def get_actor(
     """Resuelve el ``PlatformActor`` de confianza (fail-closed si no hay actor)."""
 
     return provider.current_actor()
+
+
+def _rate_limit_release_build(actor: PlatformActor = Depends(get_actor)) -> None:
+    """PR-6: rechaza cuando ``actor`` excede el límite de builds de release."""
+
+    if not _build_throttle.allow(actor.actor_id):
+        raise rate_limit_error(
+            code="RELEASE_BUILD_RATE_LIMITED",
+            message="too many release build requests from this actor",
+            retry_after_seconds=_BUILD_RATE_LIMIT_WINDOW_SECONDS,
+        )
 
 
 def _parse_id(kind: IdentityKind, value: str) -> PlatformId:
@@ -659,6 +690,7 @@ def _run_idempotent(
 @router.post(
     "/releases/{rag_release_id}/build",
     response_model=ReleaseBuildAcceptedSchema,
+    dependencies=[Depends(_rate_limit_release_build)],
 )
 def build_release(
     rag_release_id: str,
@@ -739,6 +771,9 @@ def activate_release(
     # release-scoped que el chatbot consulta. Idempotente. Los errores de dominio
     # (RagReleaseNotActivatable / IncompatibleTargetBinding / PlatformAccessDenied) los
     # traduce el handler global al envelope HTTP.
+    # G2: con ``release_serving_only`` activo, esta ruta ya no forma parte del
+    # ciclo de vida público — responde 410 ``RELEASE_ACTIVATE_NOT_PUBLIC`` (ver
+    # ``NoOpActivateReleaseUseCase``); el chatbot sirve de PUBLISHED + memberships.
     return services.activate_release(
         _parse_id(IdentityKind.RAG_RELEASE, rag_release_id), actor
     )

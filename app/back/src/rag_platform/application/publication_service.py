@@ -27,9 +27,12 @@ from rag_platform.application.platform_access import (
     PlatformActor,
     require_project_operator,
 )
-from rag_platform.application.release_service import RagReleaseRepository
+from rag_platform.application.release_service import (
+    RagReleaseMembershipRepository,
+    RagReleaseRepository,
+)
 from rag_platform.application.context import PlatformAccessPolicy
-from rag_platform.domain.errors import ReleaseManifestFrozen
+from rag_platform.domain.errors import ReleaseManifestFrozen, ReleasePublishRequiresBuiltLane
 from rag_platform.domain.identity import PlatformId
 from rag_platform.domain.lifecycle import (
     RagRelease,
@@ -81,12 +84,14 @@ class PublishRagReleaseUseCase:
         self,
         *,
         releases: RagReleaseRepository,
+        memberships: RagReleaseMembershipRepository,
         access_policy: PlatformAccessPolicy,
         transactions: TransactionManager,
         logger: logging.Logger,
         jsonl_sink: JsonlEventSink | None = None,
     ) -> None:
         self._releases = releases
+        self._memberships = memberships
         self._access_policy = access_policy
         self._transactions = transactions
         self._logger = logger
@@ -99,6 +104,9 @@ class PublishRagReleaseUseCase:
             PlatformAccessDenied: Si el actor no puede operar el proyecto.
             ReleaseManifestFrozen: Si la release no tiene manifiesto congelado
                 (no fue validada); una DRAFT no se publica.
+            ReleasePublishRequiresBuiltLane: Si la release no tiene ninguna
+                ``rag_release_memberships`` — ningún build corrió (o corrió y
+                falló) para ella (PR-2 2.3, ADR-011).
             InvalidReleaseTransition: Si el estado actual no permite publicar.
         """
 
@@ -110,6 +118,13 @@ class PublishRagReleaseUseCase:
             # Fail-closed: publicar exige un manifiesto congelado en validación.
             raise ReleaseManifestFrozen(
                 f"release {rag_release_id.value} has no frozen manifest to publish"
+            )
+        if not self._memberships.list_for_release(rag_release_id):
+            # Fail-closed (PR-2 2.3): sin lane construida el chatbot solo lo
+            # descubriría al preguntar (CHATBOT_RELEASE_LANE_UNAVAILABLE); mejor
+            # rechazar publish ahora que dejar una release PUBLISHED inservible.
+            raise ReleasePublishRequiresBuiltLane(
+                f"release {rag_release_id.value} has no built rag_release_memberships"
             )
         ensure_transition_allowed(
             current=release.state, target=ReleaseState.PUBLISHED

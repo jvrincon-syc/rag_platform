@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+from datetime import timedelta
 import logging
+import os
 
 from fastapi import APIRouter, Depends, Query, Request, status
 
@@ -21,8 +23,10 @@ from core.api.http import (
     DEFAULT_PAGE_SIZE,
     MAX_PAGE_SIZE,
     ErrorEnvelopeSchema,
+    RequestThrottle,
     http_error,
     paginate,
+    rate_limit_error,
 )
 from core.feature_flags import FeatureFlags
 from core.logging.observability import EventStatus, ObservabilityDomain
@@ -46,9 +50,25 @@ router = APIRouter(
         404: {"model": ErrorEnvelopeSchema},
         409: {"model": ErrorEnvelopeSchema},
         422: {"model": ErrorEnvelopeSchema},
+        429: {"model": ErrorEnvelopeSchema},
         502: {"model": ErrorEnvelopeSchema},
         503: {"model": ErrorEnvelopeSchema},
     },
+)
+
+#: PR-6: per-actor sliding-window throttle for question dispatch (reuses the
+#: pattern of ``ingestion.gui.server.GuiRegisterThrottle``). A real question
+#: costs an embed + vector search + downstream webhook call, so this protects
+#: those from a runaway/misbehaving caller sharing one bearer token.
+_QUESTION_RATE_LIMIT_MAX_ATTEMPTS = int(
+    os.environ.get("CHATBOT_QUESTION_RATE_LIMIT_MAX_ATTEMPTS", "30")
+)
+_QUESTION_RATE_LIMIT_WINDOW_SECONDS = int(
+    os.environ.get("CHATBOT_QUESTION_RATE_LIMIT_WINDOW_SECONDS", "60")
+)
+_question_throttle = RequestThrottle(
+    max_attempts=_QUESTION_RATE_LIMIT_MAX_ATTEMPTS,
+    window=timedelta(seconds=_QUESTION_RATE_LIMIT_WINDOW_SECONDS),
 )
 
 
@@ -70,6 +90,17 @@ def get_actor(
     provider: TrustedPlatformActorProvider = Depends(get_actor_provider),
 ) -> PlatformActor:
     return provider.current_actor()
+
+
+def _rate_limit_question_dispatch(actor: PlatformActor = Depends(get_actor)) -> None:
+    """PR-6: reject once ``actor`` exceeds the question-dispatch rate limit."""
+
+    if not _question_throttle.allow(actor.actor_id):
+        raise rate_limit_error(
+            code="CHATBOT_QUESTION_RATE_LIMITED",
+            message="too many question dispatch requests from this actor",
+            retry_after_seconds=_QUESTION_RATE_LIMIT_WINDOW_SECONDS,
+        )
 
 
 def _parse_id(kind: IdentityKind, value: str) -> PlatformId:
@@ -143,7 +174,10 @@ def _emit_request_event(
     "/questions",
     status_code=status.HTTP_202_ACCEPTED,
     response_model=ChatbotQuestionDispatchResult,
-    dependencies=[Depends(require_chatbot_webhook_enabled)],
+    dependencies=[
+        Depends(require_chatbot_webhook_enabled),
+        Depends(_rate_limit_question_dispatch),
+    ],
 )
 def dispatch_question(
     request: Request,

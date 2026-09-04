@@ -1,13 +1,13 @@
-import { useState } from "react";
-import { DashboardApp } from "../dashboard/DashboardApp.js";
+import { ErrorBoundary } from "../../components/ui/ErrorBoundary.js";
 import { PlatformWorkspace } from "../platform/PlatformWorkspace.js";
 import { OperatorAuthWorkspace } from "./components/OperatorAuthWorkspace.js";
 import { OperatorSidebar } from "./components/OperatorSidebar.js";
-import type { OperatorSurface } from "./operatorNavigation.js";
 import { useOperatorSession } from "./useOperatorSession.js";
 
+// La superficie "legacy" global (DashboardApp) se retiró (PR-5 5.1): todo el
+// flujo vive en Platform. `OperatorSurface` sigue siendo un tipo separado de
+// `AppView` por si el rail vuelve a tener más de una entrada.
 export function OperatorApp() {
-  const [surface, setSurface] = useState<OperatorSurface>("platform");
   const operatorSession = useOperatorSession();
 
   if (operatorSession.state.status !== "authenticated") {
@@ -26,14 +26,15 @@ export function OperatorApp() {
   return (
     <div className="operator-shell">
       <OperatorSidebar
-        activeSurface={surface}
-        onSurfaceChange={setSurface}
+        activeSurface="platform"
         session={operatorSession.state.session}
         loggingOut={operatorSession.state.loggingOut}
         onLogout={() => void operatorSession.logout()}
       />
       <div className="operator-surface">
-        {surface === "legacy" ? <DashboardApp /> : <PlatformWorkspace />}
+        <ErrorBoundary>
+          <PlatformWorkspace />
+        </ErrorBoundary>
       </div>
     </div>
   );

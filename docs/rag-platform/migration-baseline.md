@@ -58,15 +58,17 @@ Las migraciones nuevas de plataforma (`20260810_01..03`) se ordenan tras
 
 ## Inventario PostgreSQL real
 
-Recolectado con `scripts/rag_platform/inventory_baseline.py` contra la base
-declarada (`rag_platform`, local). El script es de **solo lectura**, resuelve el
-DSN con `build_dsn_from_env` (`RAG_PLATFORM_POSTGRES_DSN`/`DATABASE_URL`, sin inventar
-credenciales) y no aplica ninguna migraciÃ³n. Regenerar y verificar:
+Recolectado con `scripts/archive/inventory_baseline.py` (movido desde
+`scripts/rag_platform/` en la limpieza PR-0; sigue tocando la base real, no se
+borró) contra la base declarada (`rag_platform`, local). El script es de
+**solo lectura**, resuelve el DSN con `build_dsn_from_env`
+(`RAG_PLATFORM_POSTGRES_DSN`/`DATABASE_URL`, sin inventar credenciales) y no
+aplica ninguna migraciÃ³n. Regenerar y verificar:
 
 ```bash
 export RAG_PLATFORM_POSTGRES_DSN="postgresql://postgres@localhost:5432/rag_platform"
-npm run python -- scripts/rag_platform/inventory_baseline.py          # Markdown
-npm run python -- scripts/rag_platform/inventory_baseline.py --json   # JSON completo (incluye not-null)
+npm run python -- scripts/archive/inventory_baseline.py          # Markdown
+npm run python -- scripts/archive/inventory_baseline.py --json   # JSON completo (incluye not-null)
 ```
 
 El *digest de contenido* es independiente del orden de filas: hashea cada fila

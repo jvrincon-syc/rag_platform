@@ -267,7 +267,6 @@ npm run test:indexing
 npm run test:retrieval
 npm run embedding:verify-profile -- --profile-id local-bge-m3-v1 --dry-run
 npm run indexing:prepare-postgres
-npm run indexing:run -- --dry-run
 npm run indexing:validate
 ```
 

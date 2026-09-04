@@ -30,6 +30,12 @@ class AuthenticatedPrincipal(StrictModel):
 
     principal_id: str = Field(min_length=1)
     project_scope: tuple[str, ...] | None = None
+    # G3: distingue un principal admin (puede disparar mutaciones low-level:
+    # embedding/indexing/retrieval runs|activations|rollbacks) de uno de solo
+    # lectura/consumo. Solo credenciales estáticas configuradas por operación
+    # (SST_HTTP_AUTH_CREDENTIALS_JSON) pueden serlo; las sesiones/credenciales
+    # locales de la GUI nunca lo son (fail-closed).
+    is_admin: bool = False
 
 
 class BearerCredential(StrictModel):
@@ -38,6 +44,7 @@ class BearerCredential(StrictModel):
     principal_id: str = Field(min_length=1)
     token: str = Field(min_length=1)
     project_scope: tuple[str, ...] | None = None
+    is_admin: bool = False
 
 
 class PersistedBearerCredential(StrictModel):
@@ -196,12 +203,14 @@ class ConfiguredBearerAuth:
                 return AuthenticatedPrincipal(
                     principal_id=credential.principal_id,
                     project_scope=credential.project_scope,
+                    is_admin=credential.is_admin,
                 )
         for credential in session_credentials:
             if secrets.compare_digest(credential.token, token):
                 return AuthenticatedPrincipal(
                     principal_id=credential.principal_id,
                     project_scope=credential.project_scope,
+                    is_admin=credential.is_admin,
                 )
         token_sha256 = _token_sha256(token)
         for credential in local_credentials:

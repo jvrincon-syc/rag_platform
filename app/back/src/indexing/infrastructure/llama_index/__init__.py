@@ -1,1 +1,0 @@
-"""LlamaIndex adapters for indexing."""

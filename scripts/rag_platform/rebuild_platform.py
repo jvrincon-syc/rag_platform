@@ -155,7 +155,7 @@ def main(argv: "list[str] | None" = None) -> int:
         return 2
     os.environ["RAG_PLATFORM_POSTGRES_DSN"] = dsn
     os.environ["SST_PERSISTENCE_MODE"] = "postgres"
-    # La lane de plataforma (incl. rag_platform_rebuild) se cablea tras este flag.
+    # La lane de plataforma (incl. rag_platform.rebuild_platform) se cablea tras este flag.
     os.environ["SST_FEATURE_RAG_PLATFORM_V1"] = "true"
 
     resolved = _resolve_context(
@@ -290,7 +290,7 @@ def main(argv: "list[str] | None" = None) -> int:
         chunks_root=chunks_root, embeddings_root=embeddings_root
     )
     try:
-        rebuild = services.rag_platform_rebuild
+        rebuild = services.rag_platform.rebuild_platform if services.rag_platform else None
         if rebuild is None:
             # La materialización sella en Postgres; sin conexión no aplica.
             summary["status"] = "blocked"

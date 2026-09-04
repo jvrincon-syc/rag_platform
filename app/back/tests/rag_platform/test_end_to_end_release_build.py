@@ -266,8 +266,8 @@ def test_release_build_persiste_rag_release_id(capsys) -> None:
         chunks_root=chunks_root, embeddings_root=embeddings_root
     )
     try:
-        assert services.rag_platform_build is not None, "build no cableado tras el flag"
-        report = services.rag_platform_build.execute(
+        assert services.rag_platform is not None, "rag_platform no cableado tras el flag"
+        report = services.rag_platform.build_release.execute(
             rag_release_id=release.rag_release_id, actor=PlatformActor(actor_id=_ACTOR)
         )
         assert report.revisions_built == len(_THREE_DOCS)

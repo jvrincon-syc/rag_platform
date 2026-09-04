@@ -15,6 +15,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
+from pathlib import Path
 from typing import Protocol, runtime_checkable
 
 from rag_platform.domain.identity import PlatformId, ProjectDocumentContext
@@ -289,6 +290,15 @@ class ProjectRawStorage(Protocol):
 
         Raises:
             UnsafeArtifactPath: Si ``source_relpath`` intenta escapar de la raíz.
+        """
+
+    def resolve_raw_root(self, project: RagProject) -> Path:
+        """Devuelve la raíz ``raw`` absoluta y catalog-driven del proyecto.
+
+        Solo lectura: no abre ni valida un archivo concreto. El llamador (router)
+        une esta raíz con un ``source_relpath`` ya autorizado y valida contención
+        antes de servir bytes, igual que ``write_raw_bytes`` valida antes de
+        escribir (PR-1 1.7 — citas project-aware).
         """
 
 

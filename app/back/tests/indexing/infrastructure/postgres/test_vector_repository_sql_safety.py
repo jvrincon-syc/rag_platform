@@ -7,7 +7,7 @@ from llama_index.core.schema import TextNode
 from psycopg2 import extensions, sql
 
 from indexing.domain.profiles import ResolvedIndexingProfile
-from indexing.infrastructure.llama_index.pgvector_store import VectorStoreWriteError
+from indexing.domain.errors import VectorStoreWriteError
 from indexing.infrastructure.postgres.vector_repository import (
     AppendOnlyVectorRecord,
     PostgresVectorRepository,

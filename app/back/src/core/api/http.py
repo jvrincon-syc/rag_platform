@@ -1,4 +1,4 @@
-"""Shared HTTP contract helpers: error envelope and page envelope.
+"""Shared HTTP contract helpers: error envelope, page envelope and rate limiting.
 
 The envelope shape is identical to the one Chunking already publishes, so the
 frontend can reuse a single error and pagination handler across every domain.
@@ -7,6 +7,8 @@ frontend can reuse a single error and pagination handler across every domain.
 from __future__ import annotations
 
 from collections.abc import Sequence
+from datetime import datetime, timedelta, timezone
+import threading
 from typing import TypeVar
 
 from fastapi import HTTPException
@@ -61,6 +63,55 @@ def http_error(
             )
         ).model_dump(),
         headers=headers,
+    )
+
+
+class RequestThrottle:
+    """In-memory per-client sliding-window throttle (PR-6 rate limiting).
+
+    Same sliding-window algorithm as ``ingestion.gui.server.GuiRegisterThrottle``
+    (own copy here rather than an import: that class lives in the raw
+    ``http.server`` GUI bridge, a different runtime than FastAPI, and pulling
+    ``ingestion.gui`` infra into a shared ``core.api`` helper would be a
+    stranger cross-module dependency than the ~15 duplicated lines of
+    bookkeeping). Process-local and best-effort by design: acceptable for a
+    single-process deployment; a multi-instance deployment needs a shared
+    store (Redis) instead — out of scope for this MVP-cleanup pass.
+    """
+
+    def __init__(self, *, max_attempts: int, window: timedelta) -> None:
+        self._max_attempts = max_attempts
+        self._window = window
+        self._attempts: dict[str, list[datetime]] = {}
+        self._lock = threading.Lock()
+
+    def allow(self, client_key: str, *, now: datetime | None = None) -> bool:
+        """Record one attempt for ``client_key``; ``False`` once the window is full."""
+
+        now = now or datetime.now(timezone.utc)
+        cutoff = now - self._window
+        with self._lock:
+            recent = [
+                attempted_at
+                for attempted_at in self._attempts.get(client_key, [])
+                if attempted_at > cutoff
+            ]
+            if len(recent) >= self._max_attempts:
+                self._attempts[client_key] = recent
+                return False
+            recent.append(now)
+            self._attempts[client_key] = recent
+            return True
+
+
+def rate_limit_error(*, code: str, message: str, retry_after_seconds: int) -> HTTPException:
+    """Build the shared-envelope 429 raised when a ``RequestThrottle`` rejects a request."""
+
+    return http_error(
+        status_code=429,
+        code=code,
+        message=message,
+        headers={"Retry-After": str(retry_after_seconds)},
     )
 
 

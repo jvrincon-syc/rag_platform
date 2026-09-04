@@ -162,6 +162,9 @@ def build_nodes(
                     "char_start": parent.source_span.char_start,
                     "char_end": parent.source_span.char_end,
                     "corpus_version": content.corpus_version,
+                    # G1: revisión exacta del documento fuente, para citas
+                    # project-aware (chatbot/domain/models.py::_build_source_url).
+                    "source_document_revision_id": content.source_document_revision_id,
                 },
                 chunking_version=chunking_version,
                 processing_fingerprint=chunking_bundle_fingerprint,
@@ -201,6 +204,9 @@ def build_nodes(
                     "char_end": child.source_span.char_end,
                     "token_count": child.token_count,
                     "corpus_version": content.corpus_version,
+                    # G1: revisión exacta del documento fuente, para citas
+                    # project-aware (chatbot/domain/models.py::_build_source_url).
+                    "source_document_revision_id": content.source_document_revision_id,
                 },
                 chunking_version=chunking_version,
                 processing_fingerprint=chunking_bundle_fingerprint,

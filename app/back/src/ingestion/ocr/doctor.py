@@ -39,9 +39,9 @@ def check_ocr_environment(
 ) -> OcrDoctorReport:
     ocrmypdf_enabled = _env_flag("OCR_ENABLE_OCRMYPDF", default=False)
     resolved_ocrmypdf = ocrmypdf_cmd or _env_value("OCRMYPDF_CMD", "ocrmypdf")
-    resolved_tesseract = tesseract_cmd or r"C:\Users\jvrincon\AppData\Local\Programs\Tesseract-OCR\tesseract.exe"
+    resolved_tesseract = tesseract_cmd or _env_value("TESSERACT_CMD", "tesseract")
     resolved_ghostscript = ghostscript_cmd or _env_value("GHOSTSCRIPT_CMD", "gs")
-    resolved_language = language or "spa"
+    resolved_language = language or _env_value("TESSERACT_LANGUAGE", "spa")
     module_available = module_available or _module_available
     issues: List[str] = []
 

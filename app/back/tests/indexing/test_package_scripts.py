@@ -10,9 +10,12 @@ ROOT = Path(__file__).resolve().parents[4]
 def test_package_json_declares_indexing_scripts() -> None:
     package = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))
 
-    assert package["scripts"]["indexing:run"] == (
-        "npm run python -- scripts/indexing/run_indexing.py"
-    )
+    # PR-7 7.2: "indexing:run" (scripts/indexing/run_indexing.py) retired along
+    # with the legacy IndexDocumentUseCase/LlamaIndexingPort write lane it drove
+    # -- bundle-first indexing runs via POST /api/indexing/runs or a Release
+    # build, never a standalone CLI. Asserting its *absence* keeps this test
+    # from silently going stale if someone reintroduces a dead script pointer.
+    assert "indexing:run" not in package["scripts"]
     assert package["scripts"]["indexing:validate"] == (
         "npm run python -- scripts/indexing/validate_index.py"
     )

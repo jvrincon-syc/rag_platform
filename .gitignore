@@ -187,6 +187,13 @@ schema2_candidate_*/
 task6_*/
 task8_*/
 graphify-out/
+
+# PR-0 hygiene: generated/operational artifacts, never source.
+app/front/.tmp-tests/
+.playwright-cli/
+app/front/.playwright-cli/
+app/front/pnpm-lock.yaml
+scripts/*.log
 app/back/src/graphify-out/
 
 # Ad-hoc browser probes and captures

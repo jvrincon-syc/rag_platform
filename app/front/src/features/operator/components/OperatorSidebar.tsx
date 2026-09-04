@@ -1,24 +1,18 @@
-import { History, Layers, LayoutGrid, Loader2, LogOut } from "lucide-react";
-import {
-  OPERATOR_SURFACES,
-  type OperatorSurface,
-} from "../operatorNavigation.js";
+import { Layers, LayoutGrid, Loader2, LogOut } from "lucide-react";
+import { OPERATOR_SURFACES, type OperatorSurface } from "../operatorNavigation.js";
 import type { AuthenticatedOperatorSession } from "../operatorAuthApi.js";
 
 const SURFACE_ICONS: Record<OperatorSurface, typeof LayoutGrid> = {
   platform: LayoutGrid,
-  legacy: History,
 };
 
 export function OperatorSidebar({
   activeSurface,
-  onSurfaceChange,
   session,
   loggingOut,
   onLogout,
 }: {
   activeSurface: OperatorSurface;
-  onSurfaceChange: (surface: OperatorSurface) => void;
   session: AuthenticatedOperatorSession;
   loggingOut: boolean;
   onLogout: () => void;
@@ -34,16 +28,14 @@ export function OperatorSidebar({
           const Icon = SURFACE_ICONS[item.surface];
           const active = activeSurface === item.surface;
           return (
-            <button
+            <span
               aria-current={active ? "page" : undefined}
               className={active ? "nav-item active" : "nav-item"}
               key={item.surface}
-              onClick={() => onSurfaceChange(item.surface)}
-              type="button"
             >
               <Icon size={18} />
               <span>{item.label}</span>
-            </button>
+            </span>
           );
         })}
       </nav>

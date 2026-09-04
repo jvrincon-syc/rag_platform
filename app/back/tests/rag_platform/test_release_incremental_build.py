@@ -289,6 +289,36 @@ def test_build_falla_en_revision_2_conserva_la_revision_1_durable() -> None:
     assert len(memberships.list_for_release(release_id)) == 1
 
 
+def test_build_fallido_deja_release_en_draft() -> None:
+    """ADR-012 (PR-2 2.4): no existe ``ReleaseState.FAILED``; un build que no
+    completa deja la release en ``DRAFT``, nunca a medias en un estado zombie.
+    ``BuildRagReleaseUseCase`` nunca llama ``releases.update_state(...)`` — el
+    fallo vive únicamente en el ledger de build (y, en el flujo async real, en
+    ``ReleaseBuildJob.error_code``, PR-1 1.6) — así que esto es una propiedad
+    estructural, no un caso especial que el caso de uso deba manejar.
+    """
+
+    release_id = PlatformId(IdentityKind.RAG_RELEASE, "ragr_failed_stays_draft")
+    releases = InMemoryRagReleaseRepository()
+    releases.add(_release(release_id, _SNAPSHOT))
+    use_case = BuildRagReleaseUseCase(
+        releases=releases,
+        variants=InMemoryRagVariantReader((_variant(),)),
+        snapshots=InMemoryCorpusSnapshotReader((_snapshot(_SNAPSHOT, count=2),)),
+        resolver=_FailOnSecondResolver(InMemoryRevisionArtifactResolver()),
+        memberships=InMemoryRagReleaseMembershipRepository(),
+        ledger=InMemoryRagBuildRunRepository(),
+        bindings=_StaticBindingResolver(),
+        access_policy=AllowAllAccessPolicy(),
+        transactions=NullTransactionManager(),
+    )
+
+    with pytest.raises(RuntimeError):
+        use_case.execute(rag_release_id=release_id, actor=PlatformActor(actor_id="op-1"))
+
+    assert releases.get(release_id).state is ReleaseState.DRAFT
+
+
 def test_build_crea_una_membresia_por_revision_y_audita_cada_etapa() -> None:
     release_id = PlatformId(IdentityKind.RAG_RELEASE, "ragr_r1")
     snapshot = _snapshot(_SNAPSHOT, count=2)

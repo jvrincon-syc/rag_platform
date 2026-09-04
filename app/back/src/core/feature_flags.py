@@ -28,6 +28,17 @@ class FeatureFlags(StrictModel):
     # bundle-first flags: enabling it exposes the platform catalog/publication
     # services but never changes the lane used by retrieval.
     rag_platform_v1: bool = False
+    # PR-2 2.1: locks in PUBLISHED + rag_release_memberships as the only serving
+    # authority for release-scoped chatbot search (already the observable
+    # behavior of ``ReleaseScopedRetrievalPort`` — neither the in-memory nor the
+    # Postgres adapter reads the legacy ``is_active`` vector flag or
+    # ``activation_status``; see
+    # ``test_release_search_no_depende_de_is_active``). Off by default: this flag
+    # does not yet change any code path (PR-2 2.2-2.4 wire the remaining
+    # behavior — removing ``/activate`` from the public lifecycle, fail-closed
+    # ``publish``, and the ``ReleaseState.FAILED`` decision); it exists now so
+    # those changes can land behind it and be reverted independently.
+    release_serving_only: bool = False
 
     @classmethod
     def from_env(cls, environ: Mapping[str, str] | None = None) -> "FeatureFlags":
@@ -59,6 +70,11 @@ class FeatureFlags(StrictModel):
                 env,
                 "SST_FEATURE_RAG_PLATFORM_V1",
                 default=cls.model_fields["rag_platform_v1"].default,
+            ),
+            release_serving_only=_flag(
+                env,
+                "SST_FEATURE_RELEASE_SERVING_ONLY",
+                default=cls.model_fields["release_serving_only"].default,
             ),
         )
 

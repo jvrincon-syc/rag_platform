@@ -148,7 +148,6 @@ def test_transiciones_validas() -> None:
         (ReleaseState.DRAFT, ReleaseState.PUBLISHED),  # no salta validación
         (ReleaseState.PUBLISHED, ReleaseState.DRAFT),  # no retrocede
         (ReleaseState.RETIRED, ReleaseState.PUBLISHED),  # terminal
-        (ReleaseState.FAILED, ReleaseState.VALIDATED),  # terminal
     ],
 )
 def test_transiciones_invalidas(current, target) -> None:

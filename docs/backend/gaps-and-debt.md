@@ -30,10 +30,11 @@ actual.
     flujo: coordinación de corrida, reglas por documento y persistencia de
     salidas/manifests. El resultado es que la Fase 1 es auditable, pero no
     especialmente modular para evolucionar.
-  - Hay deuda visible y concreta: `_run_pipeline_legacy` conserva una copia
-    muerta del flujo antiguo detrás de un `raise RuntimeError("legacy pipeline helper removed")`.
-    Ese bloque no se ejecuta, pero sí aumenta el costo de lectura y confunde qué
-    parte del archivo es autoridad real hoy.
+  - ~~Deuda~~ Resuelta (PR-7 7.3, 2026-09-04): `_run_pipeline_legacy` era un wrapper
+    puro (`return run_pipeline(...)`, sin lógica propia) que esta nota ya describía
+    de forma desactualizada (nunca hizo `raise RuntimeError`). Eliminado junto con
+    su test dedicado (`test_legacy_pipeline_helper_delegates_to_current_run_pipeline`);
+    `run_pipeline` es la única entrada.
   - Riesgo operativo: cualquier ajuste de thresholds, warnings materiales,
     clasificación, promotion gate o formato de manifests tiene radio de impacto
     amplio porque ocurre dentro del mismo entrypoint.
@@ -105,7 +106,15 @@ actual.
 
 ### CLIs y orquestación durable
 
-- [run_indexing.py](../../scripts/indexing/run_indexing.py)
+> **Resuelto (PR-7, 2026-09-04)**: `run_indexing.py` y la lane que orquestaba
+> (`IndexDocumentUseCase`, `LlamaIndexingPort`, `PostgresNodeRepository`,
+> `EmbeddingProfileOrchestrator`, `indexing/infrastructure/llama_index/*`)
+> fueron eliminados junto con sus tests exclusivos — superados enteramente por
+> bundle-first (`POST /api/indexing/runs`, admin-gated tras G3, o un RAG
+> Release build). El diagnóstico de abajo describe deuda que ya no existe;
+> se conserva como registro de por qué se eliminó, no como estado vigente.
+
+- [run_indexing.py](../../scripts/indexing/run_indexing.py) (eliminado, ver nota arriba)
   mezcla parsing CLI, guards productivos, construcción de componentes
   PostgreSQL, emisión de eventos, filtrado de elegibilidad y el loop de
   indexación.

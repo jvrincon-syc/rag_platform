@@ -29,6 +29,9 @@ from rag_platform.application.corpus_snapshot_query_service import (
 from rag_platform.application.document_query_service import (
     ListProjectDocumentsUseCase,
 )
+from rag_platform.application.document_raw_location_service import (
+    GetProjectDocumentRevisionRawLocationUseCase,
+)
 from rag_platform.application.project_normalization_service import (
     NormalizeProjectDocumentsUseCase,
 )
@@ -111,6 +114,9 @@ class RagPlatformServices:
     normalize_project_documents: NormalizeProjectDocumentsUseCase
     # Decisión operacional de revisión, independiente de snapshot — Task 3 (parity plan)
     submit_revision_review_decision: SubmitRevisionReviewDecisionUseCase
+    # Citas project-aware (PR-1 1.7): resuelve la ubicación física del raw de una
+    # revisión, autorizado por proyecto. Reemplaza la raíz global sin project_id.
+    get_document_revision_raw_location: GetProjectDocumentRevisionRawLocationUseCase
 
     # Corpus snapshot — Task 4
     create_corpus_snapshot: CreateCorpusSnapshotUseCase

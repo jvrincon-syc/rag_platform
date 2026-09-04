@@ -80,9 +80,11 @@ function messageFromError(error: unknown): string {
 }
 
 export function useRagReleaseWorkspace() {
-  // scope = null: solo lee la selección de proyecto vigente y persiste la release
-  // elegida (D6: solo IDs de navegación).
-  const { preferences, projectId, setSelectedRagRelease } = usePlatformProjectContext();
+  // Lee la selección de proyecto vigente, persiste la release elegida (D6: solo
+  // IDs de navegación) y reporta al provider los IDs vivos de variante/snapshot/
+  // release de este proyecto para que reconcilie el scope (D9, PR-4 4.3).
+  const { preferences, projectId, setSelectedRagRelease, reportProjectArtifacts } =
+    usePlatformProjectContext();
   const selectedReleaseId = preferences.selectedRagReleaseId;
   const preferredVariantId = preferences.selectedRagVariantId;
   const preferredSnapshotId = preferences.selectedCorpusSnapshotId;
@@ -193,18 +195,26 @@ export function useRagReleaseWorkspace() {
       if (signal.aborted) {
         return;
       }
+      const releases = Array.isArray(allReleases) ? allReleases : [];
+      const variants = Array.isArray(allVariants) ? allVariants : [];
+      const snapshots = Array.isArray(allSnapshots) ? allSnapshots : [];
       setLoad({
         status: "ready",
         data: {
-          releases: Array.isArray(allReleases) ? allReleases : [],
-          variants: Array.isArray(allVariants) ? allVariants : [],
-          snapshots: Array.isArray(allSnapshots) ? allSnapshots : [],
+          releases,
+          variants,
+          snapshots,
           // `target_binding_key` es una clave LÓGICA; nunca el `indexing_target_id`
           // físico. Se leen de la configuración versionada (read-only).
           bindingKeys: Array.isArray(configuration.target_bindings)
             ? configuration.target_bindings.map((binding) => binding.binding_key)
             : [],
         },
+      });
+      reportProjectArtifacts(pid, {
+        variantIds: variants.map((variant) => variant.rag_variant_id),
+        corpusSnapshotIds: snapshots.map((snapshot) => snapshot.corpus_snapshot_id),
+        releaseIds: releases.map((release) => release.rag_release_id),
       });
     } catch (error) {
       if (signal.aborted) {
@@ -214,7 +224,7 @@ export function useRagReleaseWorkspace() {
       setLoad({ status: "error", message });
       setNotice({ tone: "danger", message });
     }
-  }, []);
+  }, [reportProjectArtifacts]);
 
   const runLoad = useCallback(
     (pid: string) => {
@@ -252,7 +262,10 @@ export function useRagReleaseWorkspace() {
   const data = load.status === "ready" ? load.data : null;
 
   // Siembra las selecciones del draft cuando llegan los datos: preferencia de
-  // navegación si sigue siendo válida, si no el primer elemento disponible.
+  // navegación si sigue siendo válida; si no, solo se auto-elige cuando hay
+  // EXACTAMENTE una opción disponible (mismo criterio fail-closed que el resto
+  // del resolutor de receta: 0 o varias nunca adivinan un elemento arbitrario,
+  // PR-4 4.4 -- antes tomaba siempre `items[0]` aunque hubiera varias).
   useEffect(() => {
     if (!data) {
       return;
@@ -262,20 +275,22 @@ export function useRagReleaseWorkspace() {
         return current;
       }
       const preferred = data.variants.find((v) => v.rag_variant_id === preferredVariantId);
-      return preferred?.rag_variant_id ?? data.variants[0]?.rag_variant_id ?? null;
+      if (preferred) return preferred.rag_variant_id;
+      return data.variants.length === 1 ? data.variants[0]!.rag_variant_id : null;
     });
     setDraftSnapshotId((current) => {
       if (current && data.snapshots.some((s) => s.corpus_snapshot_id === current)) {
         return current;
       }
       const preferred = data.snapshots.find((s) => s.corpus_snapshot_id === preferredSnapshotId);
-      return preferred?.corpus_snapshot_id ?? data.snapshots[0]?.corpus_snapshot_id ?? null;
+      if (preferred) return preferred.corpus_snapshot_id;
+      return data.snapshots.length === 1 ? data.snapshots[0]!.corpus_snapshot_id : null;
     });
     setDraftBindingKey((current) => {
       if (current && data.bindingKeys.includes(current)) {
         return current;
       }
-      return data.bindingKeys[0] ?? null;
+      return data.bindingKeys.length === 1 ? data.bindingKeys[0]! : null;
     });
   }, [data, preferredVariantId, preferredSnapshotId]);
 

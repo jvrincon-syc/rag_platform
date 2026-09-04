@@ -57,3 +57,17 @@ class PgvectorUnavailable(IndexingDomainError):
 
     code = "PGVECTOR_UNAVAILABLE"
     http_status = 503
+
+
+class VectorStoreWriteError(RuntimeError):
+    """Vector store write failed and should trigger rollback.
+
+    PR-7 7.1: moved from ``infrastructure/llama_index/pgvector_store.py`` (the
+    legacy write lane being retired) since productive bundle-first modules
+    (postgres vector repository, profile registry, in-memory bundle_first)
+    import it too — it never belonged to the legacy package, it just lived
+    there historically. Kept as a plain ``RuntimeError`` (not an
+    ``IndexingDomainError``): no caller translates it to an HTTP code, it
+    signals a write failure that must trigger a rollback in the caller's own
+    transaction scope.
+    """

@@ -29,10 +29,12 @@ from rag_platform.domain.errors import (
     InvalidReleaseTransition,
     PlatformAccessDenied,
     ReleaseManifestFrozen,
+    ReleasePublishRequiresBuiltLane,
 )
 from rag_platform.domain.identity import IdentityKind, PlatformId
-from rag_platform.domain.lifecycle import RagRelease, ReleaseState
+from rag_platform.domain.lifecycle import RagRelease, RagReleaseMembership, ReleaseState
 from rag_platform.infrastructure.in_memory.release_repositories import (
+    InMemoryRagReleaseMembershipRepository,
     InMemoryRagReleaseRepository,
 )
 
@@ -86,11 +88,30 @@ def _release(*, state: ReleaseState, manifest: str | None) -> RagRelease:
     )
 
 
-def _use_case(release: RagRelease, *, policy=None):
+def _membership() -> RagReleaseMembership:
+    return RagReleaseMembership(
+        rag_release_id=_RELEASE,
+        project_id=_PROJECT,
+        ordinal=0,
+        source_document_revision_id=PlatformId(
+            IdentityKind.SOURCE_DOCUMENT_REVISION, "srev_001"
+        ),
+        normalized_document_id="norm_0",
+        chunk_bundle_id="chunk_0",
+        embedding_bundle_id="emb_0",
+        materialization_id="mat_0",
+    )
+
+
+def _use_case(release: RagRelease, *, policy=None, built: bool = True):
     releases = InMemoryRagReleaseRepository()
     releases.add(release)
+    memberships = InMemoryRagReleaseMembershipRepository()
+    if built:
+        memberships.add(_membership())
     use_case = PublishRagReleaseUseCase(
         releases=releases,
+        memberships=memberships,
         access_policy=policy or _AllowAll(),
         transactions=_NullTx(),
         logger=logging.getLogger("test.publication"),
@@ -116,9 +137,12 @@ def test_publish_posee_una_sola_frontera_transaccional() -> None:
     # envuelve (sin anidamiento de transacciones sobre la misma conexión).
     releases = InMemoryRagReleaseRepository()
     releases.add(_release(state=ReleaseState.VALIDATED, manifest="a" * 64))
+    memberships = InMemoryRagReleaseMembershipRepository()
+    memberships.add(_membership())
     counting = _CountingTx()
     PublishRagReleaseUseCase(
         releases=releases,
+        memberships=memberships,
         access_policy=_AllowAll(),
         transactions=counting,
         logger=logging.getLogger("test.publication"),
@@ -131,6 +155,25 @@ def test_no_publica_draft_sin_manifiesto() -> None:
 
     with pytest.raises(ReleaseManifestFrozen):
         use_case.execute(rag_release_id=_RELEASE, actor=PlatformActor(actor_id="op-1"))
+
+
+def test_publish_falla_si_lane_no_construida() -> None:
+    """PR-2 2.3: publicar sin ``rag_release_memberships`` falla cerrado.
+
+    Sin esto, una release ``VALIDATED`` (manifiesto congelado, pero eso solo
+    exige que el corpus snapshot esté completo -- no que el build haya corrido)
+    podía llegar a ``PUBLISHED`` sin ninguna lane servible; el chatbot recién lo
+    descubría al preguntar (``CHATBOT_RELEASE_LANE_UNAVAILABLE``).
+    """
+
+    use_case, releases = _use_case(
+        _release(state=ReleaseState.VALIDATED, manifest="a" * 64), built=False
+    )
+
+    with pytest.raises(ReleasePublishRequiresBuiltLane):
+        use_case.execute(rag_release_id=_RELEASE, actor=PlatformActor(actor_id="op-1"))
+    # Fail-closed: el estado no avanza a PUBLISHED.
+    assert releases.get(_RELEASE).state is ReleaseState.VALIDATED
 
 
 def test_no_publica_desde_estado_no_validado() -> None:

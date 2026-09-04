@@ -66,6 +66,24 @@ test("dependiente obsoleto se limpia sin tocar los válidos", () => {
   assert.equal(resolved.selectedRagReleaseId, "ragr_1");
 });
 
+test("sub-scope undefined (artefacto aun no reportado) preserva la seleccion persistida", () => {
+  const resolved = resolvePlatformPreferences({
+    stored: STORED,
+    scope: { projectIds: FULL_SCOPE.projectIds },
+  });
+  assert.deepEqual(resolved, STORED);
+});
+
+test("sub-scope undefined no impide podar los otros sub-scopes ya conocidos", () => {
+  const resolved = resolvePlatformPreferences({
+    stored: STORED,
+    scope: { projectIds: FULL_SCOPE.projectIds, variantIds: [] },
+  });
+  assert.equal(resolved.selectedRagVariantId, null);
+  assert.equal(resolved.selectedCorpusSnapshotId, "corp_1");
+  assert.equal(resolved.selectedRagReleaseId, "ragr_1");
+});
+
 test("platformPreferencesEqual compara los 4 IDs", () => {
   assert.equal(platformPreferencesEqual(STORED, { ...STORED }), true);
   assert.equal(

@@ -2,9 +2,11 @@ import { useState } from "react";
 import { Bot, Hammer, Loader2, Rocket, ShieldCheck, XOctagon } from "lucide-react";
 import type { Release } from "../platformTypes.js";
 
-// Máquina de estados EXACTA (ReleaseState): draft → validated → published → retired,
-// con `failed` como terminal de fallo. El riel muestra el orden REAL (no decorativo)
-// y solo se ofrecen las transiciones válidas para el estado actual. El backend es la
+// Máquina de estados EXACTA (ReleaseState): draft → validated → published → retired
+// (ADR-012: `failed` se retiró del dominio de la release; un build fallido vive en
+// el `ReleaseBuildJob`, ver `BuildReport`/`useRagReleaseWorkspace`, nunca en el
+// estado de la release). El riel muestra el orden REAL (no decorativo) y solo se
+// ofrecen las transiciones válidas para el estado actual. El backend es la
 // autoridad: aquí nunca se muestra una acción que el estado no permite.
 const RAIL: readonly string[] = ["draft", "validated", "published", "retired"];
 
@@ -36,7 +38,6 @@ export function ReleaseLifecycle({
 
   const state = release.state;
   const currentIndex = RAIL.indexOf(state);
-  const isFailed = state === "failed";
 
   return (
     <div className="release-lifecycle">
@@ -107,13 +108,6 @@ export function ReleaseLifecycle({
         })}
       </ol>
 
-      {isFailed ? (
-        <p className="release-terminal" role="status">
-          <XOctagon size={16} aria-hidden="true" />
-          Esta release falló ({state}). Es un estado terminal: no admite más transiciones.
-        </p>
-      ) : null}
-
       <ReleaseActions
         state={state}
         busyAction={busyAction}
@@ -132,9 +126,6 @@ function toneForReleaseState(state: string): "neutral" | "warning" | "success" |
   }
   if (state === "published") {
     return "success";
-  }
-  if (state === "failed") {
-    return "danger";
   }
   return "neutral";
 }
@@ -198,7 +189,7 @@ function ReleaseActions({
     return <RetireControl busyAction={busyAction} onRetire={onRetire} />;
   }
 
-  // retired / failed / desconocido: estado terminal, sin acciones.
+  // retired / desconocido: estado terminal, sin acciones.
   return (
     <p className="ui-hint" role="note">
       Estado terminal: no hay más transiciones disponibles.

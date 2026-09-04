@@ -167,6 +167,11 @@ class FilesystemProjectRawStorage:
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_bytes(content)
 
+    def resolve_raw_root(self, project: RagProject) -> Path:
+        """Devuelve la raíz ``raw`` declarada del proyecto (misma autoridad que el upload)."""
+
+        return self._resolver.resolve_declared_root(project, "raw")
+
 
 class LegacySstReadAdapter:
     """Vista de **lectura** de rutas legacy para ``sst-general`` (bootstrap).

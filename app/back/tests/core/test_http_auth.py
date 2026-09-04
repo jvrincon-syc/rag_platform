@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 
-from core.http_auth import ConfiguredBearerAuth
+from core.http_auth import AUTH_CREDENTIALS_JSON_KEY, ConfiguredBearerAuth
 
 
 def test_register_principal_persists_salted_digest_and_authenticates_after_restart(
@@ -58,3 +58,33 @@ def test_authenticate_accepts_legacy_unsalted_registry_for_backward_compatibilit
 
     assert principal.principal_id == "legacy-op"
     assert principal.project_scope is None
+
+
+def test_is_admin_solo_lo_otorga_una_credencial_estatica_configurada(tmp_path) -> None:
+    """G3: solo credenciales estáticas (SST_HTTP_AUTH_CREDENTIALS_JSON) pueden
+
+    ser admin; una credencial GUI registrada/local nunca lo es, aunque
+    comparta el mismo registro (fail-closed por defecto).
+    """
+
+    registry_path = tmp_path / "gui_auth_registry.json"
+    authenticator = ConfiguredBearerAuth(
+        {
+            AUTH_CREDENTIALS_JSON_KEY: json.dumps(
+                [
+                    {"principal_id": "admin-op", "token": "admin-token", "is_admin": True},
+                    {"principal_id": "plain-op", "token": "plain-token"},
+                ]
+            )
+        },
+        local_registry_path=registry_path,
+    )
+    gui_credential = authenticator.register_principal(principal_id="gui-op", project_scope=None)
+
+    admin_principal = authenticator.authenticate("Bearer admin-token")
+    plain_principal = authenticator.authenticate("Bearer plain-token")
+    gui_principal = authenticator.authenticate(f"Bearer {gui_credential.token}")
+
+    assert admin_principal.is_admin is True
+    assert plain_principal.is_admin is False
+    assert gui_principal.is_admin is False

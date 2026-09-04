@@ -7,7 +7,7 @@ from psycopg2 import extensions, sql as pg_sql
 
 from indexing.domain.bundle_first import IndexingTarget
 from indexing.domain.profiles import ResolvedIndexingProfile
-from indexing.infrastructure.llama_index.pgvector_store import VectorStoreWriteError
+from indexing.domain.errors import VectorStoreWriteError
 from indexing.infrastructure.postgres.settings import PostgresIndexingSettings
 from indexing.infrastructure.postgres.sql import create_vector_table_sql
 

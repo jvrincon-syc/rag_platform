@@ -14,8 +14,10 @@ offline.
 from __future__ import annotations
 
 import difflib
+import os
 import re
 import unicodedata
+from collections import OrderedDict
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -133,6 +135,82 @@ class FaqResolver:
             if best is None or score > best[0]:
                 best = (score, index)
         return best
+
+
+_PROJECT_ID_PREFIX = "proj_"
+
+
+def _project_slug(project_id: str) -> str:
+    """``proj_<slug>`` -> ``<slug>`` (matches ``ProjectStorageResolver``'s convention)."""
+
+    return project_id[len(_PROJECT_ID_PREFIX) :] if project_id.startswith(_PROJECT_ID_PREFIX) else project_id
+
+
+def _project_faq_path(data_root: Path, project_id: str) -> Path:
+    """Return the project-scoped FAQ path — no glob, no ``matches[0]`` (PR-3 3.1).
+
+    Before, ``sorted(data_root.glob("projects/*/faq/sst-faq-80.md"))[0]`` picked
+    the alphabetically-first project's FAQ file for *every* project's question —
+    a multi-project process could answer project A from project B's curated Q&A.
+    This resolves the exact path for ``project_id`` and nothing else.
+    """
+
+    return data_root / "projects" / _project_slug(project_id) / "faq" / "sst-faq-80.md"
+
+
+class FaqResolverRegistry:
+    """One ``FaqResolver`` per project; lazily loaded, LRU-bounded (PR-3 3.2).
+
+    Replaces the single global resolver that a multi-project process shared
+    across every project (the cross-project leak 3.1 fixes at the path level).
+    A missing/invalid FAQ file for a project just disables the shortcut for that
+    project — it never blocks another project's shortcut nor raises.
+
+    ``FAQ_PATH`` (explicit operator override) is intentionally global: if an
+    operator points every project at one curated file, every project shares it
+    on purpose — that is a deliberate, explicit configuration, not the silent
+    ``glob()[0]`` collision this class exists to remove.
+    """
+
+    def __init__(
+        self,
+        *,
+        data_root: Path,
+        threshold: float = 0.85,
+        max_projects: int = 64,
+    ) -> None:
+        self._data_root = Path(data_root)
+        self._threshold = threshold
+        self._max_projects = max_projects
+        self._cache: "OrderedDict[str, FaqResolver | None]" = OrderedDict()
+        explicit = os.environ.get("FAQ_PATH", "").strip()
+        self._explicit_override = Path(explicit) if explicit else None
+
+    def resolver_for(self, project_id: str) -> FaqResolver | None:
+        """Return the cached (or freshly loaded) resolver for ``project_id``."""
+
+        if project_id in self._cache:
+            self._cache.move_to_end(project_id)
+            return self._cache[project_id]
+        resolver = self._load(project_id)
+        self._cache[project_id] = resolver
+        self._cache.move_to_end(project_id)
+        if len(self._cache) > self._max_projects:
+            self._cache.popitem(last=False)
+        return resolver
+
+    def _load(self, project_id: str) -> FaqResolver | None:
+        path = (
+            self._explicit_override
+            if self._explicit_override is not None
+            else _project_faq_path(self._data_root, project_id)
+        )
+        if not path.exists():
+            return None
+        try:
+            return FaqResolver.from_file(path, threshold=self._threshold)
+        except Exception:  # noqa: BLE001 - the FAQ shortcut is a best-effort optimization
+            return None
 
 
 if __name__ == "__main__":

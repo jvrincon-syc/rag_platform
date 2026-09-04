@@ -66,9 +66,7 @@ def test_flag_off_no_cablea_plataforma_y_deja_legacy_intacto(tmp_path: Path) -> 
         feature_flags=FeatureFlags(rag_platform_v1=False),
     )
     try:
-        assert services.rag_platform_build is None
-        assert services.rag_platform_publish is None
-        assert services.rag_platform_rebuild is None
+        assert services.rag_platform is None
         # La superficie legacy de retrieval sigue construida.
         assert services.retrieval_search is not None
         assert services.indexing_activate is not None
@@ -84,16 +82,16 @@ def test_flag_on_cablea_plataforma_sin_tocar_retrieval(tmp_path: Path) -> None:
         feature_flags=FeatureFlags(rag_platform_v1=True),
     )
     try:
-        assert services.rag_platform_build is not None
-        assert services.rag_platform_publish is not None
+        assert services.rag_platform is not None
+        assert services.rag_platform.build_release is not None
+        assert services.rag_platform.publish_release is not None
         # rebuild sella en Postgres: en modo memoria (sin conexión) queda None por
         # diseño; su wiring con conexión se cubre en test_wire_rag_platform_rebuild.
-        assert services.rag_platform_rebuild is None
+        assert services.rag_platform.rebuild_platform is None
         # El wiring legacy de retrieval no cambia al habilitar la plataforma.
         assert services.retrieval_search is not None
         assert services.indexing_activate is not None
         # Superficie tipada única de Fase 7 (Task 3 + Task 4) bajo el flag.
-        assert services.rag_platform is not None
         assert services.rag_platform.list_projects is not None
         assert services.rag_platform.get_project_configuration is not None
         assert services.rag_platform.get_variant_matrix is not None

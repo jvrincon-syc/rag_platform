@@ -619,10 +619,12 @@ def _source_path_for_record(record: InventoryRecord, docs_raw: Optional[Path] = 
 
 def _configured_tesseract_engine() -> TesseractEngine:
     return TesseractEngine(
-        tesseract_cmd=r"C:\Users\jvrincon\AppData\Local\Programs\Tesseract-OCR\tesseract.exe",
-        language="spa",
-        engine_version="5.4.0.20240606",
-        low_confidence_threshold=0.70,
+        tesseract_cmd=os.getenv("TESSERACT_CMD", "tesseract"),
+        language=os.getenv("TESSERACT_LANGUAGE", "spa"),
+        engine_version=os.getenv("TESSERACT_VERSION", "unknown"),
+        low_confidence_threshold=float(
+            os.getenv("OCR_LOW_CONFIDENCE_THRESHOLD", "0.70")
+        ),
     )
 
 
@@ -875,41 +877,6 @@ def _run_document(
         document_status=document_status,
         disposition=disposition,
         warnings=warnings or [],
-    )
-
-
-def _run_pipeline_legacy(
-    *,
-    docs_raw: Path,
-    docs_normalized: Path,
-    staging_root: Optional[Path] = None,
-    promote: bool = False,
-    only_sources: Optional[List[str]] = None,
-    force: bool = False,
-    corpus_version: str = "1",
-    pipeline_version: str = "1.0.0",
-    run_id: Optional[str] = None,
-    classification_review_threshold: float = 0.60,
-    ocr_review_threshold: float = DEFAULT_OCR_REVIEW_THRESHOLD,
-    golden_status: Optional[str] = None,
-    llama_settings_override: LlamaSettings | None = None,
-    request_id: str | None = None,
-) -> Dict[str, int]:
-    return run_pipeline(
-        docs_raw=docs_raw,
-        docs_normalized=docs_normalized,
-        staging_root=staging_root,
-        promote=promote,
-        only_sources=only_sources,
-        force=force,
-        corpus_version=corpus_version,
-        pipeline_version=pipeline_version,
-        run_id=run_id,
-        classification_review_threshold=classification_review_threshold,
-        ocr_review_threshold=ocr_review_threshold,
-        golden_status=golden_status,
-        llama_settings_override=llama_settings_override,
-        request_id=request_id,
     )
 
 

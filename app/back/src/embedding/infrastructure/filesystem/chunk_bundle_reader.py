@@ -95,6 +95,11 @@ class ChunkBundleContent:
     source_relpath: str
     source_hash: str
     normalized_relpath: str
+    # G1: propagada desde el sidecar de chunking (ya escrita ahí, nunca leída de
+    # vuelta hasta ahora) para que el nodo de indexación pueda citar la revisión
+    # exacta del documento fuente. Puede ser None en bundles sellados antes de
+    # que el sidecar la escribiera.
+    source_document_revision_id: str | None = None
 
 
 @dataclass(frozen=True)
@@ -131,6 +136,11 @@ class FilesystemChunkBundleContentReader:
             source_relpath=str(payload["source_relpath"]),
             source_hash=str(payload["source_hash"]),
             normalized_relpath=str(payload["normalized_relpath"]),
+            source_document_revision_id=(
+                str(payload["source_document_revision_id"])
+                if payload.get("source_document_revision_id")
+                else None
+            ),
         )
 
     def _resolve(self, artifact_relpath: str) -> Path:

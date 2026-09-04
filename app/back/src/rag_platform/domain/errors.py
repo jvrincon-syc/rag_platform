@@ -386,6 +386,21 @@ class ReleaseManifestFrozen(RagPlatformError):
     http_status = 409
 
 
+class ReleasePublishRequiresBuiltLane(RagPlatformError):
+    """Se intentó publicar una release sin ``rag_release_memberships`` construidas.
+
+    Fail-closed (PR-2 2.3, ADR-011): publicar sin una lane construida deja una
+    release ``PUBLISHED`` que el chatbot nunca puede servir
+    (``CHATBOT_RELEASE_LANE_UNAVAILABLE`` en el momento de la pregunta, no en el
+    momento de publicar). El build de la release es lo que crea las membresías;
+    publicar sin al menos una membresía significa que ningún build corrió, o que
+    corrió y falló, para esta release.
+    """
+
+    code = "RELEASE_PUBLISH_REQUIRES_BUILT_LANE"
+    http_status = 409
+
+
 class RagVariantNotFound(RagPlatformError):
     """Se referenció una variante que no existe."""
 
@@ -529,3 +544,20 @@ class RagReleaseMembershipDrift(RagPlatformError):
 
     code = "RAG_RELEASE_MEMBERSHIP_DRIFT"
     http_status = 409
+
+
+class ReleaseActivateNotPublic(RagPlatformError):
+    """``/activate`` ya no es parte del ciclo de vida público (G2, ADR-011).
+
+    Bajo ``release_serving_only`` el chatbot sirve directo de PUBLISHED +
+    ``rag_release_memberships``; no lee ``is_active`` ni el retrieval profile
+    legacy que la activación multi-transacción crea
+    (``test_release_search_no_depende_de_is_active``, PR-2 2.1). En vez de
+    devolver un 200 "no-op" que simula éxito, la ruta se retira del contrato
+    público explícitamente: cualquier llamador que todavía dependa de
+    ``/activate`` para servir debe migrar a publicar la release y confiar en
+    memberships, no en un efecto que ya no existe.
+    """
+
+    code = "RELEASE_ACTIVATE_NOT_PUBLIC"
+    http_status = 410

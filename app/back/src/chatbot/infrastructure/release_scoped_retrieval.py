@@ -27,6 +27,7 @@ from indexing.infrastructure.in_memory.bundle_first import (
 from retrieval.application.query_embedding_service import QueryEmbeddingService
 from retrieval.application.retrieval_service import RetrievalSearchService
 from retrieval.domain.models import RetrievalProfile, RetrievedEvidence
+from retrieval.infrastructure.faq_resolver import FaqResolverRegistry
 from retrieval.infrastructure.in_memory.repositories import InMemoryRetrievalProfileRepository
 from retrieval.infrastructure.postgres.repositories import (
     _fts_query_modes,
@@ -49,6 +50,7 @@ def _evidence_from_node(
     corpus_version: str,
     embedding_bundle_id: str | None,
     rag_release_id: str,
+    project_id: str,
 ) -> RetrievedEvidence:
     return RetrievedEvidence(
         node_id=node.node_id,
@@ -66,6 +68,10 @@ def _evidence_from_node(
             **dict(node.metadata),
             "rag_release_id": rag_release_id,
             "source_relpath": node.source_relpath,
+            # G1: project_id acompaña la evidencia para que el chatbot pueda
+            # construir la cita project-aware (_build_source_url); ya viaja como
+            # parámetro de .search()/.expand(), aquí solo se propaga al metadata.
+            "project_id": project_id,
         },
         embedding_profile_id=embedding_profile_id,
         corpus_version=corpus_version,
@@ -265,6 +271,7 @@ class _InMemoryReleaseScopedVectorSearch:
                     corpus_version=corpus_version,
                     embedding_bundle_id=stored.record.embedding_bundle_id,
                     rag_release_id=self._rag_release_id,
+                    project_id=project_id,
                 )
             )
         return sorted(scored, key=lambda item: item.score, reverse=True)[:top_k]
@@ -314,6 +321,7 @@ class _InMemoryReleaseScopedLexicalSearch:
                     corpus_version=corpus_version,
                     embedding_bundle_id=None,
                     rag_release_id=self._rag_release_id,
+                    project_id=project_id,
                 )
             )
         return sorted(scored, key=lambda item: item.score, reverse=True)[:top_k]
@@ -357,6 +365,7 @@ class _InMemoryReleaseScopedParentExpansion:
                 corpus_version=corpus_version,
                 embedding_bundle_id=None,
                 rag_release_id=self._rag_release_id,
+                project_id=project_id,
             )
         return parents
 
@@ -373,7 +382,7 @@ class PostgresReleaseScopedRetrievalPort(ChatbotReleaseRetrievalPort):
         retrieval_profiles,
         query_embedding: QueryEmbeddingService,
         reranker: object | None = None,
-        faq_resolver: object | None = None,
+        faq_resolver_registry: FaqResolverRegistry | None = None,
     ) -> None:
         self._connection = connection
         self._profiles = profiles
@@ -381,10 +390,12 @@ class PostgresReleaseScopedRetrievalPort(ChatbotReleaseRetrievalPort):
         self._retrieval_profiles = retrieval_profiles
         self._query_embedding = query_embedding
         self._reranker = reranker or NoOpReranker()
-        # Optional fast lexical/fuzzy FAQ shortcut. Checked first (sub-10ms); on a confident hit
-        # the answer comes straight from the curated FAQ and the embedding + vector + rerank path
-        # never runs. On a miss it stays None-effective and the full retrieval proceeds.
-        self._faq_resolver = faq_resolver
+        # Optional fast lexical/fuzzy FAQ shortcut, one resolver per project (PR-3 3.1/3.2 — no
+        # more single global resolver / glob()[0] cross-project leak). Checked first (sub-10ms);
+        # on a confident hit whose citation is verified to belong to the release (PR-3 3.3,
+        # ``_faq_result``) the embedding + vector + rerank path never runs. On a miss, or a hit
+        # that fails the release-membership gate, the full retrieval proceeds.
+        self._faq_resolver_registry = faq_resolver_registry
 
     def search(
         self,
@@ -396,15 +407,24 @@ class PostgresReleaseScopedRetrievalPort(ChatbotReleaseRetrievalPort):
         top_k: int,
     ) -> ChatbotReleaseRetrievalResult:
         del rag_variant_id
-        # FAQ-first: milliseconds vs seconds for the embed, so checking here means the embedding
-        # path never starts on a hit ("si esta en FAQ se para el embedding, si no continua").
-        if self._faq_resolver is not None:
-            match = self._faq_resolver.match(question)
-            if match is not None:
-                return self._faq_result(
-                    match, project_id=project_id, rag_release_id=rag_release_id
-                )
+        # Resolved once up front: both the FAQ release-membership gate (PR-3 3.3) and the real
+        # search below need it, and a release with no valid lane must fail the same way whether
+        # or not a FAQ entry would otherwise have matched (no synthetic "faq" lane bypasses this).
         lane = self._resolve_lane(project_id=project_id, rag_release_id=rag_release_id)
+        # FAQ-first: milliseconds vs seconds for the embed, so checking here means the embedding
+        # path never starts on a hit ("si esta en FAQ se para el embedding, si no continua"). One
+        # resolver per project (PR-3 3.1/3.2); a hit only answers if it clears the release-
+        # membership gate in ``_faq_result`` (PR-3 3.3) — otherwise it falls through below.
+        if self._faq_resolver_registry is not None:
+            resolver = self._faq_resolver_registry.resolver_for(project_id)
+            if resolver is not None:
+                match = resolver.match(question)
+                if match is not None:
+                    faq_result = self._faq_result(
+                        match, project_id=project_id, rag_release_id=rag_release_id
+                    )
+                    if faq_result is not None:
+                        return faq_result
         retrieval_profile = _release_profile(project_id=project_id, lane=lane)
         self._retrieval_profiles.upsert(retrieval_profile)
         service = RetrievalSearchService(
@@ -439,29 +459,39 @@ class PostgresReleaseScopedRetrievalPort(ChatbotReleaseRetrievalPort):
 
     def _faq_result(
         self, match: object, *, project_id: str, rag_release_id: str
-    ) -> ChatbotReleaseRetrievalResult:
-        """Build a single-evidence result from a FAQ hit — the curated answer as the only chunk.
+    ) -> ChatbotReleaseRetrievalResult | None:
+        """Build a single-evidence result from a FAQ hit, gated to the release's evidence.
 
-        Decoupled from the release lane on purpose: a FAQ answer must work even if the release
-        lane is unbuilt or unavailable, so the lane is a synthetic ``faq`` marker rather than a
-        Postgres lookup. Citation still carries the FAQ's referenced document via ``source_relpath``.
+        PR-3 3.3: a curated FAQ entry can go stale — it may cite a document that was later
+        removed, rejected in review, or never belonged to the queried release's corpus at all.
+        Before this gate, any FAQ hit answered unconditionally via a synthetic ``faq`` lane that
+        never touched Postgres, so a published release with an invalid/unbuilt lane could still
+        answer from a FAQ entry with no real evidence behind it. Now the referenced document must
+        be indexed, approved, and a member of ``rag_release_id`` (``_faq_reference_in_release``) —
+        otherwise this returns ``None`` and the caller falls through to real, release-scoped
+        retrieval instead of a stale or cross-release answer.
         """
 
         reference = getattr(match, "reference", None) or {}
+        # References carry two key shapes (normalized_path / chunk_file); the FAQ's chunk_ids do
+        # not match the live corpus (they are audit metadata, not link targets), so the citation
+        # can only be verified via the file path.
+        source_path = reference.get("normalized_path") or reference.get("chunk_file")
+        if not source_path or not self._faq_reference_in_release(
+            project_id=project_id,
+            rag_release_id=rag_release_id,
+            source_relpath=source_path,
+        ):
+            return None
         pages = reference.get("pages") or []
         page = int(pages[0]) if pages else None
-        # References carry two key shapes (normalized_path / chunk_file) and the FAQ's chunk_ids do
-        # not match the live corpus (they are audit metadata, not link targets). So surface a clean,
-        # human document identity from document_title or the file's basename, never the FAQ id or
-        # the stale chunk ids.
+        # Surface a clean, human document identity from document_title or the file's basename,
+        # never the FAQ id or the stale chunk ids.
         document_title = reference.get("document_title")
-        source_path = reference.get("normalized_path") or reference.get("chunk_file")
         basename = (
             source_path.rsplit("/", 1)[-1]
             .replace(".child_chunks.jsonl", "")
             .replace(".program", "")
-            if source_path
-            else None
         )
         document_id = str(document_title or basename or match.faq_id)
         evidence = RetrievedEvidence(
@@ -480,10 +510,9 @@ class PostgresReleaseScopedRetrievalPort(ChatbotReleaseRetrievalPort):
                 "faq_id": match.faq_id,
                 "faq_status": match.status,
                 "faq_score": f"{match.score:.3f}",
-                # Use the reference's real file path (exists under docs_raw) so the citation link
-                # resolves; fall back to the display id when the reference has no path.
-                "source_relpath": source_path or document_id,
+                "source_relpath": source_path,
                 "rag_release_id": rag_release_id,
+                "project_id": project_id,
             },
             embedding_profile_id="faq",
             corpus_version="faq",
@@ -500,6 +529,41 @@ class PostgresReleaseScopedRetrievalPort(ChatbotReleaseRetrievalPort):
         return ChatbotReleaseRetrievalResult(
             lane=lane, evidence=(evidence,), retrieval_profile_id=retrieval_profile_id
         )
+
+    def _faq_reference_in_release(
+        self, *, project_id: str, rag_release_id: str, source_relpath: str
+    ) -> bool:
+        """True iff ``source_relpath`` is indexed, approved evidence of ``rag_release_id``.
+
+        Mirrors the join ``_PostgresReleaseScopedLexicalSearch`` uses for real evidence, scoped to
+        one exact path instead of full-text search — a FAQ's cited document must clear the same
+        release-membership bar as any other piece of release evidence (PR-3 3.3).
+        """
+
+        with self._connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT 1
+                FROM indexing_nodes AS node
+                JOIN indexing_normalized_documents AS document
+                  ON document.document_id = node.document_id
+                WHERE node.project_id = %s
+                  AND node.source_relpath = %s
+                  AND document.processing_status = 'processed'
+                  AND document.review_status = 'approved'
+                  AND EXISTS (
+                      SELECT 1
+                      FROM rag_release_memberships AS membership
+                      WHERE membership.rag_release_id = %s
+                        AND membership.project_id = node.project_id
+                        AND membership.chunk_bundle_id = node.source_chunk_bundle_id
+                  )
+                LIMIT 1
+                """,
+                (project_id, source_relpath, rag_release_id),
+            )
+            rows = list(cursor.fetchall())
+        return bool(rows)
 
     def _resolve_lane(
         self,
@@ -640,6 +704,7 @@ class _PostgresReleaseScopedVectorSearch:
                 embedding_profile_id=embedding_profile_id,
                 corpus_version=corpus_version,
                 rag_release_id=self._rag_release_id,
+                project_id=project_id,
             )
             for row in rows
         ]
@@ -719,6 +784,7 @@ class _PostgresReleaseScopedLexicalSearch:
                         embedding_profile_id=embedding_profile_id,
                         corpus_version=corpus_version,
                         rag_release_id=self._rag_release_id,
+                        project_id=project_id,
                     )
                     for row in rows
                 ]
@@ -795,6 +861,7 @@ class _PostgresReleaseScopedParentExpansion:
                 embedding_profile_id=embedding_profile_id,
                 corpus_version=corpus_version,
                 rag_release_id=self._rag_release_id,
+                project_id=project_id,
             )
             for row in rows
         ]
@@ -824,6 +891,7 @@ def _evidence_from_row(
     embedding_profile_id: str,
     corpus_version: str,
     rag_release_id: str,
+    project_id: str,
 ) -> RetrievedEvidence:
     values = (
         dict(row)
@@ -837,6 +905,9 @@ def _evidence_from_row(
     )
     metadata["rag_release_id"] = rag_release_id
     metadata["source_relpath"] = str(values.get("source_relpath") or "")
+    # G1: project_id acompaña la evidencia para la cita project-aware
+    # (_build_source_url); ya viaja como parámetro de .search()/.expand().
+    metadata["project_id"] = project_id
     return RetrievedEvidence(
         node_id=str(values["node_id"]),
         document_id=str(values["document_id"]),
