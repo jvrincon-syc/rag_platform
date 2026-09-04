@@ -14,8 +14,6 @@ export type PlatformView =
   | "operations"
   | "review"
   | "inventory"
-  | "chunking"
-  | "embedding-indexing"
   | "releases";
 
 export type PlatformViewDefinition = {
@@ -32,12 +30,10 @@ export type PlatformViewDefinition = {
 // embedding-indexing) → gestión RAG / releases.
 // Chunking y Embedding/Indexing ya no son vistas propias: su configuración vive
 // dentro del build de release (RAG / Releases). Se excluyen de la sub-nav.
-const HIDDEN_PIPELINE_VIEWS = new Set<PlatformView>(["chunking", "embedding-indexing"]);
-
 const PIPELINE_VIEWS: readonly PlatformViewDefinition[] = DASHBOARD_VIEWS.filter(
-  (item) => !HIDDEN_PIPELINE_VIEWS.has(item.view as PlatformView),
+  (item) => ["operations", "review", "inventory"].includes(item.view),
 ).map((item) => ({
-  view: item.view,
+  view: item.view as PlatformView,
   label: item.sidebarLabel,
   title: item.title,
 }));

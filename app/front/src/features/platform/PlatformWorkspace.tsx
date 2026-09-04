@@ -71,10 +71,6 @@ function PlatformView({ view }: { view: PlatformView }) {
       return <PlatformLegacyPipelineWorkspace activeView="review" />;
     case "inventory":
       return <PlatformLegacyPipelineWorkspace activeView="inventory" />;
-    case "chunking":
-      return <PlatformLegacyPipelineWorkspace activeView="chunking" />;
-    case "embedding-indexing":
-      return <PlatformLegacyPipelineWorkspace activeView="embedding-indexing" />;
     case "releases":
       return <RagReleaseWorkspace />;
   }

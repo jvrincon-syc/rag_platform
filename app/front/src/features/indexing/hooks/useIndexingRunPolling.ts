@@ -1,6 +1,6 @@
 import { loadIndexingRun } from "../indexingApi.js";
 import { indexingRunIsTerminal } from "../indexingState.js";
-import { usePollingLoop } from "../../embeddingIndexing/shared/usePollingLoop.js";
+import { usePollingLoop } from "../../../shared/hooks/usePollingLoop.js";
 import type { PipelineUiError } from "../../../shared/api/apiTypes.js";
 import type { IndexingRun } from "../indexingTypes.js";
 

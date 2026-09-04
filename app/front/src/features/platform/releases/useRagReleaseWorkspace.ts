@@ -17,7 +17,7 @@ import {
   validateRelease,
 } from "../platformApi.js";
 import { usePlatformProjectContext } from "../PlatformProjectContext.js";
-import { usePollingLoop } from "../../embeddingIndexing/shared/usePollingLoop.js";
+import { usePollingLoop } from "../../../shared/hooks/usePollingLoop.js";
 import { mapPipelineError } from "../../../shared/api/errorMapping.js";
 import type { CorpusSnapshot, Release, ReleaseBuildStatus, Variant } from "../platformTypes.js";
 import { useIdempotentReleaseAction } from "./useIdempotentReleaseAction.js";

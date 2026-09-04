@@ -1,6 +1,6 @@
 import { loadEmbeddingRun } from "../embeddingApi.js";
 import { embeddingRunIsTerminal } from "../embeddingState.js";
-import { usePollingLoop } from "../../embeddingIndexing/shared/usePollingLoop.js";
+import { usePollingLoop } from "../../../shared/hooks/usePollingLoop.js";
 import type { PipelineUiError } from "../../../shared/api/apiTypes.js";
 import type { EmbeddingRun } from "../embeddingTypes.js";
 
