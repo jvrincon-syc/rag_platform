@@ -492,6 +492,32 @@ class RagReleaseNotActivatable(RagPlatformError):
     http_status = 409
 
 
+class ReleaseBuildAlreadyRunning(RagPlatformError):
+    """Ya hay un build ``queued``/``running`` para la misma release (PR-1.4).
+
+    Fail-closed contra builds concurrentes: dos builds de la misma release compiten
+    por CPU/modelo y (hoy) por el runtime de embedding global. Un segundo intento
+    mientras uno sigue vivo se rechaza; el operador observa el job activo por
+    polling y reintenta cuando termina. Un replay con el MISMO ``Idempotency-Key``
+    corta antes en el guard de idempotencia y no llega aquí.
+    """
+
+    code = "RELEASE_BUILD_ALREADY_RUNNING"
+    http_status = 409
+
+
+class ReleaseBuildRequiresDraft(RagPlatformError):
+    """Se intentó construir una release que ya no está en ``DRAFT`` (PR-1.4).
+
+    Fail-closed: el build solo aplica a una release DRAFT (una VALIDATED/PUBLISHED
+    tiene su manifest congelado). No se confía en que la UI oculte el botón; el
+    caso de uso valida el estado antes de resolver artefactos.
+    """
+
+    code = "RELEASE_BUILD_REQUIRES_DRAFT"
+    http_status = 409
+
+
 class RagReleaseMembershipDrift(RagPlatformError):
     """Un re-build encontró una membresía existente que NO coincide con la resuelta.
 

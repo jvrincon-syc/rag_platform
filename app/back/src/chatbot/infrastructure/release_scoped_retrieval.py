@@ -156,6 +156,7 @@ class InMemoryReleaseScopedRetrievalPort(ChatbotReleaseRetrievalPort):
         return ChatbotReleaseRetrievalResult(
             lane=scope.lane,
             evidence=tuple(evidence),
+            retrieval_profile_id=retrieval_profile.retrieval_profile_id,
         )
 
     def _resolve_scope(
@@ -400,7 +401,9 @@ class PostgresReleaseScopedRetrievalPort(ChatbotReleaseRetrievalPort):
         if self._faq_resolver is not None:
             match = self._faq_resolver.match(question)
             if match is not None:
-                return self._faq_result(match, rag_release_id=rag_release_id)
+                return self._faq_result(
+                    match, project_id=project_id, rag_release_id=rag_release_id
+                )
         lane = self._resolve_lane(project_id=project_id, rag_release_id=rag_release_id)
         retrieval_profile = _release_profile(project_id=project_id, lane=lane)
         self._retrieval_profiles.upsert(retrieval_profile)
@@ -431,9 +434,12 @@ class PostgresReleaseScopedRetrievalPort(ChatbotReleaseRetrievalPort):
         return ChatbotReleaseRetrievalResult(
             lane=lane,
             evidence=tuple(evidence),
+            retrieval_profile_id=retrieval_profile.retrieval_profile_id,
         )
 
-    def _faq_result(self, match: object, *, rag_release_id: str) -> ChatbotReleaseRetrievalResult:
+    def _faq_result(
+        self, match: object, *, project_id: str, rag_release_id: str
+    ) -> ChatbotReleaseRetrievalResult:
         """Build a single-evidence result from a FAQ hit — the curated answer as the only chunk.
 
         Decoupled from the release lane on purpose: a FAQ answer must work even if the release
@@ -488,7 +494,12 @@ class PostgresReleaseScopedRetrievalPort(ChatbotReleaseRetrievalPort):
             indexing_target_id="faq",
             corpus_version="faq",
         )
-        return ChatbotReleaseRetrievalResult(lane=lane, evidence=(evidence,))
+        # Same identity function as the real lane so the reported id is always the
+        # one that "searched" -- here, the synthetic faq lane, never a rebuilt profile.
+        retrieval_profile_id = _release_profile(project_id=project_id, lane=lane).retrieval_profile_id
+        return ChatbotReleaseRetrievalResult(
+            lane=lane, evidence=(evidence,), retrieval_profile_id=retrieval_profile_id
+        )
 
     def _resolve_lane(
         self,

@@ -12,9 +12,17 @@ encola ni consulta su build.
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
+import logging
 from typing import Protocol, runtime_checkable
 
+from core.logging.observability import (
+    EventStatus,
+    JsonlEventSink,
+    ObservabilityDomain,
+    ObservabilityEvent,
+    emit_observability_event,
+)
 from rag_platform.application.context import PlatformAccessPolicy
 from rag_platform.application.platform_access import (
     PlatformActor,
@@ -22,6 +30,7 @@ from rag_platform.application.platform_access import (
 )
 from rag_platform.application.release_service import RagReleaseRepository
 from rag_platform.domain.build_jobs import ReleaseBuildJob, ReleaseBuildJobState
+from rag_platform.domain.errors import ReleaseBuildAlreadyRunning
 from rag_platform.domain.identity import PlatformId
 
 
@@ -40,6 +49,9 @@ class ReleaseBuildJobRepository(Protocol):
 
     def latest_for_release(self, rag_release_id: PlatformId) -> ReleaseBuildJob | None:
         """Devuelve el job más reciente de la release, o ``None`` si no hay ninguno."""
+
+    def list_non_terminal(self) -> list[ReleaseBuildJob]:
+        """Devuelve todos los jobs ``queued``/``running`` en todo el repo."""
 
 
 class EnqueueReleaseBuildUseCase:
@@ -73,6 +85,16 @@ class EnqueueReleaseBuildUseCase:
         require_project_operator(
             policy=self._access_policy, actor=actor, project_id=release.project_id
         )
+        # PR-1 1.4: fail-closed contra builds concurrentes de la MISMA release --
+        # dos builds compiten por CPU/modelo y por el runtime de embedding
+        # scoped-al-hilo (embedding.application.engine_registry). Un job
+        # queued/running existente bloquea uno nuevo hasta que termina.
+        active = self._jobs.latest_for_release(rag_release_id)
+        if active is not None and not active.is_terminal:
+            raise ReleaseBuildAlreadyRunning(
+                f"release {rag_release_id.value} already has an active build "
+                f"({active.build_job_id}, state={active.state.value})"
+            )
         job = ReleaseBuildJob(
             build_job_id=build_job_id,
             rag_release_id=release.rag_release_id,
@@ -106,3 +128,59 @@ class GetReleaseBuildStatusUseCase:
             policy=self._access_policy, actor=actor, project_id=release.project_id
         )
         return self._jobs.latest_for_release(rag_release_id)
+
+
+class ReleaseBuildJobReconciler:
+    """Resolve build jobs left ``queued``/``running`` by a process that died (PR-1 1.6).
+
+    The build worker runs on a daemon thread (``ReleaseBuildRunner``); if the
+    process is killed or restarted mid-build, the job's last durable state stays
+    ``queued``/``running`` forever -- indistinguishable from "still working" for
+    both the polling GUI and ``EnqueueReleaseBuildUseCase``'s one-active-build
+    guard (PR-1 1.4), which would then reject every future build for that
+    release. Mirrors ``IndexingRunReconciler``: mark abandoned jobs ``failed``
+    at startup, before the API starts serving requests.
+    """
+
+    def __init__(
+        self,
+        *,
+        jobs: ReleaseBuildJobRepository,
+        logger: logging.Logger | None = None,
+        jsonl_sink: JsonlEventSink | None = None,
+    ) -> None:
+        self._jobs = jobs
+        self._logger = logger or logging.getLogger(__name__)
+        self._jsonl_sink = jsonl_sink
+
+    def reconcile(self) -> list[ReleaseBuildJob]:
+        """Mark every non-terminal job ``failed`` and return the reconciled jobs."""
+
+        reconciled: list[ReleaseBuildJob] = []
+        for job in self._jobs.list_non_terminal():
+            updated = job.model_copy(
+                update={
+                    "state": ReleaseBuildJobState.FAILED,
+                    "error_code": "RELEASE_BUILD_ABANDONED",
+                    "error_message": "Proceso reiniciado; el build no completó.",
+                    "updated_at": datetime.now(timezone.utc),
+                }
+            )
+            reconciled.append(self._jobs.update(updated))
+            emit_observability_event(
+                logger=self._logger,
+                event=ObservabilityEvent(
+                    event="release_build_job_reconciled",
+                    domain=ObservabilityDomain.BACKEND,
+                    status=EventStatus.WARNING,
+                    message=f"release_build_job_reconciled {job.build_job_id}",
+                    attributes={
+                        "build_job_id": job.build_job_id,
+                        "rag_release_id": job.rag_release_id.value,
+                        "project_id": job.project_id.value,
+                        "previous_state": job.state.value,
+                    },
+                ),
+                jsonl_sink=self._jsonl_sink,
+            )
+        return reconciled

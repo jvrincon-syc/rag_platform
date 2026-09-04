@@ -314,6 +314,26 @@ class PostgresReleaseBuildJobRepository:
             row = cursor.fetchone()
         return None if row is None else _row_to_build_job(row)
 
+    def list_non_terminal(self) -> list[ReleaseBuildJob]:
+        """Devuelve todos los jobs ``queued``/``running`` (PR-1 1.6, reconciler de startup).
+
+        Lectura pura: ningún UPDATE vive aquí. El reconciler decide qué hacer con
+        cada job (``update``) fuera de este repo.
+        """
+
+        with self._connection.cursor() as cursor:
+            cursor.execute(
+                f"SELECT {', '.join(_BUILD_JOB_COLUMNS)} FROM release_build_jobs"
+                " WHERE state IN (%s, %s)"
+                " ORDER BY created_at ASC, build_job_id ASC",
+                (
+                    ReleaseBuildJobState.QUEUED.value,
+                    ReleaseBuildJobState.RUNNING.value,
+                ),
+            )
+            rows = cursor.fetchall()
+        return [_row_to_build_job(row) for row in rows]
+
 
 def _row_to_build_job(row) -> ReleaseBuildJob:
     return ReleaseBuildJob(

@@ -310,7 +310,11 @@ def unconfigured_webhook_client(tmp_path: Path) -> Iterator[TestClient]:
 
 
 def test_despacha_pregunta_y_chunks_al_webhook(client: TestClient) -> None:
-    retrieval_profile_id = _activate_retrieval_profile(client)
+    # `_activate_retrieval_profile` runs the LEGACY indexing activation flow only
+    # to get vectors indexed for the fixture; its returned id belongs to a
+    # different, unrelated `RetrievalProfile` (consumer_scope_id="sst-default")
+    # than the one the release-scoped chatbot search actually uses.
+    legacy_activation_profile_id = _activate_retrieval_profile(client)
 
     response = client.post(
         "/api/chatbot/questions",
@@ -327,7 +331,13 @@ def test_despacha_pregunta_y_chunks_al_webhook(client: TestClient) -> None:
 
     assert response.status_code == 202, response.text
     body = response.json()
-    assert body["retrieval_profile_id"] == retrieval_profile_id
+    # PR-1 1.5: the reported id is the one that actually searched
+    # (`chatbot.infrastructure.release_scoped_retrieval._release_profile`,
+    # consumer_scope_id="release-scoped-dispatch"), never the coincidental id of
+    # an unrelated legacy activation that only shares the same corpus/embedding
+    # profile/indexing target.
+    assert body["retrieval_profile_id"] != legacy_activation_profile_id
+    assert body["retrieval_profile_id"].startswith("retrieval-profile-")
     assert body["question"] == "safety rules"
     assert body["chunks_sent"] == 2
     assert body["webhook_status_code"] == 202
@@ -336,7 +346,9 @@ def test_despacha_pregunta_y_chunks_al_webhook(client: TestClient) -> None:
     assert payload.project_id == PROJECT_ID
     assert payload.rag_variant_id == RAG_VARIANT_ID
     assert payload.rag_release_id == RAG_RELEASE_ID
-    assert payload.retrieval_profile_id == retrieval_profile_id
+    # Used == reported: the webhook payload carries the exact same id as the HTTP
+    # response -- both traced back to the single search that ran.
+    assert payload.retrieval_profile_id == body["retrieval_profile_id"]
     assert payload.question == "safety rules"
     assert payload.conversation_id == "conv-1"
     assert payload.message_id == "msg-1"

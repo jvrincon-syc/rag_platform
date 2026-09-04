@@ -868,6 +868,12 @@ class InMemoryReleaseBuildJobRepository:
         # Más reciente por uploaded time; desempate estable por id.
         return max(jobs, key=lambda job: (job.created_at, job.build_job_id))
 
+    def list_non_terminal(self) -> list[ReleaseBuildJob]:
+        """Devuelve todos los jobs ``queued``/``running`` (PR-1 1.6, reconciler de startup)."""
+
+        with self._lock:
+            return [job for job in self._jobs.values() if not job.is_terminal]
+
 
 # Verificación estructural: el adaptador satisface el puerto.
 _policy: PlatformAccessPolicy = AllowAllAccessPolicy()

@@ -46,7 +46,10 @@ from embedding.application.bundle_builder import (
     EmbeddingBundleValidator,
     EmbeddingIndexingReadinessEvaluator,
 )
-from embedding.application.engine_registry import DefaultEmbeddingEngineRegistry
+from embedding.application.engine_registry import (
+    DefaultEmbeddingEngineRegistry,
+    document_runtime_scope,
+)
 from embedding.application.read_service import EmbeddingReadService
 from embedding.application.run_service import (
     CreateEmbeddingRunUseCase,
@@ -260,7 +263,7 @@ def _build_faq_resolver(chunks_root: Path) -> object | None:
     lexical/fuzzy shortcut so the full embedding retrieval runs — it never blocks startup.
     """
 
-    if os.environ.get("FAQ_MATCH", "on").lower() == "off":
+    if os.environ.get("FAQ_MATCH", "off").lower() == "off":  # off until PR-3 makes it project-aware
         return None
     faq_path = _resolve_faq_path(chunks_root)
     if faq_path is None:
@@ -1020,6 +1023,7 @@ def _build_rag_platform_services(
     from rag_platform.application.release_build_job_service import (
         EnqueueReleaseBuildUseCase,
         GetReleaseBuildStatusUseCase,
+        ReleaseBuildJobReconciler,
     )
     from rag_platform.infrastructure.release_build_runner import (
         ReleaseBuildRunner,
@@ -1032,30 +1036,22 @@ def _build_rag_platform_services(
     get_release_build_status = GetReleaseBuildStatusUseCase(
         releases=releases, jobs=release_build_jobs, access_policy=access_policy
     )
+    # PR-1 1.6: reconcilia jobs queued/running abandonados ANTES de que la API
+    # sirva requests (llamado desde el lifespan de api.app, junto a los
+    # reconcilers de indexing/embedding).
+    release_build_job_reconciler = ReleaseBuildJobReconciler(
+        jobs=release_build_jobs, logger=get_logger("rag_platform.release_build_reconciler")
+    )
 
     def _run_with_embedding_runtime(embedding_runtime, run):
-        # El runtime de embedding de documentos (local vs Lightning) se elige por
-        # corrida: `resolve_document_engine` lee EMBEDDING_DOC_EMBED en cada llamada,
-        # así que basta con fijarlo alrededor del build y restaurarlo al terminar.
-        # `None` = respeta el runtime global del proceso (no toca el env).
-        # ponytail: os.environ es global -> asume un build a la vez; si algún día hay
-        # builds concurrentes con runtimes distintos, mover a un contextvar + engine
-        # por-build en vez del env compartido.
-        if embedding_runtime is None:
+        # PR-1 1.3: el runtime de embedding de documentos (local vs Lightning) viaja
+        # como argumento explícito atado a un ContextVar scoped al hilo de ESTE build
+        # (`document_runtime_scope`), nunca como mutación de `os.environ` (proceso
+        # compartido). Cada build corre en su propio `threading.Thread` dedicado
+        # (`ReleaseBuildRunner.submit`), así que dos builds concurrentes con runtimes
+        # distintos no pueden pisarse. `None` = respeta el runtime global del proceso.
+        with document_runtime_scope(embedding_runtime):
             run()
-            return
-        previous = os.environ.get("EMBEDDING_DOC_EMBED")
-        if embedding_runtime == "remote":
-            os.environ["EMBEDDING_DOC_EMBED"] = "remote"
-        else:
-            os.environ.pop("EMBEDDING_DOC_EMBED", None)
-        try:
-            run()
-        finally:
-            if previous is None:
-                os.environ.pop("EMBEDDING_DOC_EMBED", None)
-            else:
-                os.environ["EMBEDDING_DOC_EMBED"] = previous
 
     if build_services_factory is not None:
 
@@ -1125,6 +1121,15 @@ def _build_rag_platform_services(
             access_policy=access_policy,
         )
 
+    from rag_platform.application.provisioning_service import (
+        ProvisionCustomChunkingVariantUseCase,
+        ProvisionDefaultVariantUseCase,
+    )
+    from rag_platform.infrastructure.default_provisioning import (
+        provision_custom_chunking_variant as _provision_custom_chunking_variant,
+        provision_default_variant as _provision_default_variant,
+    )
+
     return RagPlatformServices(
         create_project=CreateProjectUseCase(
             projects=projects,
@@ -1163,6 +1168,12 @@ def _build_rag_platform_services(
         list_project_variants=ListProjectVariantsUseCase(
             variants=variants, access_policy=access_policy
         ),
+        provision_default_variant=ProvisionDefaultVariantUseCase(
+            policy=access_policy, provision=_provision_default_variant
+        ),
+        provision_custom_chunking_variant=ProvisionCustomChunkingVariantUseCase(
+            policy=access_policy, provision=_provision_custom_chunking_variant
+        ),
         list_project_documents=list_documents,
         upload_project_document=upload_document,
         normalize_project_documents=normalize_documents,
@@ -1192,6 +1203,7 @@ def _build_rag_platform_services(
         get_release_build_status=get_release_build_status,
         submit_release_build=_submit_release_build,
         release_build_jobs=release_build_jobs,
+        release_build_job_reconciler=release_build_job_reconciler,
         activate_release=_activate_release,
     )
 

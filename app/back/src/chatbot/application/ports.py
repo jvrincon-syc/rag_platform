@@ -30,10 +30,18 @@ class ChatbotReleaseLane:
 
 @dataclass(frozen=True)
 class ChatbotReleaseRetrievalResult:
-    """The release lane plus the evidence retrieved inside that release only."""
+    """The release lane plus the evidence retrieved inside that release only.
+
+    ``retrieval_profile_id`` is the identity of the retrieval profile that
+    actually ran the search (see ``_release_profile`` in
+    ``chatbot.infrastructure.release_scoped_retrieval``). The dispatcher must
+    report this exact id in logs and the webhook payload instead of rebuilding
+    a second, possibly different, profile (PR-1 1.5).
+    """
 
     lane: ChatbotReleaseLane
     evidence: tuple[RetrievedEvidence, ...]
+    retrieval_profile_id: str
 
 
 class ChatbotReleaseRetrievalPort(Protocol):

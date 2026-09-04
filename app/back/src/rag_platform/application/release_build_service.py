@@ -38,10 +38,11 @@ from rag_platform.application.release_service import (
 from rag_platform.domain.errors import (
     IncompatibleTargetBinding,
     RagReleaseMembershipDrift,
+    ReleaseBuildRequiresDraft,
     ReleaseBuildTooLarge,
 )
 from rag_platform.domain.identity import PlatformId, RagBuildContext
-from rag_platform.domain.lifecycle import RagReleaseMembership
+from rag_platform.domain.lifecycle import RagReleaseMembership, ReleaseState
 from rag_platform.domain.models import (
     BuildOutcome,
     BuildStage,
@@ -158,6 +159,13 @@ class BuildRagReleaseUseCase:
         require_project_operator(
             policy=self._access_policy, actor=actor, project_id=release.project_id
         )
+        # El build solo aplica a DRAFT: una VALIDATED/PUBLISHED tiene el manifest
+        # congelado. No se confía en que la UI oculte el botón (PR-1.4).
+        if release.state is not ReleaseState.DRAFT:
+            raise ReleaseBuildRequiresDraft(
+                f"release {rag_release_id.value} is {release.state.value}; "
+                "build requires DRAFT"
+            )
         variant = self._variants.get(release.rag_variant_id)
         snapshot = self._snapshots.get(release.corpus_snapshot_id)
         context = self._build_context(release=release, variant=variant)

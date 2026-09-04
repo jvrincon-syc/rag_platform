@@ -16,6 +16,7 @@ from rag_platform.application.platform_access import PlatformActor
 from rag_platform.application.release_build_job_service import (
     EnqueueReleaseBuildUseCase,
     GetReleaseBuildStatusUseCase,
+    ReleaseBuildJobReconciler,
     ReleaseBuildJobRepository,
 )
 from rag_platform.domain.identity import PlatformId
@@ -47,6 +48,10 @@ from rag_platform.application.project_query_service import (
     UpdateProjectMetadataUseCase,
 )
 from rag_platform.application.project_service import CreateProjectUseCase
+from rag_platform.application.provisioning_service import (
+    ProvisionCustomChunkingVariantUseCase,
+    ProvisionDefaultVariantUseCase,
+)
 from rag_platform.application.publication_service import PublishRagReleaseUseCase
 from rag_platform.application.rebuild_orchestrator import RebuildPlatformArtifactsUseCase
 from rag_platform.application.release_build_service import BuildRagReleaseUseCase
@@ -95,6 +100,10 @@ class RagPlatformServices:
     get_variant_matrix: GetVariantMatrixUseCase
     create_variant_from_matrix_cell: CreateRagVariantFromMatrixCellUseCase
     list_project_variants: ListProjectVariantsUseCase
+    # Auto-provisioning project-scoped (PR-1 1.2): la guarda de autorización vive
+    # aquí, no en el router ni en la infraestructura (ver provisioning_service.py).
+    provision_default_variant: ProvisionDefaultVariantUseCase
+    provision_custom_chunking_variant: ProvisionCustomChunkingVariantUseCase
 
     # Documentos (intake project-aware) — Gate 1 Fase 8
     list_project_documents: ListProjectDocumentsUseCase
@@ -129,6 +138,10 @@ class RagPlatformServices:
     ]
     # Repo durable del job; expuesto para que el worker (bundle fresco) escriba estado.
     release_build_jobs: "ReleaseBuildJobRepository"
+    # Reconciler de startup (PR-1 1.6): jobs queued/running abandonados por un
+    # proceso muerto se marcan failed antes de que la API sirva requests, para no
+    # bloquear para siempre el guard de un-solo-build-activo (PR-1 1.4).
+    release_build_job_reconciler: ReleaseBuildJobReconciler
     # Activación explícita de una release construida: pone sus vectores en vivo
     # (is_active=true) y crea el retrieval profile release-scoped. Publicar NO activa
     # (ver publication_service); esto es el paso separado de operador. Devuelve un

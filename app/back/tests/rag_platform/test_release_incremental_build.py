@@ -18,7 +18,7 @@ from rag_platform.application.release_build_service import (
     BuildRagReleaseUseCase,
 )
 from rag_platform.application.platform_access import PlatformActor
-from rag_platform.domain.errors import ReleaseBuildTooLarge
+from rag_platform.domain.errors import ReleaseBuildRequiresDraft, ReleaseBuildTooLarge
 from rag_platform.domain.identity import IdentityKind, PlatformId
 from rag_platform.infrastructure.in_memory.repositories import AllowAllAccessPolicy
 from api.dependencies import NullTransactionManager
@@ -227,6 +227,26 @@ def test_over_limit_falla_antes_de_invocar_el_resolver() -> None:
         max_build_documents=1,
     )
     with pytest.raises(ReleaseBuildTooLarge):
+        use_case.execute(
+            rag_release_id=release_id, actor=PlatformActor(actor_id="op-1")
+        )
+    assert memberships.list_for_release(release_id) == []
+    assert list(ledger.steps_for(release_id)) == []
+
+
+def test_build_rechaza_release_no_draft_antes_de_resolver() -> None:
+    # PR-1.4: el build solo aplica a DRAFT. Una release VALIDATED se rechaza ANTES
+    # de tocar el resolver (que aquí lanzaría AssertionError si se invocara).
+    release_id = PlatformId(IdentityKind.RAG_RELEASE, "ragr_validated")
+    validated = _release(release_id, _SNAPSHOT).model_copy(
+        update={"state": ReleaseState.VALIDATED}
+    )
+    use_case, memberships, ledger = _build(
+        release=validated,
+        snapshot=_snapshot(_SNAPSHOT, count=1),
+        resolver=_NeverResolve(),
+    )
+    with pytest.raises(ReleaseBuildRequiresDraft):
         use_case.execute(
             rag_release_id=release_id, actor=PlatformActor(actor_id="op-1")
         )

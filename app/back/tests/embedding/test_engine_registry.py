@@ -1,9 +1,13 @@
 from __future__ import annotations
 
+import os
+import threading
+
 import pytest
 
 from embedding.application.engine_registry import (
     DefaultEmbeddingEngineRegistry,
+    document_runtime_scope,
     operational_settings,
 )
 from embedding.domain.errors import (
@@ -225,6 +229,56 @@ def test_resuelve_y_cachea_el_document_engine_remoto_para_bge(
 
     assert isinstance(first_engine, RemoteBgeQueryEngine)
     assert second_engine is first_engine
+
+
+def test_build_no_muta_environ_cuando_runtime_remote(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """PR-1 1.3: interleaved builds with different runtimes never touch os.environ.
+
+    Two release builds run concurrently on their own dedicated threads (mirrors
+    ``ReleaseBuildRunner.submit`` + ``dependencies._run_with_embedding_runtime``).
+    Each scopes its runtime via ``document_runtime_scope`` -- a ``ContextVar`` the
+    other thread never sees -- instead of writing a shared ``EMBEDDING_DOC_EMBED``
+    into ``os.environ``.
+    """
+
+    monkeypatch.delenv("EMBEDDING_DOC_EMBED", raising=False)
+    registry = DefaultEmbeddingEngineRegistry(environ={}, allow_mock=True)
+    bge_profile = build_profile(
+        provider="bge",
+        model="BAAI/bge-m3",
+        dimension=1024,
+        normalization="l2",
+        vector_table="idx_vec_local_bge_m3_v1",
+    )
+    resolved: dict[str, type] = {}
+    environ_snapshots: dict[str, bool] = {}
+    barrier = threading.Barrier(2)
+
+    def _run_remote() -> None:
+        barrier.wait(timeout=5)
+        with document_runtime_scope("remote"):
+            resolved["remote"] = type(registry.resolve_document_engine(bge_profile))
+            environ_snapshots["remote"] = "EMBEDDING_DOC_EMBED" in os.environ
+
+    def _run_local() -> None:
+        barrier.wait(timeout=5)
+        with document_runtime_scope(None):
+            resolved["local"] = type(registry.resolve_document_engine(bge_profile))
+            environ_snapshots["local"] = "EMBEDDING_DOC_EMBED" in os.environ
+
+    remote_thread = threading.Thread(target=_run_remote)
+    local_thread = threading.Thread(target=_run_local)
+    remote_thread.start()
+    local_thread.start()
+    remote_thread.join(timeout=5)
+    local_thread.join(timeout=5)
+
+    assert resolved["remote"] is RemoteBgeQueryEngine
+    assert resolved["local"] is not RemoteBgeQueryEngine
+    assert environ_snapshots == {"remote": False, "local": False}
+    assert "EMBEDDING_DOC_EMBED" not in os.environ
 
 
 def test_trata_la_normalizacion_unknown_del_bge_m3_legacy_como_compatible() -> None:

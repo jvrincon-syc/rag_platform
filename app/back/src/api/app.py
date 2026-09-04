@@ -51,6 +51,11 @@ def create_app(*, services: PipelineServices) -> FastAPI:
     async def lifespan(_app: FastAPI):
         services.indexing_reconciler.reconcile()
         services.embedding_executor.reconcile()
+        # PR-1 1.6: un build de release que quedó queued/running por un proceso
+        # muerto bloquearía para siempre el guard de un-solo-build-activo (PR-1
+        # 1.4). ``rag_platform`` es ``None`` cuando el flag está apagado.
+        if services.rag_platform is not None:
+            services.rag_platform.release_build_job_reconciler.reconcile()
         # Warm BGE-M3 before serving so the first chat request doesn't eat the
         # ~13s cold load. Best-effort: a warm failure falls back to today's lazy
         # first-request load instead of taking the server down.

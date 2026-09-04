@@ -8,7 +8,9 @@ unavailable BGE runtime never becomes a Voyage runtime.
 
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterator, Mapping, Sequence
+from contextlib import contextmanager
+from contextvars import ContextVar
 from dataclasses import dataclass, field
 import os
 from typing import Callable
@@ -67,6 +69,38 @@ _MOCK_REVISION = "deterministic-v1"
 
 #: Providers kept for internal compatibility but never operational.
 _STUB_PROVIDERS = frozenset({"cohere"})
+
+#: Per-build override for the document-embedding runtime ("local"/"remote").
+#: Threads never inherit another thread's ``ContextVar`` bindings, so two
+#: release builds running concurrently on their own dedicated threads
+#: (``ReleaseBuildRunner.submit`` spawns one ``threading.Thread`` per build) can
+#: select different runtimes without clobbering a shared, process-global
+#: ``os.environ`` write (PR-1 1.3). ``None`` means "no override": the resolver
+#: falls back to the process-wide ``EMBEDDING_DOC_EMBED`` env var, unchanged.
+_DOCUMENT_RUNTIME_OVERRIDE: ContextVar[str | None] = ContextVar(
+    "embedding_document_runtime_override", default=None
+)
+
+
+@contextmanager
+def document_runtime_scope(runtime: str | None) -> Iterator[None]:
+    """Bind the document-embedding runtime override for the current thread only.
+
+    ``runtime=None`` is a no-op (respects the process-wide ``EMBEDDING_DOC_EMBED``).
+    Any other value (``"local"``/``"remote"``) is visible to
+    :meth:`DefaultEmbeddingEngineRegistry.resolve_document_engine` for the
+    duration of the ``with`` block, on this thread only, and is always reset on
+    exit -- never a mutation of shared process state.
+    """
+
+    if runtime is None:
+        yield
+        return
+    token = _DOCUMENT_RUNTIME_OVERRIDE.set(runtime)
+    try:
+        yield
+    finally:
+        _DOCUMENT_RUNTIME_OVERRIDE.reset(token)
 
 
 def indexing_profile_from(profile: EmbeddingProfile) -> IndexingProfile:
@@ -250,12 +284,17 @@ class DefaultEmbeddingEngineRegistry:
     def resolve_document_engine(self, profile: EmbeddingProfile) -> EmbeddingEngine:
         """Return the engine allowed to embed documents for this profile.
 
-        With ``EMBEDDING_DOC_EMBED=remote`` and a bge profile, document embedding is
-        offloaded to the Lightning studio (same BGE-M3 weights, so vectors match the
-        durable profile) instead of loading the model on the local box.
+        With ``EMBEDDING_DOC_EMBED=remote`` (or an active
+        :func:`document_runtime_scope` override, which takes precedence for the
+        calling thread) and a bge profile, document embedding is offloaded to the
+        Lightning studio (same BGE-M3 weights, so vectors match the durable
+        profile) instead of loading the model on the local box.
         """
 
-        if profile.provider == "bge" and os.environ.get("EMBEDDING_DOC_EMBED") == "remote":
+        runtime = _DOCUMENT_RUNTIME_OVERRIDE.get()
+        if runtime is None:
+            runtime = os.environ.get("EMBEDDING_DOC_EMBED")
+        if profile.provider == "bge" and runtime == "remote":
             return self._resolve_remote_document_engine(profile)
         return self._resolve(profile)
 

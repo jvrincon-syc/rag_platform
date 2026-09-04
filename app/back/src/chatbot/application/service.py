@@ -29,7 +29,6 @@ from core.logging.observability import (
     measure_duration_ms,
 )
 from embedding.application.events import emit_pipeline_event
-from retrieval.domain.models import RetrievalProfile
 
 logger = logging.getLogger(__name__)
 
@@ -75,14 +74,12 @@ class DispatchChatbotQuestionUseCase:
                 top_k=request.top_k,
             )
             lane = search_result.lane
-            retrieval_profile = RetrievalProfile.build(
-                project_id=request.project_id,
-                consumer_scope_type=self._consumer_scope.scope_type,
-                consumer_scope_id=self._consumer_scope.scope_id,
-                corpus_version=lane.corpus_version,
-                embedding_profile_id=lane.embedding_profile_id,
-                indexing_target_id=lane.indexing_target_id,
-            )
+            # PR-1 1.5: reuse the exact profile identity the port used to search
+            # (`_release_profile` in `release_scoped_retrieval.py`) instead of
+            # rebuilding a second `RetrievalProfile` from `self._consumer_scope` --
+            # that rebuild hashed a different `consumer_scope_id` and reported an
+            # id that never matched the one that actually ran the query.
+            retrieval_profile_id = search_result.retrieval_profile_id
             emit_pipeline_event(
                 logger=logger,
                 domain=ObservabilityDomain.BACKEND,
@@ -96,7 +93,7 @@ class DispatchChatbotQuestionUseCase:
                     "embedding_profile_id": lane.embedding_profile_id,
                     "indexing_target_id": lane.indexing_target_id,
                     "corpus_version": lane.corpus_version,
-                    "retrieval_profile_id": retrieval_profile.retrieval_profile_id,
+                    "retrieval_profile_id": retrieval_profile_id,
                 },
             )
             retrieval_started_at = perf_counter()
@@ -120,16 +117,16 @@ class DispatchChatbotQuestionUseCase:
                 },
                 attributes={
                     **self._request_attributes(request),
-                    "retrieval_profile_id": retrieval_profile.retrieval_profile_id,
-                    "embedding_profile_id": retrieval_profile.embedding_profile_id,
-                    "corpus_version": retrieval_profile.corpus_version,
+                    "retrieval_profile_id": retrieval_profile_id,
+                    "embedding_profile_id": lane.embedding_profile_id,
+                    "corpus_version": lane.corpus_version,
                 },
             )
             payload = ChatbotWebhookPayload.build(
                 project_id=request.project_id,
                 rag_variant_id=request.rag_variant_id,
                 rag_release_id=request.rag_release_id,
-                retrieval_profile_id=retrieval_profile.retrieval_profile_id,
+                retrieval_profile_id=retrieval_profile_id,
                 question=request.question,
                 conversation_id=request.conversation_id,
                 message_id=request.message_id,
@@ -154,7 +151,7 @@ class DispatchChatbotQuestionUseCase:
                 attributes={
                     **self._request_attributes(request),
                     "dispatch_id": payload.dispatch_id,
-                    "retrieval_profile_id": retrieval_profile.retrieval_profile_id,
+                    "retrieval_profile_id": retrieval_profile_id,
                 },
             )
             return ChatbotQuestionDispatchResult(

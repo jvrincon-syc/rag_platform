@@ -18,10 +18,12 @@ from rag_platform.application.platform_access import PlatformActor
 from rag_platform.application.release_build_job_service import (
     EnqueueReleaseBuildUseCase,
     GetReleaseBuildStatusUseCase,
+    ReleaseBuildJobReconciler,
 )
 from rag_platform.domain.build_jobs import ReleaseBuildJob, ReleaseBuildJobState
 from rag_platform.domain.errors import (
     PlatformAccessDenied,
+    ReleaseBuildAlreadyRunning,
     ReleaseBuildJobNotFound,
 )
 from rag_platform.application.release_build_service import RagReleaseBuildReport
@@ -114,6 +116,18 @@ def test_repo_latest_sin_jobs_devuelve_none() -> None:
     assert InMemoryReleaseBuildJobRepository().latest_for_release(_RELEASE) is None
 
 
+def test_repo_list_non_terminal_devuelve_solo_queued_y_running() -> None:
+    repo = InMemoryReleaseBuildJobRepository()
+    repo.create(_job("bjob_queued", state=ReleaseBuildJobState.QUEUED))
+    repo.create(_job("bjob_running", state=ReleaseBuildJobState.RUNNING))
+    repo.create(_job("bjob_succeeded", state=ReleaseBuildJobState.SUCCEEDED))
+    repo.create(_job("bjob_failed", state=ReleaseBuildJobState.FAILED))
+
+    non_terminal = {job.build_job_id for job in repo.list_non_terminal()}
+
+    assert non_terminal == {"bjob_queued", "bjob_running"}
+
+
 # --------------------------------------------------------------------------- #
 # Casos de uso                                                                #
 # --------------------------------------------------------------------------- #
@@ -149,6 +163,43 @@ def test_enqueue_fuera_de_scope_falla_cerrado_sin_crear_job() -> None:
             rag_release_id=_RELEASE, build_job_id="bjob_1", actor=scoped, now=_T0
         )
     assert repo.latest_for_release(_RELEASE) is None
+
+
+def test_enqueue_rechaza_segundo_build_activo_queued() -> None:
+    repo = InMemoryReleaseBuildJobRepository()
+    repo.create(_job("bjob_1", state=ReleaseBuildJobState.QUEUED))
+    actor = PlatformActor(actor_id="op", project_scope=None)
+
+    with pytest.raises(ReleaseBuildAlreadyRunning):
+        _enqueue_use_case(repo).execute(
+            rag_release_id=_RELEASE, build_job_id="bjob_2", actor=actor, now=_T1
+        )
+    # No se creó un segundo job: el activo sigue siendo el único.
+    assert repo.latest_for_release(_RELEASE).build_job_id == "bjob_1"
+
+
+def test_enqueue_rechaza_segundo_build_activo_running() -> None:
+    repo = InMemoryReleaseBuildJobRepository()
+    repo.create(_job("bjob_1", state=ReleaseBuildJobState.RUNNING))
+    actor = PlatformActor(actor_id="op", project_scope=None)
+
+    with pytest.raises(ReleaseBuildAlreadyRunning):
+        _enqueue_use_case(repo).execute(
+            rag_release_id=_RELEASE, build_job_id="bjob_2", actor=actor, now=_T1
+        )
+
+
+def test_enqueue_permite_nuevo_build_cuando_el_ultimo_es_terminal() -> None:
+    repo = InMemoryReleaseBuildJobRepository()
+    repo.create(_job("bjob_1", state=ReleaseBuildJobState.SUCCEEDED))
+    actor = PlatformActor(actor_id="op", project_scope=None)
+
+    job = _enqueue_use_case(repo).execute(
+        rag_release_id=_RELEASE, build_job_id="bjob_2", actor=actor, now=_T1
+    )
+
+    assert job.build_job_id == "bjob_2"
+    assert repo.latest_for_release(_RELEASE).build_job_id == "bjob_2"
 
 
 def test_get_status_devuelve_none_y_luego_el_ultimo_job() -> None:
@@ -263,3 +314,56 @@ def test_runner_excepcion_inesperada_no_filtra_detalle_al_cliente() -> None:
     assert failed.error_code == "RELEASE_BUILD_INTERNAL_ERROR"
     assert secreto not in (failed.error_message or "")
     assert "password" not in (failed.error_message or "")
+
+
+# --------------------------------------------------------------------------- #
+# Reconciler de startup (PR-1 1.6): un proceso muerto no deja jobs colgados    #
+# --------------------------------------------------------------------------- #
+
+
+def test_reconciler_marca_jobs_no_terminales_como_failed() -> None:
+    repo = InMemoryReleaseBuildJobRepository()
+    repo.create(_job("bjob_queued", state=ReleaseBuildJobState.QUEUED))
+    repo.create(_job("bjob_running", state=ReleaseBuildJobState.RUNNING))
+    repo.create(_job("bjob_succeeded", state=ReleaseBuildJobState.SUCCEEDED))
+    reconciler = ReleaseBuildJobReconciler(jobs=repo)
+
+    reconciled = reconciler.reconcile()
+
+    reconciled_ids = {job.build_job_id for job in reconciled}
+    assert reconciled_ids == {"bjob_queued", "bjob_running"}
+    assert repo.get("bjob_queued").state is ReleaseBuildJobState.FAILED
+    assert repo.get("bjob_queued").error_code == "RELEASE_BUILD_ABANDONED"
+    assert repo.get("bjob_running").state is ReleaseBuildJobState.FAILED
+    # Un job que ya había terminado con éxito no se toca.
+    assert repo.get("bjob_succeeded").state is ReleaseBuildJobState.SUCCEEDED
+
+
+def test_reconciler_no_hace_nada_cuando_no_hay_jobs_no_terminales() -> None:
+    repo = InMemoryReleaseBuildJobRepository()
+    repo.create(_job("bjob_1", state=ReleaseBuildJobState.SUCCEEDED))
+    reconciler = ReleaseBuildJobReconciler(jobs=repo)
+
+    assert reconciler.reconcile() == []
+    assert repo.get("bjob_1").state is ReleaseBuildJobState.SUCCEEDED
+
+
+def test_reconciler_desbloquea_un_nuevo_enqueue_tras_reconciliar() -> None:
+    # El motivo real del reconciler (PR-1 1.6): un job "running" colgado bloquea
+    # PARA SIEMPRE el guard de un-solo-build-activo (PR-1 1.4) hasta que alguien
+    # lo reconcilia.
+    repo = InMemoryReleaseBuildJobRepository()
+    repo.create(_job("bjob_orphaned", state=ReleaseBuildJobState.RUNNING))
+    actor = PlatformActor(actor_id="op", project_scope=None)
+
+    with pytest.raises(ReleaseBuildAlreadyRunning):
+        _enqueue_use_case(repo).execute(
+            rag_release_id=_RELEASE, build_job_id="bjob_new", actor=actor, now=_T1
+        )
+
+    ReleaseBuildJobReconciler(jobs=repo).reconcile()
+
+    job = _enqueue_use_case(repo).execute(
+        rag_release_id=_RELEASE, build_job_id="bjob_new", actor=actor, now=_T1
+    )
+    assert job.build_job_id == "bjob_new"
