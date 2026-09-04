@@ -11,6 +11,7 @@ import * as retrievalApi from "../../retrieval/retrievalApi.js";
 import type { RetrievalValidationResult } from "../../retrieval/retrievalTypes.js";
 import type {
   CorpusSnapshot,
+  Project,
   ProjectConfiguration,
   Release,
   ReleaseBuildAccepted,
@@ -137,9 +138,27 @@ function selectInStorage(projectId: string, releaseId?: string): void {
   });
 }
 
-function renderRagReleaseWorkspace() {
+const TEST_PROJECT: Project = {
+  project_id: "proj_alpha",
+  display_name: "Proyecto Alpha",
+  state: "active",
+  configuration: makeConfiguration(),
+  created_at: "2026-01-01T00:00:00Z",
+};
+
+function makeProject(projectId = "proj_alpha"): Project {
+  return {
+    project_id: projectId,
+    display_name: "Test Project",
+    created_at: "2025-01-01T00:00:00Z",
+    state: "active",
+    configuration: makeConfiguration(),
+  } as unknown as Project;
+}
+
+function renderRagReleaseWorkspace({ projects }: { projects?: Project[] } = {}) {
   return render(
-    <PlatformProjectProvider>
+    <PlatformProjectProvider initialKnownProjects={projects ?? [TEST_PROJECT]}>
       <RagReleaseWorkspace />
     </PlatformProjectProvider>,
   );
@@ -443,7 +462,7 @@ describe("RagReleaseWorkspace", () => {
   });
 
   it("sin proyecto no llama a la API y muestra estado direccional", async () => {
-    renderRagReleaseWorkspace();
+    renderRagReleaseWorkspace({ projects: [] });
     expect(
       await screen.findByText(/Selecciona un proyecto para gestionar sus releases/),
     ).toBeTruthy();

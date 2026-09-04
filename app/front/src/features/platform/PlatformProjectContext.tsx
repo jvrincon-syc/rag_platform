@@ -30,8 +30,14 @@ export type PlatformProjectContextValue = {
 
 const PlatformProjectContext = createContext<PlatformProjectContextValue | null>(null);
 
-export function PlatformProjectProvider({ children }: { children: ReactNode }) {
-  const [knownProjects, setKnownProjectsState] = useState<Project[]>([]);
+export function PlatformProjectProvider({
+  children,
+  initialKnownProjects,
+}: {
+  children: ReactNode;
+  initialKnownProjects?: Project[];
+}) {
+  const [knownProjects, setKnownProjectsState] = useState<Project[]>(initialKnownProjects ?? []);
   const [projectArtifacts, setProjectArtifacts] = useState<ProjectArtifactIds | null>(null);
 
   // D9 (PR-4 4.3): scope reconciliado en vivo, ya no `null`. `projectIds` es la

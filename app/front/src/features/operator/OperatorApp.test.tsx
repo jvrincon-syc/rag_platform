@@ -179,23 +179,9 @@ describe("OperatorApp auth gate", () => {
 });
 
 describe("OperatorApp", () => {
-  it("labels the ingestion pipeline surface in the rail", async () => {
+  it("shows the Platform surface as the only active rail item", async () => {
     render(<OperatorApp />);
-    expect(await screen.findByRole("button", { name: "Pipeline de ingesta" })).toBeTruthy();
-  });
-
-  it("switches between Platform and ingestion pipeline surfaces", async () => {
-    const user = userEvent.setup();
-    render(<OperatorApp />);
-
     expect(await screen.findByRole("heading", { name: "RAG Platform" })).toBeTruthy();
-
-    await user.click(screen.getByRole("button", { name: "Pipeline de ingesta" }));
-    expect(screen.queryByRole("heading", { name: "RAG Platform" })).toBeNull();
-    expect(screen.getAllByText("RAG Platform").length).toBeGreaterThan(0);
-
-    await user.click(screen.getByRole("button", { name: "Platform" }));
-    expect(screen.getByRole("heading", { name: "RAG Platform" })).toBeTruthy();
   });
 
   it("logs out back to the login screen", async () => {

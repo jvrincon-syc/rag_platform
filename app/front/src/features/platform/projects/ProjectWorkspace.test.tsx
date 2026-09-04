@@ -55,9 +55,9 @@ function selectProjectInStorage(projectId: string): void {
   writePlatformPreferences({ ...DEFAULT_PLATFORM_PREFERENCES, selectedProjectId: projectId });
 }
 
-function renderProjectWorkspace() {
+function renderProjectWorkspace({ projects = [] }: { projects?: Project[] } = {}) {
   return render(
-    <PlatformProjectProvider>
+    <PlatformProjectProvider initialKnownProjects={projects}>
       <ProjectWorkspace />
     </PlatformProjectProvider>,
   );
@@ -126,7 +126,7 @@ describe("ProjectWorkspace", () => {
     api.getConfiguration.mockResolvedValue(makeConfig());
     selectProjectInStorage("proj_alpha");
 
-    renderProjectWorkspace();
+    renderProjectWorkspace({ projects: [makeProject()] });
 
     const binding = await screen.findByText(/primary/);
     expect(binding.tagName).toBe("SPAN");
@@ -143,7 +143,7 @@ describe("ProjectWorkspace", () => {
     api.getConfiguration.mockRejectedValue({ status: 403, code: "FORBIDDEN" });
     selectProjectInStorage("proj_alpha");
 
-    renderProjectWorkspace();
+    renderProjectWorkspace({ projects: [makeProject()] });
 
     const surfaced = await screen.findAllByText("No autorizado para esta operación.");
     expect(surfaced.length).toBeGreaterThan(0);
@@ -160,7 +160,7 @@ describe("ProjectWorkspace", () => {
     selectProjectInStorage("proj_alpha");
 
     const user = userEvent.setup();
-    renderProjectWorkspace();
+    renderProjectWorkspace({ projects: [makeProject()] });
 
     await user.click(await screen.findByRole("button", { name: /Guardar nueva versión/ }));
 
@@ -176,7 +176,7 @@ describe("ProjectWorkspace", () => {
     selectProjectInStorage("proj_alpha");
 
     const user = userEvent.setup();
-    renderProjectWorkspace();
+    renderProjectWorkspace({ projects: [makeProject()] });
 
     await user.selectOptions(
       await screen.findByLabelText("Política de organización del corpus"),

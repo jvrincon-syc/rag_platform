@@ -7,7 +7,7 @@ import { PlatformProjectProvider } from "../PlatformProjectContext.js";
 import { readPlatformPreferences, writePlatformPreferences } from "../platformPersistence.js";
 import { DEFAULT_PLATFORM_PREFERENCES } from "../platformState.js";
 import * as platformApi from "../platformApi.js";
-import type { CorpusSnapshot, ProjectDocumentRevision } from "../platformTypes.js";
+import type { CorpusSnapshot, Project, ProjectDocumentRevision } from "../platformTypes.js";
 
 // Cliente HTTP mockeado en el límite de red: ningún test toca fetch.
 vi.mock("../platformApi.js", () => ({
@@ -17,6 +17,24 @@ vi.mock("../platformApi.js", () => ({
 }));
 
 const api = vi.mocked(platformApi);
+
+function makeProject(overrides: Partial<Project> = {}): Project {
+  return {
+    project_id: "proj_alpha",
+    display_name: "Proyecto Alpha",
+    state: "active",
+    configuration: {
+      corpus_organization_policy: "source-folders-v1",
+      created_at: "2026-01-01T00:00:00Z",
+      document_types: [],
+      embedding_profiles: [],
+      target_bindings: [],
+      version: 1,
+    },
+    created_at: "2026-01-01T00:00:00Z",
+    ...overrides,
+  };
+}
 
 function makeRevision(overrides: Partial<ProjectDocumentRevision> = {}): ProjectDocumentRevision {
   return {
@@ -49,9 +67,9 @@ function selectProjectInStorage(projectId: string): void {
   writePlatformPreferences({ ...DEFAULT_PLATFORM_PREFERENCES, selectedProjectId: projectId });
 }
 
-function renderCorpusSnapshotBuilderPanel() {
+function renderCorpusSnapshotBuilderPanel({ projects = [] }: { projects?: Project[] } = {}) {
   return render(
-    <PlatformProjectProvider>
+    <PlatformProjectProvider initialKnownProjects={projects}>
       <CorpusSnapshotBuilderPanel />
     </PlatformProjectProvider>,
   );
@@ -69,7 +87,7 @@ describe("CorpusSnapshotBuilderPanel", () => {
     selectProjectInStorage("proj_alpha");
     api.listAllDocuments.mockResolvedValue([makeRevision()]);
 
-    renderCorpusSnapshotBuilderPanel();
+    renderCorpusSnapshotBuilderPanel({ projects: [makeProject()] });
 
     // displayName = source_relpath; segunda línea = source_document_revision_id.
     expect(await screen.findByText("manuales/proc.pdf")).toBeTruthy();
@@ -94,7 +112,7 @@ describe("CorpusSnapshotBuilderPanel", () => {
     // Promesa colgada: candidates permanece en loading.
     api.listAllDocuments.mockReturnValue(new Promise<ProjectDocumentRevision[]>(() => {}));
 
-    renderCorpusSnapshotBuilderPanel();
+    renderCorpusSnapshotBuilderPanel({ projects: [makeProject()] });
 
     expect(await screen.findByText(/Cargando revisiones elegibles/)).toBeTruthy();
   });
@@ -104,7 +122,7 @@ describe("CorpusSnapshotBuilderPanel", () => {
     // Sin RAW normalizado: el hook filtra y candidates queda empty.
     api.listAllDocuments.mockResolvedValue([]);
 
-    renderCorpusSnapshotBuilderPanel();
+    renderCorpusSnapshotBuilderPanel({ projects: [makeProject()] });
 
     expect(await screen.findByText(/No hay revisiones normalizadas/)).toBeTruthy();
   });
@@ -113,7 +131,7 @@ describe("CorpusSnapshotBuilderPanel", () => {
     selectProjectInStorage("proj_alpha");
     api.listAllDocuments.mockRejectedValue({ status: 403, code: "FORBIDDEN" });
 
-    renderCorpusSnapshotBuilderPanel();
+    renderCorpusSnapshotBuilderPanel({ projects: [makeProject()] });
 
     expect((await screen.findAllByText(/No autorizado para esta operación/)).length).toBeGreaterThan(0);
     expect(screen.getByRole("button", { name: /Reintentar/ })).toBeTruthy();
@@ -131,7 +149,7 @@ describe("CorpusSnapshotBuilderPanel", () => {
     ]);
 
     const user = userEvent.setup();
-    renderCorpusSnapshotBuilderPanel();
+    renderCorpusSnapshotBuilderPanel({ projects: [makeProject()] });
 
     await screen.findByText("manuales/proc.pdf");
     await user.type(screen.getByRole("searchbox", { name: /Buscar por ruta o ID/ }), "anexos");
@@ -153,7 +171,7 @@ describe("CorpusSnapshotBuilderPanel", () => {
     ]);
 
     const user = userEvent.setup();
-    renderCorpusSnapshotBuilderPanel();
+    renderCorpusSnapshotBuilderPanel({ projects: [makeProject()] });
 
     await screen.findByText("manuales/proc.pdf");
     await user.selectOptions(
@@ -178,7 +196,7 @@ describe("CorpusSnapshotBuilderPanel", () => {
     ]);
 
     const user = userEvent.setup();
-    renderCorpusSnapshotBuilderPanel();
+    renderCorpusSnapshotBuilderPanel({ projects: [makeProject()] });
 
     await user.click(
       await screen.findByRole("button", { name: "Seleccionar todas las elegibles" }),
@@ -195,7 +213,7 @@ describe("CorpusSnapshotBuilderPanel", () => {
     api.listAllDocuments.mockResolvedValue([makeRevision()]);
 
     const user = userEvent.setup();
-    renderCorpusSnapshotBuilderPanel();
+    renderCorpusSnapshotBuilderPanel({ projects: [makeProject()] });
 
     await user.click(
       await screen.findByRole("checkbox", { name: /Incluir revisión srev_1/ }),
@@ -215,7 +233,7 @@ describe("CorpusSnapshotBuilderPanel", () => {
     api.listAllDocuments.mockResolvedValue([makeRevision({ review_state: "needs_review" })]);
 
     const user = userEvent.setup();
-    renderCorpusSnapshotBuilderPanel();
+    renderCorpusSnapshotBuilderPanel({ projects: [makeProject()] });
 
     // Antes de seleccionar, la fila needs_review pide decisión al incluir (no select).
     expect(await screen.findByText(/Requiere decisión al incluir/)).toBeTruthy();
@@ -249,7 +267,7 @@ describe("CorpusSnapshotBuilderPanel", () => {
     api.listAllDocuments.mockResolvedValue([makeRevision()]);
 
     const user = userEvent.setup();
-    renderCorpusSnapshotBuilderPanel();
+    renderCorpusSnapshotBuilderPanel({ projects: [makeProject()] });
 
     await user.click(
       await screen.findByRole("checkbox", { name: /Incluir revisión srev_1/ }),
@@ -275,7 +293,7 @@ describe("CorpusSnapshotBuilderPanel", () => {
     });
 
     const user = userEvent.setup();
-    renderCorpusSnapshotBuilderPanel();
+    renderCorpusSnapshotBuilderPanel({ projects: [makeProject()] });
 
     await user.click(
       await screen.findByRole("checkbox", { name: /Incluir revisión srev_1/ }),
@@ -292,7 +310,7 @@ describe("CorpusSnapshotBuilderPanel", () => {
     ]);
 
     const user = userEvent.setup();
-    renderCorpusSnapshotBuilderPanel();
+    renderCorpusSnapshotBuilderPanel({ projects: [makeProject()] });
 
     await user.click(await screen.findByText("corpus_old"));
 

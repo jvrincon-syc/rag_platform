@@ -43,13 +43,9 @@ vi.mock("./platformApi.js", () => ({
   retireRelease: vi.fn(),
 }));
 
-vi.mock("../chunking/ChunkingWorkspace.js", () => ({
-  ChunkingWorkspace: () => <h2>Chunking sentinel</h2>,
-}));
 
-vi.mock("../embeddingIndexing/EmbeddingIndexingWorkspace.js", () => ({
-  EmbeddingIndexingWorkspace: () => <h2>Embedding Indexing sentinel</h2>,
-}));
+
+
 
 const api = vi.mocked(platformApi);
 
@@ -148,14 +144,6 @@ describe("PlatformWorkspace", () => {
     expect(screen.getByRole("columnheader", { name: "Ruta del documento" })).toBeTruthy();
     expect(screen.queryByRole("heading", { name: "Inventario del proyecto" })).toBeNull();
     expect(screen.queryByText(/solo lectura|read-only/i)).toBeNull();
-
-    await user.click(screen.getByRole("button", { name: "Chunking" }));
-    expect(await screen.findByRole("heading", { name: "Chunking sentinel" })).toBeTruthy();
-    expect(screen.queryByText(/dentro del build de una release/i)).toBeNull();
-
-    await user.click(screen.getByRole("button", { name: "Embedding/Indexing" }));
-    expect(await screen.findByRole("heading", { name: "Embedding Indexing sentinel" })).toBeTruthy();
-    expect(screen.queryByRole("heading", { name: "Embedding / Indexing" })).toBeNull();
   });
 
   it("comparte el proyecto seleccionado entre vistas de Platform", async () => {

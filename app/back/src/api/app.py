@@ -7,14 +7,17 @@ from __future__ import annotations
 
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from chatbot.api.raw_documents import router as raw_documents_router
 from chatbot.api.router import router as chatbot_router
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from api.auth_router import router as auth_router
 from api.dependencies import PipelineServices, require_authenticated_principal
 from embedding.api.router import router as embedding_router
 from indexing.api.router import router as indexing_router
@@ -56,6 +59,16 @@ def create_app(*, services: PipelineServices) -> FastAPI:
         # 1.4). ``rag_platform`` es ``None`` cuando el flag está apagado.
         if services.rag_platform is not None:
             services.rag_platform.release_build_job_reconciler.reconcile()
+        # GUI auth coordinator — cookie-based session for the legacy frontend.
+        from ingestion.gui.auth_session import GuiAuthCoordinator, GuiSessionStore
+        from ingestion.gui.local_operator_auth import LocalOperatorDirectory
+
+        auth_users_path = Path("data/docs_normalized/_manifests/gui_auth_users.json")
+        _app.state.gui_auth = GuiAuthCoordinator(
+            authenticator=services.http_authenticator,
+            store=GuiSessionStore(),
+            directory=LocalOperatorDirectory(auth_users_path),
+        )
         # Warm BGE-M3 before serving so the first chat request doesn't eat the
         # ~13s cold load. Best-effort: a warm failure falls back to today's lazy
         # first-request load instead of taking the server down.
@@ -173,10 +186,21 @@ def create_app(*, services: PipelineServices) -> FastAPI:
             message=str(exc),
         )
 
+    app.include_router(auth_router)
     app.include_router(embedding_router)
     app.include_router(indexing_router)
     app.include_router(retrieval_router)
     app.include_router(chatbot_router)
     app.include_router(platform_router)
     app.include_router(raw_documents_router)
+
+    # CORS for the legacy GUI frontend (Vite dev server).
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["http://127.0.0.1:5173", "http://localhost:5173"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
     return app
